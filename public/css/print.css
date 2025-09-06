@@ -1,0 +1,170 @@
+@page {
+    size: A4 landscape;
+    margin: 1cm;
+}
+
+@media print {
+    /* === Reset & Layout (Sudah Terbukti) === */
+    .no-print,
+    nav[aria-label="Pagination"] {
+        display: none !important;
+    }
+    /* Sembunyikan elemen-elemen yang tidak perlu dicetak secara spesifik */
+    .no-print,
+    nav,
+    aside,
+    header {
+        display: none !important;
+    }
+
+    /* Pastikan hanya konten utama yang terlihat */
+    body > *:not(.min-h-screen) { /* Sembunyikan semua elemen langsung di body kecuali .min-h-screen */
+        display: none !important;
+    }
+    body > .min-h-screen {
+        display: block !important;
+    }
+    /* Pastikan konten rekap absensi terlihat */
+    #rekap-content {
+        display: block !important;
+    }
+    main,
+    .flex-1 {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+    .py-12,
+    .max-w-7xl {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+    #rekap-content {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 15px !important;
+    }
+
+    * {
+        /* KUNCI: Memaksa semua teks menjadi hitam dan latar belakang menjadi transparan */
+        color: #000 !important;
+        background-color: transparent !important; /* Mengembalikan ke transparan */
+        border-color: #ddd !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* === Info Siswa (Dibuat lebih menonjol) === */
+    .flex.justify-between.items-start {
+        margin-bottom: 12px !important;
+    }
+    .flex.justify-between.items-start h3 {
+        font-size: 14pt !important;
+        font-weight: bold;
+    }
+    .flex.justify-between.items-start p {
+        font-size: 9pt !important;
+    }
+    .flex.justify-between.items-start p.font-bold {
+        font-size: 10pt !important;
+    }
+
+    /* === KEMBALIKAN WARNA & DESAIN PROFESIONAL === */
+
+    /* 1. Box Statistik dibuat lebih hidup */
+    .grid.grid-cols-5.gap-4 {
+        margin-bottom: 12px !important;
+        gap: 8px !important;
+    }
+    .grid.grid-cols-5.gap-4 > div {
+        padding: 5px !important;
+        border-radius: 6px !important; /* SENTUHAN DESAIN: Sudut lebih lembut */
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+    .grid.grid-cols-5.gap-4 .text-2xl {
+        font-size: 18px !important;
+        font-weight: bold;
+    }
+    .grid.grid-cols-5.gap-4 .text-sm {
+        font-size: 8pt !important;
+    }
+
+    /* 2. Kalender dengan warna yang informatif */
+    .grid.grid-cols-7 {
+        gap: 4px !important;
+    }
+    .grid.grid-cols-7.mb-2 {
+        margin-bottom: 5px !important;
+        font-size: 8pt !important;
+        font-weight: bold;
+    }
+
+    .kalender-hari {
+        height: auto !important;
+        min-height: 42px !important;
+        padding: 3px !important;
+        border: 1px solid #ddd !important;
+        border-radius: 4px !important; /* SENTUHAN DESAIN: Sudut lebih lembut */
+        box-sizing: border-box;
+    }
+    .kalender-hari .font-bold {
+        font-size: 9pt !important;
+        margin-bottom: 2px;
+    }
+    .kalender-hari .text-xs {
+        font-size: 7pt !important;
+        line-height: 1.1;
+        font-weight: 500;
+    }
+
+    /* === Aturan Warna Spesifik (Jantung dari Tampilan Profesional) === */
+
+    /* === Aturan Warna Spesifik (Jantung dari Tampilan Profesional) === */
+
+    /* Hadir */
+    .bg-green-100,
+    .status-hadir {
+        background-color: #e6f7ec !important; /* Warna latar belakang yang terang */
+        color: #006429 !important; /* Warna teks gelap yang kontras */
+    }
+
+    /* Terlambat */
+    .bg-red-100,
+    .status-terlambat {
+        background-color: #fdeaea !important;
+        color: #c51010 !important;
+    }
+
+    /* Sakit */
+    .bg-orange-100,
+    .status-sakit {
+        background-color: #fff4e6 !important;
+        color: #b45309 !important;
+    }
+
+    /* Izin */
+    .bg-blue-100,
+    .status-izin {
+        background-color: #eaf2fe !important;
+        color: #1e40af !important;
+    }
+
+    /* Alpha */
+    .bg-gray-200,
+    .status-alpha {
+        background-color: #f3f4f6 !important;
+        color: #4b5563 !important;
+    }
+
+    /* Libur */
+    .status-libur {
+        background-color: #f3f4f6 !important; /* Sama dengan Alpha atau warna netral lainnya */
+        color: #4b5563 !important;
+    }
+
+    /* PERBAIKI TEKS: Pastikan teks di dalam kalender berwarna gelap agar terbaca */
+    .kalender-hari .font-semibold,
+    .kalender-hari .text-gray-700 {
+        color: #333 !important;
+    }
+}
