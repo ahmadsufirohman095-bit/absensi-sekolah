@@ -107,7 +107,7 @@ class IzinSakitController extends Controller
             
             'status' => $validated['status'],
             'keterangan' => $validated['keterangan'],
-            'bukti_absensi' => $buktiPath,
+            
         ]);
 
         return redirect()->route('rekap_absensi.index')->with('success', 'Catatan ' . $validated['status'] . ' untuk siswa ' . $siswa->name . ' berhasil disimpan.');

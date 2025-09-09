@@ -1,20 +1,30 @@
-<x-app-layout>
-    <x-slot name="header">
+<?php if (isset($component)) { $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54 = $attributes; } ?>
+<?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+     <?php $__env->slot('header', null, []); ?> 
         <!-- Header & Actions -->
         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>
                 <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {{ __('Rekap Absensi') }}
+                    <?php echo e(__('Rekap Absensi')); ?>
+
                 </h2>
                 
             </div>
             <div class="flex items-center space-x-2">
-                @if(auth()->user()->role !== 'admin')
-                <a href="{{ route('rekap_absensi.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 shadow-sm">
+                <?php if(auth()->user()->role !== 'admin'): ?>
+                <a href="<?php echo e(route('rekap_absensi.create')); ?>" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 shadow-sm">
                     <i class="fa-solid fa-plus mr-2"></i>
                     Tambah Absensi
                 </a>
-                @endif
+                <?php endif; ?>
                 <button @click="$store.rekapAbsensi.showExportModal = true" type="button" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 shadow-sm">
                     <i class="fa-solid fa-file-excel mr-2"></i>
                     Ekspor Excel
@@ -30,12 +40,12 @@
                 </button>
             </div>
         </div>
-    </x-slot>
+     <?php $__env->endSlot(); ?>
 
     <div x-data="{}" x-init="
         const urlParams = new URLSearchParams(window.location.search);
         $store.rekapAbsensi.initPage({
-            bulkDeleteUrl: '{{ route("rekap_absensi.bulkDestroy") }}',
+            bulkDeleteUrl: '<?php echo e(route("rekap_absensi.bulkDestroy")); ?>',
             filters: {
                 startDate: urlParams.get('start_date') || '',
                 endDate: urlParams.get('end_date') || '',
@@ -60,15 +70,53 @@
                     </button>
                 </div>
                 <div x-show="showFilters" x-collapse>
-                    <form action="{{ route('rekap_absensi.index') }}" method="GET">
+                    <form action="<?php echo e(route('rekap_absensi.index')); ?>" method="GET">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dari Tanggal</label>
-                                <x-text-input id="start_date" name="start_date" type="text" class="mt-1 block w-full flatpickr-date" value="{{ request('start_date') }}" />
+                                <?php if (isset($component)) { $__componentOriginal18c21970322f9e5c938bc954620c12bb = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal18c21970322f9e5c938bc954620c12bb = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.text-input','data' => ['id' => 'start_date','name' => 'start_date','type' => 'text','class' => 'mt-1 block w-full flatpickr-date','value' => ''.e(request('start_date')).'']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('text-input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['id' => 'start_date','name' => 'start_date','type' => 'text','class' => 'mt-1 block w-full flatpickr-date','value' => ''.e(request('start_date')).'']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal18c21970322f9e5c938bc954620c12bb)): ?>
+<?php $attributes = $__attributesOriginal18c21970322f9e5c938bc954620c12bb; ?>
+<?php unset($__attributesOriginal18c21970322f9e5c938bc954620c12bb); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal18c21970322f9e5c938bc954620c12bb)): ?>
+<?php $component = $__componentOriginal18c21970322f9e5c938bc954620c12bb; ?>
+<?php unset($__componentOriginal18c21970322f9e5c938bc954620c12bb); ?>
+<?php endif; ?>
                             </div>
                             <div>
                                 <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Sampai Tanggal</label>
-                                <x-text-input id="end_date" name="end_date" type="text" class="mt-1 block w-full flatpickr-date" value="{{ request('end_date') }}" />
+                                <?php if (isset($component)) { $__componentOriginal18c21970322f9e5c938bc954620c12bb = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal18c21970322f9e5c938bc954620c12bb = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.text-input','data' => ['id' => 'end_date','name' => 'end_date','type' => 'text','class' => 'mt-1 block w-full flatpickr-date','value' => ''.e(request('end_date')).'']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('text-input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['id' => 'end_date','name' => 'end_date','type' => 'text','class' => 'mt-1 block w-full flatpickr-date','value' => ''.e(request('end_date')).'']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal18c21970322f9e5c938bc954620c12bb)): ?>
+<?php $attributes = $__attributesOriginal18c21970322f9e5c938bc954620c12bb; ?>
+<?php unset($__attributesOriginal18c21970322f9e5c938bc954620c12bb); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal18c21970322f9e5c938bc954620c12bb)): ?>
+<?php $component = $__componentOriginal18c21970322f9e5c938bc954620c12bb; ?>
+<?php unset($__componentOriginal18c21970322f9e5c938bc954620c12bb); ?>
+<?php endif; ?>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -76,51 +124,51 @@
                                 <label for="kelas_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kelas</label>
                                 <select name="kelas_id" id="kelas_id" class="mt-1 block w-full tom-select-rekap">
                                     <option value="">Semua Kelas</option>
-                                    @foreach($allKelas as $kelas)
-                                        <option value="{{ $kelas->id }}" @if(request('kelas_id') == $kelas->id) selected @endif>{{ $kelas->nama_kelas }}</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = $allKelas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kelas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($kelas->id); ?>" <?php if(request('kelas_id') == $kelas->id): ?> selected <?php endif; ?>><?php echo e($kelas->nama_kelas); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                             <div>
                                 <label for="mata_pelajaran_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mata Pelajaran</label>
                                 <select name="mata_pelajaran_id" id="mata_pelajaran_id" class="mt-1 block w-full tom-select-rekap">
                                     <option value="">Semua Mata Pelajaran</option>
-                                    @foreach($allMataPelajaran as $mp)
-                                        <option value="{{ $mp->id }}" @if(request('mata_pelajaran_id') == $mp->id) selected @endif>{{ $mp->nama_mapel }}</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = $allMataPelajaran; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($mp->id); ?>" <?php if(request('mata_pelajaran_id') == $mp->id): ?> selected <?php endif; ?>><?php echo e($mp->nama_mapel); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                             <div>
                                 <label for="guru_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Guru Pengampu</label>
                                 <select name="guru_id" id="guru_id" class="mt-1 block w-full tom-select-rekap">
                                     <option value="">Semua Guru</option>
-                                    @foreach($allGurus as $guru)
-                                        <option value="{{ $guru->id }}" @if(request('guru_id') == $guru->id) selected @endif>{{ $guru->name }} - (NIP: {{ $guru->identifier ?? 'N/A' }})</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = $allGurus; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $guru): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($guru->id); ?>" <?php if(request('guru_id') == $guru->id): ?> selected <?php endif; ?>><?php echo e($guru->name); ?> - (NIP: <?php echo e($guru->identifier ?? 'N/A'); ?>)</option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                             <div>
                                 <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Siswa</label>
                                 <select name="user_id" id="user_id" class="mt-1 block w-full tom-select-rekap">
                                     <option value="">Semua Siswa</option>
-                                    @foreach($allSiswa as $siswa)
-                                        <option value="{{ $siswa->id }}" @if(request('user_id') == $siswa->id) selected @endif>{{ $siswa->name }} - (NIS: {{ $siswa->siswaProfile->nis ?? 'N/A' }})</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = $allSiswa; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $siswa): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($siswa->id); ?>" <?php if(request('user_id') == $siswa->id): ?> selected <?php endif; ?>><?php echo e($siswa->name); ?> - (NIS: <?php echo e($siswa->siswaProfile->nis ?? 'N/A'); ?>)</option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                             <div>
                                 <label for="attendance_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipe Absensi</label>
                                 <select name="attendance_type" id="attendance_type" class="mt-1 block w-full tom-select-rekap">
                                     <option value="">Semua Tipe</option>
-                                    <option value="manual" @if(request('attendance_type') == 'manual') selected @endif>Manual</option>
-                                    <option value="qr_code" @if(request('attendance_type') == 'qr_code') selected @endif>QR Code</option>
+                                    <option value="manual" <?php if(request('attendance_type') == 'manual'): ?> selected <?php endif; ?>>Manual</option>
+                                    <option value="qr_code" <?php if(request('attendance_type') == 'qr_code'): ?> selected <?php endif; ?>>QR Code</option>
                                 </select>
                             </div>
                             <div class="flex items-end space-x-2">
                                 <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                     <i class="fa-solid fa-filter mr-2"></i> Filter
                                 </button>
-                                <a href="{{ route('rekap_absensi.index') }}" class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <a href="<?php echo e(route('rekap_absensi.index')); ?>" class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                     Reset
                                 </a>
                             </div>
@@ -130,7 +178,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i class="fa-solid fa-search text-gray-400"></i>
                                 </div>
-                                <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Cari (Siswa, Guru, Mapel, Kelas...)"
+                                <input type="text" name="search" id="search" value="<?php echo e(request('search')); ?>" placeholder="Cari (Siswa, Guru, Mapel, Kelas...)"
                                     class="block w-full pl-10 pr-4 py-2 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white">
                             </div>
                         </div>
@@ -145,27 +193,27 @@
                     <div class="p-4 bg-green-600 text-white rounded-lg flex flex-col items-center justify-center">
                         <i class="fa-solid fa-check-circle text-3xl mb-2"></i>
                         <p class="text-sm">Hadir</p>
-                        <p class="text-2xl font-bold">{{ $summary['hadir'] ?? 0 }}</p>
+                        <p class="text-2xl font-bold"><?php echo e($summary['hadir'] ?? 0); ?></p>
                     </div>
                     <div class="p-4 bg-yellow-600 text-white rounded-lg flex flex-col items-center justify-center">
                         <i class="fa-solid fa-hourglass-half text-3xl mb-2"></i>
                         <p class="text-sm">Terlambat</p>
-                        <p class="text-2xl font-bold">{{ $summary['terlambat'] ?? 0 }}</p>
+                        <p class="text-2xl font-bold"><?php echo e($summary['terlambat'] ?? 0); ?></p>
                     </div>
                     <div class="p-4 bg-orange-600 text-white rounded-lg flex flex-col items-center justify-center">
                         <i class="fa-solid fa-hospital text-3xl mb-2"></i>
                         <p class="text-sm">Sakit</p>
-                        <p class="text-2xl font-bold">{{ $summary['sakit'] ?? 0 }}</p>
+                        <p class="text-2xl font-bold"><?php echo e($summary['sakit'] ?? 0); ?></p>
                     </div>
                     <div class="p-4 bg-blue-600 text-white rounded-lg flex flex-col items-center justify-center">
                         <i class="fa-solid fa-user-tag text-3xl mb-2"></i>
                         <p class="text-sm">Izin</p>
-                        <p class="text-2xl font-bold">{{ $summary['izin'] ?? 0 }}</p>
+                        <p class="text-2xl font-bold"><?php echo e($summary['izin'] ?? 0); ?></p>
                     </div>
                     <div class="p-4 bg-red-600 text-white rounded-lg flex flex-col items-center justify-center">
                         <i class="fa-solid fa-times-circle text-3xl mb-2"></i>
                         <p class="text-sm">Alpha</p>
-                        <p class="text-2xl font-bold">{{ $summary['alpha'] ?? 0 }}</p>
+                        <p class="text-2xl font-bold"><?php echo e($summary['alpha'] ?? 0); ?></p>
                     </div>
                 </div>
             </div>
@@ -194,57 +242,59 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($absensis as $absensi)
-                            <tr id="absensi-row-{{ $absensi->id }}" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 odd:bg-gray-50 dark:odd:bg-gray-900">
+                        <?php $__empty_1 = true; $__currentLoopData = $absensis; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $absensi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <tr id="absensi-row-<?php echo e($absensi->id); ?>" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 odd:bg-gray-50 dark:odd:bg-gray-900">
                                 <td class="w-4 p-4">
                                     <div class="flex items-center">
-                                        <input id="checkbox-item-{{ $absensi->id }}" type="checkbox" class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" value="{{ $absensi->id }}" x-model="$store.rekapAbsensi.selectedAbsensi">
-                                        <label for="checkbox-item-{{ $absensi->id }}" class="sr-only">checkbox</label>
+                                        <input id="checkbox-item-<?php echo e($absensi->id); ?>" type="checkbox" class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" value="<?php echo e($absensi->id); ?>" x-model="$store.rekapAbsensi.selectedAbsensi">
+                                        <label for="checkbox-item-<?php echo e($absensi->id); ?>" class="sr-only">checkbox</label>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $absensi->tanggal_absensi->format('d M Y') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $absensi->waktu_masuk ? $absensi->waktu_masuk->format('H:i') : '-' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $absensi->user->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $absensi->jadwalAbsensi->kelas->nama_kelas ?? '-' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $absensi->jadwalAbsensi->mataPelajaran->nama_mapel ?? '-' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $absensi->jadwalAbsensi->guru->name ?? '-' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap"><?php echo e($absensi->tanggal_absensi->format('d M Y')); ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap"><?php echo e($absensi->waktu_masuk ? $absensi->waktu_masuk->format('H:i') : '-'); ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap"><?php echo e($absensi->user->name); ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap"><?php echo e($absensi->jadwalAbsensi->kelas->nama_kelas ?? '-'); ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap"><?php echo e($absensi->jadwalAbsensi->mataPelajaran->nama_mapel ?? '-'); ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap"><?php echo e($absensi->jadwalAbsensi->guru->name ?? '-'); ?></td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                                         :class="{
-                                            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': '{{ $absensi->status }}' == 'hadir',
-                                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': '{{ $absensi->status }}' == 'terlambat',
-                                            'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200': '{{ $absensi->status }}' == 'sakit',
-                                            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200': '{{ $absensi->status }}' == 'izin',
-                                            'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': '{{ $absensi->status }}' == 'alpha',
+                                            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': '<?php echo e($absensi->status); ?>' == 'hadir',
+                                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': '<?php echo e($absensi->status); ?>' == 'terlambat',
+                                            'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200': '<?php echo e($absensi->status); ?>' == 'sakit',
+                                            'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200': '<?php echo e($absensi->status); ?>' == 'izin',
+                                            'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': '<?php echo e($absensi->status); ?>' == 'alpha',
                                         }">
-                                        {{ ucfirst($absensi->status) }}
+                                        <?php echo e(ucfirst($absensi->status)); ?>
+
                                     </span>
                                 </td>
-                                <td class="px-6 py-4">{{ $absensi->keterangan ?? '-' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ ucfirst($absensi->attendance_type ?? 'N/A') }}</td>
+                                <td class="px-6 py-4"><?php echo e($absensi->keterangan ?? '-'); ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap"><?php echo e(ucfirst($absensi->attendance_type ?? 'N/A')); ?></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    @if(auth()->user()->role !== 'admin')
-                                    <a href="{{ route('rekap_absensi.edit', $absensi->id) }}" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 mr-2">
+                                    <?php if(auth()->user()->role !== 'admin'): ?>
+                                    <a href="<?php echo e(route('rekap_absensi.edit', $absensi->id)); ?>" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 mr-2">
                                         <i class="fa-solid fa-edit mr-1"></i> Edit
                                     </a>
-                                    <button @click.once="$store.rekapAbsensi.confirmSingleDelete({{ $absensi->id }})" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600">
+                                    <button @click.once="$store.rekapAbsensi.confirmSingleDelete(<?php echo e($absensi->id); ?>)" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600">
                                         <i class="fa-solid fa-trash-alt mr-1"></i> Hapus
                                     </button>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                             </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <tr>
                                 <td colspan="11" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Tidak ada data absensi ditemukan.</td>
                             </tr>
-                        @endforelse
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
             <div class="mt-4">
-                {{ $absensis->links() }}
+                <?php echo e($absensis->links()); ?>
+
             </div>
         </div>
 
@@ -292,33 +342,71 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Pilih kriteria untuk mengekspor data ke Excel.</p>
                 </div>
                 
-                <form action="{{ route('rekap_absensi.export') }}" method="GET" data-turbo="false" x-ref="exportForm" class="p-6 space-y-5 overflow-y-auto" style="max-height: 70vh;">
+                <form action="<?php echo e(route('rekap_absensi.export')); ?>" method="GET" data-turbo="false" x-ref="exportForm" class="p-6 space-y-5 overflow-y-auto" style="max-height: 70vh;">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
                             <label for="export_start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dari Tanggal</label>
-                            <x-text-input id="export_start_date" name="start_date" type="text" class="w-full flatpickr-date-export" />
+                            <?php if (isset($component)) { $__componentOriginal18c21970322f9e5c938bc954620c12bb = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal18c21970322f9e5c938bc954620c12bb = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.text-input','data' => ['id' => 'export_start_date','name' => 'start_date','type' => 'text','class' => 'w-full flatpickr-date-export']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('text-input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['id' => 'export_start_date','name' => 'start_date','type' => 'text','class' => 'w-full flatpickr-date-export']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal18c21970322f9e5c938bc954620c12bb)): ?>
+<?php $attributes = $__attributesOriginal18c21970322f9e5c938bc954620c12bb; ?>
+<?php unset($__attributesOriginal18c21970322f9e5c938bc954620c12bb); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal18c21970322f9e5c938bc954620c12bb)): ?>
+<?php $component = $__componentOriginal18c21970322f9e5c938bc954620c12bb; ?>
+<?php unset($__componentOriginal18c21970322f9e5c938bc954620c12bb); ?>
+<?php endif; ?>
                         </div>
                         <div>
                             <label for="export_end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sampai Tanggal</label>
-                            <x-text-input id="export_end_date" name="end_date" type="text" class="w-full flatpickr-date-export" />
+                            <?php if (isset($component)) { $__componentOriginal18c21970322f9e5c938bc954620c12bb = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal18c21970322f9e5c938bc954620c12bb = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.text-input','data' => ['id' => 'export_end_date','name' => 'end_date','type' => 'text','class' => 'w-full flatpickr-date-export']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('text-input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['id' => 'export_end_date','name' => 'end_date','type' => 'text','class' => 'w-full flatpickr-date-export']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal18c21970322f9e5c938bc954620c12bb)): ?>
+<?php $attributes = $__attributesOriginal18c21970322f9e5c938bc954620c12bb; ?>
+<?php unset($__attributesOriginal18c21970322f9e5c938bc954620c12bb); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal18c21970322f9e5c938bc954620c12bb)): ?>
+<?php $component = $__componentOriginal18c21970322f9e5c938bc954620c12bb; ?>
+<?php unset($__componentOriginal18c21970322f9e5c938bc954620c12bb); ?>
+<?php endif; ?>
                         </div>
                     </div>
                     <div>
                         <label for="export_kelas_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kelas</label>
                         <select name="kelas_id" id="export_kelas_id" class="w-full tom-select-export">
                             <option value="">Semua Kelas</option>
-                            @foreach($allKelas as $kelas)
-                                <option value="{{ $kelas->id }}">{{ $kelas->nama_kelas }}</option>
-                            @endforeach
+                            <?php $__currentLoopData = $allKelas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kelas): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($kelas->id); ?>"><?php echo e($kelas->nama_kelas); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                     <div>
                         <label for="export_mata_pelajaran_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mata Pelajaran</label>
                         <select name="mata_pelajaran_id" id="export_mata_pelajaran_id" class="w-full tom-select-export">
                             <option value="">Semua Mata Pelajaran</option>
-                            @foreach($allMataPelajaran as $mp)
-                                <option value="{{ $mp->id }}">{{ $mp->nama_mapel }}</option>
-                            @endforeach
+                            <?php $__currentLoopData = $allMataPelajaran; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($mp->id); ?>"><?php echo e($mp->nama_mapel); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -326,18 +414,18 @@
                             <label for="export_guru_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Guru Pengampu</label>
                             <select name="guru_id" id="export_guru_id" class="w-full tom-select-export">
                                 <option value="">Semua Guru</option>
-                                @foreach($allGurus as $guru)
-                                    <option value="{{ $guru->id }}">{{ $guru->name }} - (NIP: {{ $guru->identifier ?? 'N/A' }})</option>
-                                @endforeach
+                                <?php $__currentLoopData = $allGurus; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $guru): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($guru->id); ?>"><?php echo e($guru->name); ?> - (NIP: <?php echo e($guru->identifier ?? 'N/A'); ?>)</option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                         <div>
                             <label for="export_user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Siswa</label>
                             <select name="user_id" id="export_user_id" class="w-full tom-select-export">
                                 <option value="">Semua Siswa</option>
-                                @foreach($allSiswa as $siswa)
-                                    <option value="{{ $siswa->id }}">{{ $siswa->name }} - (NIS: {{ $siswa->siswaProfile->nis ?? 'N/A' }})</option>
-                                @endforeach
+                                <?php $__currentLoopData = $allSiswa; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $siswa): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($siswa->id); ?>"><?php echo e($siswa->name); ?> - (NIS: <?php echo e($siswa->siswaProfile->nis ?? 'N/A'); ?>)</option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                     </div>
@@ -389,4 +477,13 @@
         </div>
     </div>
 
-</x-app-layout>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $attributes = $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $component = $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?><?php /**PATH C:\xampp\htdocs\absensi-sekolah\resources\views/rekap_absensi/index.blade.php ENDPATH**/ ?>

@@ -16,7 +16,7 @@ class CardAssetController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'file' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:5120'],
             'old_path' => ['nullable', 'string'], // Validate the old path
         ]);
 

@@ -27,12 +27,9 @@ class AbsensiFactory extends Factory
         $status = $this->faker->randomElement(['hadir', 'terlambat', 'sakit', 'izin']);
         $waktuMasuk = null;
         $waktuKeluar = null;
-        $lokasiAbsensi = null;
-
         if (in_array($status, ['hadir', 'terlambat'])) {
             $waktuMasuk = $this->faker->time('H:i:s');
             $waktuKeluar = $this->faker->boolean(70) ? $this->faker->time('H:i:s', $waktuMasuk) : null;
-            $lokasiAbsensi = $this->faker->address;
         }
 
         return [
@@ -44,6 +41,10 @@ class AbsensiFactory extends Factory
             'waktu_keluar' => $waktuKeluar,
             'lokasi_absensi' => $lokasiAbsensi,
             'keterangan' => $this->faker->sentence,
+        ];
+    }
+}
+n' => $this->faker->sentence,
         ];
     }
 }

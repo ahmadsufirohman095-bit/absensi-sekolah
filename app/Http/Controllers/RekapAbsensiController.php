@@ -12,9 +12,12 @@ use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\RekapAbsensiExport;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class RekapAbsensiController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -110,7 +113,7 @@ class RekapAbsensiController extends Controller
         }
 
         // Get data for filter dropdowns based on role
-        if ($user->role === 'guru') {
+        if ($user->isGuru()) {
             $guruId = $user->id;
             $kelasIds = JadwalAbsensi::where('guru_id', $guruId)->distinct()->pluck('kelas_id');
             $mapelIds = JadwalAbsensi::where('guru_id', $guruId)->distinct()->pluck('mata_pelajaran_id');
@@ -119,7 +122,6 @@ class RekapAbsensiController extends Controller
             $allMataPelajaran = MataPelajaran::whereIn('id', $mapelIds)->orderBy('nama_mapel')->get();
             $allGurus = User::where('id', $guruId)->get();
             
-            // Get all students from the classes the teacher teaches
             $siswaIds = \App\Models\SiswaProfile::whereIn('kelas_id', $kelasIds)->pluck('user_id');
             $allSiswa = User::whereIn('id', $siswaIds)->with('siswaProfile')->orderBy('name')->get();
         } else { // For admin
@@ -142,8 +144,17 @@ class RekapAbsensiController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Absensi::class);
+
+        $user = auth()->user();
+        $jadwalQuery = JadwalAbsensi::with(['kelas', 'mataPelajaran', 'guru']);
+
+        if ($user->isGuru()) {
+            $jadwalQuery->where('guru_id', $user->id);
+        }
+
+        $allJadwal = $jadwalQuery->get();
         $allSiswa = User::where('role', 'siswa')->with('siswaProfile')->orderBy('name')->get();
-        $allJadwal = JadwalAbsensi::with(['kelas', 'mataPelajaran'])->get();
         $statusOptions = ['hadir', 'terlambat', 'sakit', 'izin', 'alpha'];
 
         return view('rekap_absensi.create', compact('allSiswa', 'allJadwal', 'statusOptions'));
@@ -151,6 +162,8 @@ class RekapAbsensiController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Absensi::class);
+
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'jadwal_absensi_id' => 'required|exists:jadwal_absensis,id',
@@ -187,6 +200,8 @@ class RekapAbsensiController extends Controller
 
     public function edit(Absensi $absensi)
     {
+        $this->authorize('update', $absensi);
+
         // Load relationships for display
         $absensi->load('user', 'jadwalAbsensi.kelas', 'jadwalAbsensi.mataPelajaran', 'jadwalAbsensi.guru');
 
@@ -202,6 +217,8 @@ class RekapAbsensiController extends Controller
 
     public function update(Request $request, Absensi $absensi)
     {
+        $this->authorize('update', $absensi);
+
         $validated = $request->validate([
             'status' => 'required|in:hadir,terlambat,sakit,izin,alpha',
             'keterangan' => 'nullable|string|max:255',
@@ -227,13 +244,17 @@ class RekapAbsensiController extends Controller
 
     public function destroy(Absensi $absensi)
     {
+        $this->authorize('delete', $absensi);
+
         $absensi->delete();
 
-        return redirect()->route('rekap_absensi.index')->with('success', 'Data absensi berhasil dihapus.');
+        return response()->json(['success' => true, 'message' => 'Data absensi berhasil dihapus.']);
     }
 
     public function bulkDestroy(Request $request)
     {
+        $this->authorize('bulkDelete', Absensi::class);
+
         $request->validate([
             'absensi_ids' => 'required|array',
             'absensi_ids.*' => 'exists:absensis,id',
@@ -246,6 +267,8 @@ class RekapAbsensiController extends Controller
 
     public function export(Request $request)
     {
+        $this->authorize('export', Absensi::class);
+
         return Excel::download(new RekapAbsensiExport($request), 'rekap_absensi_' . Carbon::now()->format('Ymd_His') . '.xlsx');
     }
 

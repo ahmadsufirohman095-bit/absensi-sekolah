@@ -40,8 +40,8 @@ class StoreIzinSakitRequest extends FormRequest
             'user_id.required' => 'Siswa wajib dipilih.',
             'user_id.exists' => 'Siswa yang dipilih tidak valid atau bukan seorang siswa.',
             'tanggal.before_or_equal' => 'Tanggal tidak boleh melebihi hari ini.',
-            'bukti_absensi.mimes' => 'Format file bukti harus berupa JPG, JPEG, PNG, atau PDF.',
-            'bukti_absensi.max' => 'Ukuran file bukti tidak boleh lebih dari 2MB.',
+            
         ];
     }
+} }
 }

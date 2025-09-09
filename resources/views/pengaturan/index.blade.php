@@ -109,7 +109,7 @@
                                                     <input id="login_logo" name="login_logo" type="file" class="sr-only" onchange="previewImage(event, 'login_logo_preview')">
                                                 </label>
                                             </div>
-                                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Gunakan format PNG, JPG, atau SVG. Ukuran maks 2MB.</p>
+                                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Gunakan format PNG, JPG, atau SVG. Ukuran maks 5MB.</p>
                                         </div>
 
                                         {{-- Pengaturan Background --}}
@@ -126,7 +126,7 @@
                                                 </div>
                                                 <button type="button" id="change_background_btn" class="{{ isset($settings['login_background']) && Storage::disk('public')->exists($settings['login_background']) ? '' : 'hidden' }} mt-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300" onclick="document.getElementById('login_background').click()">Ubah Gambar</button>
                                             </div>
-                                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Gunakan gambar dengan resolusi tinggi. Ukuran maks 5MB.</p>
+                                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Gunakan gambar dengan resolusi tinggi. Ukuran maks 10MB.</p>
                                         </div>
                                     </div>
                                 </div>

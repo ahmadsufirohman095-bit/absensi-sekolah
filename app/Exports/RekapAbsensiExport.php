@@ -37,6 +37,13 @@ class RekapAbsensiExport implements FromCollection, WithHeadings, WithMapping, S
             'jadwalAbsensi.guru'
         ]);
 
+        // Force filter by guru if the user is a teacher
+        if (auth()->check() && auth()->user()->isGuru()) {
+            $query->whereHas('jadwalAbsensi', function ($q) {
+                $q->where('guru_id', auth()->id());
+            });
+        }
+
         // Apply filters from the request
         if ($this->request->filled('start_date')) {
             $query->whereDate('tanggal_absensi', '>=', $this->request->start_date);

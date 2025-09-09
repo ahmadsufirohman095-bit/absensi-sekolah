@@ -26,15 +26,13 @@ class PrintCardConfigController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'is_default' => 'boolean',
-            'config_json' => 'required|json',
+            'config_json' => 'required|array',
         ]);
-
-        $configJson = json_decode($validated['config_json'], true);
 
         $config = new PrintCardConfig([
             'name' => $validated['name'],
             'is_default' => $validated['is_default'] ?? false,
-            'config_json' => $configJson,
+            'config_json' => $validated['config_json'],
             'user_id' => auth()->id(),
         ]);
 

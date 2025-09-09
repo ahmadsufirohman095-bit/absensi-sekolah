@@ -9,11 +9,30 @@ use Illuminate\Auth\Access\Response;
 class AbsensiPolicy
 {
     /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->isAdmin()) {
+            if (in_array($ability, ['create', 'store', 'edit', 'update', 'delete', 'restore', 'forceDelete', 'bulkDelete'])) {
+                return false; // Admin tidak dapat melakukan tindakan ini
+            }
+            return null; // Admin dapat melihat
+        }
+
+        if ($user->isGuru()) {
+            return true; // Guru dapat melakukan semua tindakan
+        }
+
+        return false; // Pengguna lain tidak diizinkan
+    }
+
+    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isGuru();
+        return false; // Ditangani oleh metode before
     }
 
     /**
@@ -21,7 +40,7 @@ class AbsensiPolicy
      */
     public function view(User $user, Absensi $absensi): bool
     {
-        return $user->isAdmin() || $user->isGuru();
+        return false; // Ditangani oleh metode before
     }
 
     /**
@@ -29,7 +48,7 @@ class AbsensiPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isGuru();
+        return false; // Ditangani oleh metode before
     }
 
     /**
@@ -37,7 +56,7 @@ class AbsensiPolicy
      */
     public function update(User $user, Absensi $absensi): bool
     {
-        return $user->isAdmin() || $user->isGuru();
+        return false; // Ditangani oleh metode before
     }
 
     /**
@@ -45,7 +64,7 @@ class AbsensiPolicy
      */
     public function delete(User $user, Absensi $absensi): bool
     {
-        return $user->isAdmin() || $user->isGuru();
+        return false; // Ditangani oleh metode before
     }
 
     /**
@@ -53,7 +72,7 @@ class AbsensiPolicy
      */
     public function restore(User $user, Absensi $absensi): bool
     {
-        return $user->isAdmin() || $user->isGuru();
+        return false; // Ditangani oleh metode before
     }
 
     /**
@@ -61,17 +80,20 @@ class AbsensiPolicy
      */
     public function forceDelete(User $user, Absensi $absensi): bool
     {
-        return $user->isAdmin() || $user->isGuru();
+        return false; // Ditangani oleh metode before
     }
 
     // Custom methods for bulk delete and export
     public function bulkDelete(User $user): bool
     {
-        return $user->isAdmin() || $user->isGuru();
+        return false; // Ditangani oleh metode before
     }
 
     public function export(User $user): bool
     {
-        return $user->isAdmin() || $user->isGuru();
+        if ($user->isGuru() || $user->isAdmin()) {
+            return true;
+        }
+        return false;
     }
 }

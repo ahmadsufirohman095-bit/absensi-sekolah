@@ -150,6 +150,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if the user has the 'guru' role.
+     *
+     * @return bool
+     */
+    public function isGuru(): bool
+    {
+        return $this->hasRole('guru');
+    }
+
+    /**
      * Get the correct profile relationship based on the user's role.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne

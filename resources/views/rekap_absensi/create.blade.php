@@ -35,7 +35,7 @@
                                     <option value="">Pilih Jadwal</option>
                                     @foreach($allJadwal as $jadwal)
                                         <option value="{{ $jadwal->id }}" {{ old('jadwal_absensi_id') == $jadwal->id ? 'selected' : '' }}>
-                                            {{ $jadwal->mataPelajaran?->nama_mapel }} - {{ $jadwal->kelas?->nama_kelas }} ({{ $jadwal->hari }}, {{ $jadwal->jam_mulai->format('H:i') }} - {{ $jadwal->jam_selesai->format('H:i') }})
+                                            {{ $jadwal->mataPelajaran?->nama_mapel }} - {{ $jadwal->kelas?->nama_kelas }} ({{ $jadwal->hari }}, {{ $jadwal->jam_mulai->format('H:i') }} - {{ $jadwal->jam_selesai->format('H:i') }}) - [{{ $jadwal->guru?->name }}]
                                         </option>
                                     @endforeach
                                 </select>

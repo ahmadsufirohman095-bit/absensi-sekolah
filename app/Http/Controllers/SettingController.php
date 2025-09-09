@@ -21,8 +21,8 @@ class SettingController extends Controller
         $validated = $request->validate([
             'login_title' => 'nullable|string|max:50',
             'login_subtitle' => 'nullable|string|max:100',
-            'login_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'login_background' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'login_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+            'login_background' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
         ]);
 
         if ($request->hasFile('login_logo')) {

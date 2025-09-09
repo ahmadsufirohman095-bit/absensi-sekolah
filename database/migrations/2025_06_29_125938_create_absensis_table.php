@@ -20,8 +20,6 @@ return new class extends Migration
             $table->enum('status', ['hadir', 'terlambat', 'sakit', 'izin', 'alpha'])->default('hadir');
             $table->text('keterangan')->nullable();
             $table->string('attendance_type')->default('manual'); // Tipe absensi: manual, qr_code, dll.
-            $table->string('lokasi_absensi')->nullable(); // Location where the attendance was recorded (e.g., GPS coordinates, classroom name)
-            $table->string('bukti_absensi')->nullable(); // Path to an image or document as proof of attendance (e.g., medical certificate, photo)
             $table->foreignId('jadwal_absensi_id')->nullable()->constrained('jadwal_absensis')->onDelete('set null')->index('absensis_jadwal_absensi_id_foreign'); // Tambahkan ini
             $table->timestamps();
         });

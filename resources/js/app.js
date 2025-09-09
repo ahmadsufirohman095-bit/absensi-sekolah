@@ -164,6 +164,31 @@ document.addEventListener('alpine:init', () => {
             this.showSingleDeleteConfirm = true;
         },
 
+        async deleteSingleAbsensi() {
+            if (!this.deleteAbsensiId) return;
+
+            this.isDeleting = true;
+            const deleteUrl = `/rekap_absensi/${this.deleteAbsensiId}`;
+
+            try {
+                const response = await axios.delete(deleteUrl);
+
+                if (response.data.success) {
+                    this.showNotification(response.data.message, 'success');
+                    Turbo.visit(window.location.href, { action: 'replace' });
+                } else {
+                    this.showNotification(response.data.message || 'Gagal menghapus absensi.', 'error');
+                }
+            } catch (error) {
+                console.error('Single delete error:', error);
+                this.showNotification('Terjadi kesalahan saat menghapus absensi.', 'error');
+            } finally {
+                this.isDeleting = false;
+                this.showSingleDeleteConfirm = false;
+                this.deleteAbsensiId = null;
+            }
+        },
+
         bulkDelete: async () => {
             if (Alpine.store('rekapAbsensi').selectedAbsensi.length === 0 || !Alpine.store('rekapAbsensi').bulkDeleteUrl) return;
             Alpine.store('rekapAbsensi').isDeleting = true;
@@ -175,16 +200,14 @@ document.addEventListener('alpine:init', () => {
 
                 if (response.data.success) {
                     Alpine.store('rekapAbsensi').showNotification(response.data.message, 'success');
+                    
                     // Clear selected items and uncheck checkboxes immediately
                     Alpine.store('rekapAbsensi').selectedAbsensi = [];
                     document.querySelectorAll('input[type="checkbox"][id^="checkbox-item-"]').forEach(cb => cb.checked = false);
                     document.getElementById('checkbox-all-items').checked = false;
                     document.getElementById('checkbox-all-items').indeterminate = false;
 
-                    // Reload page after a short delay to allow toast to be seen
-                    setTimeout(() => {
-                        Turbo.visit(window.location.href, { action: 'replace' });
-                    }, 1500); // 1.5 seconds delay
+                    Turbo.visit(window.location.href, { action: 'replace' });
 
                 } else {
                     Alpine.store('rekapAbsensi').showNotification(response.data.message || 'Gagal menghapus absensi.', 'error');
