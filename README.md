@@ -21,6 +21,113 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Panduan Instalasi
+
+Untuk menjalankan proyek ini secara lokal, ikuti langkah-langkah berikut:
+
+### Persyaratan Sistem
+
+Pastikan Anda memiliki perangkat lunak berikut terinstal di sistem Anda:
+
+*   PHP >= 8.2
+*   Composer
+*   Node.js >= 16
+*   npm atau Yarn
+*   Database (MySQL, PostgreSQL, SQLite, dll.)
+
+### Langkah-langkah Instalasi
+
+1.  Kloning Repositori:
+
+    bash
+    `git clone https://github.com/ahmadsufirohman095-bit/absensi-sekolah.git`
+
+    `cd absensi-sekolah`
+
+2.  Buat Database MySQL:
+
+    Sebelum melanjutkan, buat database MySQL baru untuk proyek ini. Anda bisa menggunakan phpMyAdmin, MySQL Workbench, atau baris perintah:
+
+    sql
+    `CREATE DATABASE db_absensi_sekolah;`
+
+    Pastikan nama database sesuai dengan yang akan Anda konfigurasikan di file `.env`.
+
+3.  Instal Dependensi PHP:
+
+    bash
+    `composer install`
+
+4.  Konfigurasi Lingkungan:
+
+    Salin file `.env.example` menjadi `.env`:
+
+    bash
+    `cp .env.example .env`
+
+    Buka file `.env` dan konfigurasikan pengaturan database Anda (DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD) agar sesuai dengan database yang baru Anda buat.
+
+    Catatan: Untuk login awal ke aplikasi setelah instalasi, Anda dapat menggunakan seeder untuk login sebagai admin.
+
+    bash
+    `php artisan db:seed --class=AdminSeeder`
+
+5.  Buat Kunci Aplikasi:
+
+    bash
+    `php artisan key:generate`
+
+6.  Migrasi Database:
+
+    Jalankan migrasi database untuk membuat tabel yang diperlukan:
+
+    bash
+    `php artisan migrate`
+
+7.  Jalankan Seeder (Opsional):
+
+    Jika Anda ingin mengisi database dengan data dummy, jalankan seeder:
+
+    bash
+    `php artisan db:seed`
+    Catatan: Jika Anda menjalankan `php artisan db:seed`, ini akan menjalankan `DatabaseSeeder` yang akan mengisi database dengan data dummy berikut:
+        Mata Pelajaran: Beberapa mata pelajaran contoh.
+
+        Kelas: Beberapa kelas contoh (misalnya VII-A, VII-B).
+
+        Admin: Dua akun admin (`admin` dan `admin2`) dengan username dan password `password`.
+
+        Guru: Sepuluh akun guru dengan data profil dan penugasan mata pelajaran.
+
+        Wali Kelas: Guru-guru akan ditetapkan sebagai wali kelas untuk kelas-kelas yang ada.
+
+        Siswa: Dua puluh siswa per kelas dengan data profil.
+
+        Jadwal Absensi: Jadwal absensi acak untuk setiap kelas, mata pelajaran, dan guru.
+        
+        Absensi: Data absensi dummy untuk 4 minggu terakhir berdasarkan jadwal yang dibuat.
+
+8.  Instal Dependensi JavaScript:
+
+    bash
+    `npm install` # atau yarn install
+
+9.  Kompilasi Aset Frontend:
+
+    Untuk mengkompilasi aset CSS dan JavaScript, jalankan:
+
+    bash
+    `npm run dev` # untuk pengembangan
+    atau
+    `npm run build` # untuk produksi
+
+10. Jalankan Server Pengembangan:
+
+    bash
+    `php artisan serve`
+
+    Aplikasi akan tersedia di `http://127.0.0.1:8000`.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

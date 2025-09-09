@@ -69,7 +69,7 @@ class UserSeeder extends Seeder
         $this->command->info('Membuat akun Admin...');
         $admin = User::create([
             'name' => 'Admin Sekolah',
-            'username' => 'admin', // Tambahkan username
+            'username' => 'admin',
             'identifier' => 'admin001',
             'email' => 'admin@' . $schoolDomain,
             'password' => Hash::make('password'),
@@ -168,7 +168,7 @@ class UserSeeder extends Seeder
 
                 $siswa = User::create([
                     'name' => $fullName,
-                    'username' => $username, // Tambahkan username
+                    'username' => $username,
                     'identifier' => $nisCounter,
                     'email' => $username . '@' . $schoolDomain,
                     'password' => Hash::make('password'),
