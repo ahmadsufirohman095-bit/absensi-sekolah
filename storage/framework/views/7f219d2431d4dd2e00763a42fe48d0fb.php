@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <meta name="turbo-prefetch" content="true">
 
-    <title><?php echo e(setting('nama_sekolah', config('app.name', 'Laravel'))); ?></title>
+    <title><?php echo e(setting('app_name', config('app.name', 'Absensi'))); ?></title>
 
         <?php
         $faviconPath = setting('favicon', 'favicon.ico');
@@ -309,7 +309,6 @@
         </div>
     </div>
 
-    
     
     
     <?php echo $__env->yieldPushContent('scripts'); ?>

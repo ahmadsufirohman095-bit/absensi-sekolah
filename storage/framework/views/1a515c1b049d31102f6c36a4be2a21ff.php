@@ -37,7 +37,7 @@ unset($__defined_vars, $__key, $__value); ?>
             <span class="text-lg font-bold text-gray-800 dark:text-white whitespace-nowrap" x-show="sidebarOpen"
                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100">
-                <?php echo e(setting('nama_sekolah', 'Absensi')); ?>
+                <?php echo e(setting('app_name', 'Absensi')); ?>
 
             </span>
         </a>

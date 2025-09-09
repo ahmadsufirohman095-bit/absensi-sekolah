@@ -25,7 +25,7 @@ Dokumen ini adalah panduan komprehensif untuk menggunakan aplikasi absensi sekol
         *   Menghapus Data Absensi (Individual & Massal)
         *   Mengekspor Data Absensi
     *   Pengaturan Aplikasi
-        *   Konfigurasi Umum
+        *   Konfigurasi Umum (Termasuk Nama Aplikasi Kustom) (Termasuk Nama Aplikasi Kustom)
         *   Manajemen Aset Kartu
         *   Konfigurasi Cetak Kartu
     *   Manajemen Pengguna
@@ -256,7 +256,8 @@ Halaman ini memungkinkan Admin untuk mengelola berbagai pengaturan global aplika
 
 1.  Navigasi ke menu **Pengaturan Aplikasi**.
 2.  Pada bagian **Konfigurasi Umum**, Anda dapat mengubah nama sekolah, mengunggah logo sekolah, dan mengatur informasi dasar lainnya.
-3.  Klik tombol **Simpan Perubahan**.
+3.  **Nama Aplikasi Kustom:** Anda dapat memasukkan nama aplikasi yang diinginkan. Nama ini akan muncul di judul halaman browser (favicon) dan di sidebar navigasi aplikasi.
+4.  Klik tombol **Simpan Perubahan**.
 
 #### Manajemen Aset Kartu
 

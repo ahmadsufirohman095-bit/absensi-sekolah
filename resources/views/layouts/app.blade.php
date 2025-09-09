@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="turbo-prefetch" content="true">
 
-    <title>{{ setting('nama_sekolah', config('app.name', 'Laravel')) }}</title>
+    <title>{{ setting('app_name', config('app.name', 'Absensi')) }}</title>
 
         @php
         $faviconPath = setting('favicon', 'favicon.ico');
@@ -203,7 +203,6 @@
 
     
     
-    {{-- PERBAIKAN: Memindahkan stack scripts ke sebelum penutup body --}}
     @stack('scripts')
 </body>
 

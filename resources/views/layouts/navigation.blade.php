@@ -9,7 +9,7 @@
             <span class="text-lg font-bold text-gray-800 dark:text-white whitespace-nowrap" x-show="sidebarOpen"
                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100">
-                {{ setting('nama_sekolah', 'Absensi') }}
+                {{ setting('app_name', 'Absensi') }}
             </span>
         </a>
     </div>

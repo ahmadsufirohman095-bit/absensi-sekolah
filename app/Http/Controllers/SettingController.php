@@ -19,6 +19,7 @@ class SettingController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
+            'app_name' => 'required|string|max:50',
             'login_title' => 'nullable|string|max:50',
             'login_subtitle' => 'nullable|string|max:100',
             'login_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
@@ -28,7 +29,7 @@ class SettingController extends Controller
         if ($request->hasFile('login_logo')) {
             // Hapus logo dan favicon lama
             $this->deleteOldFile('login_logo');
-            $this->deleteOldFile('favicon', false); // Favicon tidak di-database, hapus langsung
+            $this->deleteOldFile('favicon', false);
 
             // Simpan logo baru
             $path = $request->file('login_logo')->store('settings', 'public');
@@ -67,7 +68,6 @@ class SettingController extends Controller
                 $path = $setting->value;
             }
         } else {
-            // Untuk file seperti favicon yang path-nya kita tahu
             $path = $key;
         }
 

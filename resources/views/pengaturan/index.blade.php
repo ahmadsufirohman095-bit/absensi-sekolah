@@ -29,6 +29,43 @@
                             </div>
                         @endif
 
+                        {{-- Kustomisasi Nama Aplikasi --}}
+                        <div class="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm" x-data="{ isCollapsed: false }">
+                            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-6 w-6 text-indigo-500 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-gray-100">Kustomisasi Nama Aplikasi</h3>
+                                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Ubah nama aplikasi yang muncul di sidebar dan favicon.</p>
+                                        </div>
+                                    </div>
+                                    <button @click="isCollapsed = !isCollapsed" type="button" class="p-2 text-gray-400 hover:text-gray-500">
+                                        <svg x-show="!isCollapsed" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                        </svg>
+                                        <svg x-show="isCollapsed" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="p-6" x-show="!isCollapsed" x-transition>
+                                <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                                    <div class="sm:col-span-4">
+                                        <x-input-label for="app_name" :value="__('Nama Aplikasi')" />
+                                        <x-text-input id="app_name" name="app_name" type="text" class="mt-1 block w-full" :value="old('app_name', $settings['app_name'] ?? 'Absensi')" required autofocus autocomplete="app_name" />
+                                        <x-input-error class="mt-2" :messages="$errors->get('app_name')" />
+                                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Nama ini akan muncul di sidebar dan judul halaman (favicon).</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- Kustomisasi Halaman Login --}}
                         <div class="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm" x-data="{ isCollapsed: false }">
                             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
