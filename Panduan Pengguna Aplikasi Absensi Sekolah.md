@@ -515,8 +515,9 @@ Bagian ini menjelaskan fitur-fitur yang dapat diakses oleh peran Siswa.
 Dashboard Siswa adalah halaman utama yang menampilkan ringkasan informasi penting bagi siswa.
 
 **Fitur:**
-*   **Ringkasan Absensi Pribadi:** Menampilkan status absensi terbaru.
-*   **Jadwal Pelajaran:** Menampilkan jadwal pelajaran yang akan datang.
+*   **Rekap Absensi Bulan Ini:** Menampilkan diagram rekap absensi untuk bulan berjalan.
+*   **Rekap Absensi per Mata Pelajaran:** Menampilkan diagram rekap absensi berdasarkan mata pelajaran.
+*   **Riwayat Absensi Terbaru:** Menampilkan daftar riwayat absensi terbaru.
 *   **Notifikasi:** Pemberitahuan penting terkait absensi atau informasi sekolah.
 
 **Cara Menggunakan:**
