@@ -29,11 +29,11 @@ Untuk menjalankan proyek ini secara lokal, ikuti langkah-langkah berikut:
 
 Pastikan Anda memiliki perangkat lunak berikut terinstal di sistem Anda:
 
-*   PHP >= 8.2
+*   PHP >= v8.2.12
 *   Composer
-*   Node.js >= 16
-*   npm atau Yarn
-*   Database (MySQL, PostgreSQL, SQLite, dll.)
+*   Node.js >= v22.16.0
+*   npm
+*   Database MySQL
 
 ### Langkah-langkah Instalasi
 
