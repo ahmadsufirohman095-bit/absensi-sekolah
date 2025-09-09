@@ -91,6 +91,7 @@ Pastikan Anda memiliki perangkat lunak berikut terinstal di sistem Anda:
     bash
     `php artisan db:seed`
     Catatan: Jika Anda menjalankan `php artisan db:seed`, ini akan menjalankan `DatabaseSeeder` yang akan mengisi database dengan data dummy berikut:
+        
         Mata Pelajaran: Beberapa mata pelajaran contoh.
 
         Kelas: Beberapa kelas contoh (misalnya VII-A, VII-B).
@@ -104,7 +105,7 @@ Pastikan Anda memiliki perangkat lunak berikut terinstal di sistem Anda:
         Siswa: Dua puluh siswa per kelas dengan data profil.
 
         Jadwal Absensi: Jadwal absensi acak untuk setiap kelas, mata pelajaran, dan guru.
-        
+
         Absensi: Data absensi dummy untuk 4 minggu terakhir berdasarkan jadwal yang dibuat.
 
 8.  Instal Dependensi JavaScript:
