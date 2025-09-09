@@ -35,6 +35,16 @@ Pastikan Anda memiliki perangkat lunak berikut terinstal di sistem Anda:
 *   npm
 *   Database MySQL
 
+### Memulai XAMPP
+
+Jika Anda menggunakan XAMPP, ikuti langkah-langkah berikut untuk memulai server Apache dan MySQL:
+
+1.  Buka XAMPP Control Panel.
+2.  Di samping "Apache", klik tombol "Start".
+3.  Di samping "MySQL", klik tombol "Start".
+
+Pastikan kedua modul berjalan (status berwarna hijau) sebelum melanjutkan instalasi.
+
 ### Langkah-langkah Instalasi
 
 1.  Kloning Repositori:
@@ -167,4 +177,3 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
