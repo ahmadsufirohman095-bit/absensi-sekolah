@@ -110,7 +110,7 @@ Bagian ini menjelaskan fitur-fitur dasar yang dapat diakses oleh semua peran pen
 
 **Login:**
 1.  Buka aplikasi absensi sekolah.
-2.  Pada halaman login, masukkan **Email** dan **Kata Sandi** Anda yang terdaftar.
+2.  Pada halaman login, masukkan **Username** dan **Kata Sandi** Anda yang terdaftar.
 3.  Klik tombol **Login**.
 4.  Jika berhasil, Anda akan diarahkan ke halaman Dashboard sesuai peran Anda.
 
@@ -155,6 +155,10 @@ Halaman ini menampilkan semua pemberitahuan penting yang Anda terima.
 **Menandai Notifikasi Sebagai Dibaca:**
 1.  Pada daftar notifikasi, klik notifikasi yang ingin Anda tandai.
 2.  Notifikasi akan otomatis ditandai sebagai sudah dibaca.
+
+**Menandai Semua Notifikasi Sebagai Dibaca:**
+1.  Pada halaman notifikasi, cari tombol atau opsi **Tandai Semua Dibaca**.
+2.  Klik tombol tersebut untuk menandai semua notifikasi yang belum dibaca sebagai sudah dibaca.
 
 ### Reset Kata Sandi
 
