@@ -1,19 +1,22 @@
 @props(['sidebarOpen'])
 
 <div class="flex flex-col h-full">
-    <!-- Header Sidebar -->
-    <div class="flex items-center justify-between h-20 border-b dark:border-gray-700 flex-shrink-0 px-4"
-        :class="{ 'px-4': sidebarOpen, 'px-2': !sidebarOpen }">
-        <a href="{{ route('dashboard') }}" class="flex items-center space-x-2 overflow-hidden">
-            <img class="h-10 w-10 flex-shrink-0" src="{{ logo_url() }}" alt="Logo Sekolah">
-            <span class="text-lg font-bold text-gray-800 dark:text-white whitespace-nowrap" x-show="sidebarOpen"
-                x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100">
-                {{ setting('app_name', 'Absensi') }}
-            </span>
-        </a>
+    <div class="flex items-center justify-start h-20 border-b dark:border-gray-700 flex-shrink-0 pl-4">
+        <button @click="sidebarOpen = !sidebarOpen"
+            class="text-gray-500 dark:text-gray-300 focus:outline-none">
+            <template x-if="sidebarOpen">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 18l-6-6 6-6"></path>
+                </svg>
+            </template>
+            <template x-if="!sidebarOpen">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round"></path>
+                </svg>
+            </template>
+        </button>
     </div>
-
     <!-- Daftar Menu -->
     <!-- Semua atribut 'data-turbo-frame' dihapus dari link di bawah ini -->
     <nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto" :class="{ 'px-4': sidebarOpen, 'px-2': !sidebarOpen }">
