@@ -35,6 +35,28 @@ Pastikan Anda memiliki perangkat lunak berikut terinstal di sistem Anda:
 *   npm
 *   Database MySQL
 
+### Mengaktifkan Ekstensi PHP (XAMPP)
+
+Sebelum memulai instalasi, pastikan Anda telah mengaktifkan ekstensi PHP berikut pada file `php.ini` di XAMPP Anda:
+
+1.  Buka XAMPP Control Panel.
+2.  Klik tombol "Config" di samping "Apache", lalu pilih "PHP (php.ini)".
+3.  Cari baris-baris berikut dan hapus tanda titik koma (`;`) di depannya untuk mengaktifkannya:
+    - `extension=bz2`
+    - `extension=curl`
+    - `extension=fileinfo`
+    - `extension=gd`
+    - `extension=gettext`
+    - `extension=intl`
+    - `extension=mbstring`
+    - `extension=exif`
+    - `extension=mysqli`
+    - `extension=openssl`
+    - `extension=pdo_mysql`
+    - `extension=pdo_sqlite`
+    - `extension=zip`
+4.  Setelah mengedit file `php.ini`, simpan perubahan dan restart Apache dari XAMPP Control Panel.
+
 ### Memulai XAMPP
 
 Jika Anda menggunakan XAMPP, ikuti langkah-langkah berikut untuk memulai server Apache dan MySQL:
@@ -75,9 +97,26 @@ Pastikan kedua modul berjalan (status berwarna hijau) sebelum melanjutkan instal
     bash
     `cp .env.example .env`
 
-    Buka file `.env` dan konfigurasikan pengaturan database Anda (DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD) agar sesuai dengan database yang baru Anda buat.
+    Buka file `.env` dan konfigurasikan pengaturan lingkungan Anda. Berikut adalah beberapa variabel penting yang perlu Anda perhatikan untuk konteks lokal Indonesia:
 
-    Catatan: Untuk login awal ke aplikasi setelah instalasi, Anda dapat menggunakan seeder untuk login sebagai admin.
+    *   `APP_NAME`: Nama aplikasi Anda (misalnya, "Absensi Sekolah").
+    *   `APP_URL`: URL dasar aplikasi Anda. Jika Anda menjalankan di lingkungan lokal, ini bisa `http://localhost:8000` (jika menggunakan `php artisan serve`) atau `http://127.0.0.1:8000`.
+    *   `APP_DEBUG`: Setel ke `true` selama pengembangan untuk melihat pesan kesalahan yang detail. Setel ke `false` saat aplikasi sudah siap untuk produksi.
+    *   `APP_LOCALE`: Atur ke `id` untuk bahasa Indonesia.
+    *   `APP_FALLBACK_LOCALE`: Atur ke `id` sebagai bahasa cadangan.
+    *   `APP_FAKER_LOCALE`: Atur ke `id_ID` untuk data dummy yang lebih relevan dengan Indonesia.
+
+    **Konfigurasi Database:**
+    Pastikan Anda mengkonfigurasi variabel database agar sesuai dengan database MySQL yang telah Anda buat. Contoh konfigurasi untuk XAMPP:
+
+    *   `DB_CONNECTION=mysql` (Pastikan ini `mysql` jika Anda menggunakan MySQL)
+    *   `DB_HOST=127.0.0.1` (Biasanya `127.0.0.1` atau `localhost`)
+    *   `DB_PORT=3306` (Port default MySQL)
+    *   `DB_DATABASE=db_absensi_sekolah` (Nama database yang Anda buat di langkah 2)
+    *   `DB_USERNAME=root` (Username database Anda, default XAMPP adalah `root`)
+    *   `DB_PASSWORD=` (Password database Anda, default XAMPP adalah kosong)
+
+    Catatan: `APP_KEY` akan dibuat secara otomatis pada langkah berikutnya. Untuk login awal ke aplikasi setelah instalasi, Anda dapat menggunakan seeder untuk login sebagai admin.
 
     bash
     `php artisan db:seed --class=AdminSeeder`
