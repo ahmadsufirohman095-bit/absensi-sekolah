@@ -306,6 +306,7 @@ document.addEventListener("turbo:load", () => {
     restoreSidebarState();
     initializeFlatpickrTime();
     initializeFlatpickrDMY();
+    window.initTableDragScroll(); // Panggil ulang inisialisasi geser tabel
 
     initializePasswordStrengthChecker('update_password_password', 'password-strength');
     initializePasswordStrengthChecker('password', 'password-strength-login');
