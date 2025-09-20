@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AbsensiController;
-use App\Http\Controllers\IzinSakitController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\MataPelajaranController;
 use App\Http\Controllers\ProfileController;
