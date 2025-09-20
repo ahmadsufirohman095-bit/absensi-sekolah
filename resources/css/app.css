@@ -153,3 +153,12 @@ input[type="password"] {
     -moz-appearance: none;    /* Firefox */
     appearance: none;         /* Standard */
 }
+
+/* Styling for date input calendar icon in dark mode */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(0.8); /* Adjust as needed for visibility */
+}
+
+.dark input[type="date"]::-moz-calendar-picker-indicator {
+    filter: invert(1) brightness(0.8); /* Adjust as needed for visibility */
+}

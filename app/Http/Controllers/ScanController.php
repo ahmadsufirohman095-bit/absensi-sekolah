@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Absensi;
 use App\Models\Setting;
-use App\Models\JadwalAbsensi; // Added
+use App\Models\JadwalAbsensi;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth; // Added
+use Illuminate\Support\Facades\Auth;
 
 class ScanController extends Controller
 {
@@ -95,17 +95,29 @@ class ScanController extends Controller
 
         // 3. Cek absensi yang lebih efisien untuk jadwal spesifik
         $today = Carbon::now(config('app.timezone', 'Asia/Jakarta'))->startOfDay();
-        $isAlreadyPresent = Absensi::where('user_id', $user->id)
-                                     ->where('jadwal_absensi_id', $jadwalAbsensiId)
-                                     ->whereDate('tanggal_absensi', $today)
-                                     ->exists();
+        $existingAbsensi = Absensi::where('user_id', $user->id)
+                                    ->where('jadwal_absensi_id', $jadwalAbsensiId)
+                                    ->whereDate('tanggal_absensi', $today)
+                                    ->first();
 
-        if ($isAlreadyPresent) {
-            Log::info('Duplikasi Absensi: Siswa sudah absen untuk jadwal ini hari ini.', ['user_id' => $user->id, 'name' => $user->name, 'jadwal_absensi_id' => $jadwalAbsensiId]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Sudah Absen: ' . $user->name . ' telah tercatat hadir untuk jadwal ini hari ini.'
-            ]);
+        if ($existingAbsensi) {
+            $statusSaatIni = $existingAbsensi->status;
+            // Jika status sudah sakit, izin, atau alpha, jangan timpa dengan scan QR
+            if (in_array($statusSaatIni, ['sakit', 'izin', 'alpha'])) {
+                Log::info('Absensi tidak diizinkan: Siswa sudah tercatat dengan status khusus.', ['user_id' => $user->id, 'name' => $user->name, 'status' => $statusSaatIni]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Absensi tidak dapat diubah: ' . $user->name . ' sudah tercatat dengan status ' . ucfirst($statusSaatIni) . ' untuk jadwal ini hari ini.'
+                ]);
+            }
+            // Jika status sudah hadir atau terlambat, anggap sudah absen
+            else if (in_array($statusSaatIni, ['hadir', 'terlambat'])) {
+                Log::info('Duplikasi Absensi: Siswa sudah absen untuk jadwal ini hari ini.', ['user_id' => $user->id, 'name' => $user->name, 'jadwal_absensi_id' => $jadwalAbsensiId]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sudah Absen: ' . $user->name . ' telah tercatat ' . ucfirst($statusSaatIni) . ' untuk jadwal ini hari ini.'
+                ]);
+            }
         }
 
         // 4. Tentukan status absensi berdasarkan jam_mulai jadwal

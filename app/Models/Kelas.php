@@ -41,4 +41,13 @@ class Kelas extends Model
     {
         return $this->hasMany(JadwalAbsensi::class);
     }
+
+    /**
+     * Mendefinisikan relasi ke siswa (User) melalui SiswaProfile.
+     * Satu kelas bisa memiliki banyak siswa.
+     */
+    public function siswa()
+    {
+        return $this->hasManyThrough(User::class, SiswaProfile::class, 'kelas_id', 'id', 'id', 'user_id');
+    }
 }

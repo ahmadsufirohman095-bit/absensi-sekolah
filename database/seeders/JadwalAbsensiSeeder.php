@@ -34,7 +34,7 @@ class JadwalAbsensiSeeder extends Seeder
             return;
         }
 
-        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat']; // Typically school days
+        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
         $timeSlots = [
             ['07:00', '08:00'], ['08:00', '09:00'], ['09:00', '10:00'],

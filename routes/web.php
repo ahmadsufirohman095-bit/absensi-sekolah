@@ -151,7 +151,7 @@ Route::get('/jadwal/import-template', [JadwalAbsensiController::class, 'download
     // Rute khusus untuk Guru
     Route::middleware('role:guru')->group(function () {
         Route::get('/guru/jadwal-mengajar', [App\Http\Controllers\Guru\JadwalMengajarController::class, 'index'])->name('guru.jadwal-mengajar.index');
-        Route::get('/guru/jadwal-mengajar/semua', [App\Http\Controllers\Guru\JadwalMengajarController::class, 'semua'])->name('guru.jadwal-mengajar.semua');
+        Route::post('/guru/jadwal-mengajar/{jadwal}/absensi', [App\Http\Controllers\Guru\JadwalMengajarController::class, 'storeAttendance'])->name('guru.jadwal-mengajar.storeAttendance');
         Route::get('/guru/jadwal-mengajar/export', [App\Http\Controllers\Guru\JadwalMengajarController::class, 'exportExcel'])->name('guru.jadwal-mengajar.export');
     });
 

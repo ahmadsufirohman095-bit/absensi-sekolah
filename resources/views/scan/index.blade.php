@@ -166,6 +166,8 @@
         window.activeJadwalAbsensiId = window.activeJadwalAbsensiId || null; // Still used for API calls
         window.selectedScheduleId = window.selectedScheduleId || null; // New variable for selected ID
         window.isUserAdmin = {{ $user->isAdmin() ? 'true' : 'false' }}; // Pass user role to JS
+        window.initialJadwalId = @json(request('jadwal_id')); // Get jadwal_id from URL
+        window.initialJadwal = null; // To store the full schedule object if found
 
         // Global flags for scanner state
         window.scannerStarted = window.scannerStarted || false;
@@ -523,6 +525,28 @@
 
                 // Initially render all schedules
                 renderSchedules(window.allAvailableSchedules);
+
+                // Check for initial jadwal_id from URL
+                if (window.initialJadwalId && !window.isUserAdmin) {
+                    window.initialJadwal = window.allAvailableSchedules.find(
+                        schedule => schedule.id == window.initialJadwalId
+                    );
+                    if (window.initialJadwal) {
+                        const jadwalText = `${window.initialJadwal.hari} - ${window.initialJadwal.mata_pelajaran.nama_mapel} - ${window.initialJadwal.kelas.nama_kelas} (${new Date(window.initialJadwal.jam_mulai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})} - ${new Date(window.initialJadwal.jam_selesai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})})`;
+                        handleScheduleSelection(window.initialJadwalId, jadwalText);
+                    } else {
+                        console.warn(`Jadwal dengan ID ${window.initialJadwalId} tidak ditemukan.`);
+                        // If not found, proceed with normal schedule selection
+                        document.getElementById('schedule-selection-area').classList.remove('hidden');
+                        window.scannerSection.classList.add('hidden');
+                        window.feedbackSection.classList.add('hidden');
+                    }
+                } else if (!window.isUserAdmin) {
+                    // If no initial jadwal_id and not admin, show schedule selection
+                    document.getElementById('schedule-selection-area').classList.remove('hidden');
+                    window.scannerSection.classList.add('hidden');
+                    window.feedbackSection.classList.add('hidden');
+                }
             };
 
 
