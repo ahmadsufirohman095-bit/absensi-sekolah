@@ -76,12 +76,6 @@ Dokumen ini adalah panduan komprehensif untuk menggunakan aplikasi absensi sekol
     *   Kesulitan Scan QR Code
     *   Masalah Cetak Kartu/Laporan
 
-7.  **Praktik Terbaik**
-    *   Keamanan Akun
-    *   Manajemen Data Efisien
-    *   Pemanfaatan Fitur Optimal
-
-8.  **Indeks**
 
 ---
 
