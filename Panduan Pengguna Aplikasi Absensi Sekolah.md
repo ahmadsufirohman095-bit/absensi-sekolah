@@ -134,7 +134,7 @@ Halaman ini memungkinkan Anda untuk melihat dan memperbarui informasi pribadi An
 2.  Perbarui informasi yang diperlukan (misalnya, nama).
 3.  Klik tombol **Simpan Perubahan**.
 
-**Mengubah Kata Sandi:**
+**Mengubah Kata Sandi Profil Pengguna:**
 1.  Pada halaman Profil, cari bagian **Ubah Kata Sandi**.
 2.  Masukkan **Kata Sandi Saat Ini**.
 3.  Masukkan **Kata Sandi Baru** Anda.
@@ -719,4 +719,4 @@ Bagian ini memberikan rekomendasi untuk penggunaan aplikasi yang efektif dan ama
 *   Scan Absensi Admin: [Lihat Scan Absensi](#scan-absensi)
 *   Scan Absensi Guru: [Lihat Scan Absensi](#scan-absensi-1)
 *   Tips Pemecahan Masalah: [Lihat Tips Pemecahan Masalah Umum](#6-tips-pemecahan-masalah-umum)
-*   Ubah Kata Sandi: [Lihat Mengubah Kata Sandi](#mengubah-kata-sandi)
+*   Ubah Kata Sandi: [Lihat Mengubah Kata Sandi](#mengubah-kata-sandi-profil-pengguna)
