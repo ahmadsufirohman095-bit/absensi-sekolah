@@ -718,5 +718,5 @@ Bagian ini memberikan rekomendasi untuk penggunaan aplikasi yang efektif dan ama
 *   Reset Kata Sandi: [Lihat Reset Kata Sandi](#reset-kata-sandi)
 *   Scan Absensi Admin: [Lihat Scan Absensi](#scan-absensi)
 *   Scan Absensi Guru: [Lihat Scan Absensi](#scan-absensi-1)
-*   Tips Pemecahan Masalah: [Lihat Tips Pemecahan Masalah Umum](#tips-pemecahan-masalah-umum)
+*   Tips Pemecahan Masalah: [Lihat Tips Pemecahan Masalah Umum](#6-tips-pemecahan-masalah-umum)
 *   Ubah Kata Sandi: [Lihat Mengubah Kata Sandi](#mengubah-kata-sandi)
