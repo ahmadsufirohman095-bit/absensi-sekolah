@@ -25,7 +25,7 @@ Dokumen ini adalah panduan komprehensif untuk menggunakan aplikasi absensi sekol
         *   Menghapus Data Absensi (Individual & Massal)
         *   Mengekspor Data Absensi
     *   Pengaturan Aplikasi
-        *   Konfigurasi Umum (Termasuk Nama Aplikasi Kustom) (Termasuk Nama Aplikasi Kustom)
+        *   Konfigurasi Umum (Termasuk Nama Aplikasi Kustom)
         *   Manajemen Aset Kartu
         *   Konfigurasi Cetak Kartu
     *   Manajemen Pengguna
@@ -76,6 +76,12 @@ Dokumen ini adalah panduan komprehensif untuk menggunakan aplikasi absensi sekol
     *   Kesulitan Scan QR Code
     *   Masalah Cetak Kartu/Laporan
 
+7.  **Praktik Terbaik**
+    *   Keamanan Akun
+    *   Manajemen Data Efisien
+    *   Pemanfaatan Fitur Optimal
+
+8.  **Indeks**
 
 ---
 
@@ -676,36 +682,31 @@ Bagian ini memberikan rekomendasi untuk penggunaan aplikasi yang efektif dan ama
 
 ## 8. Indeks
 
-*   Absensi Manual: [Lihat Rekap Absensi](#rekap-absensi)
-*   Admin Dashboard: [Lihat Dashboard Admin](#dashboard-admin)
+*   Rekap Absensi: [Lihat Rekap Absensi](#rekap-absensi)
+*   Dashboard Admin: [Lihat Dashboard Admin](#dashboard-admin)
 *   Anggota Kelas: [Lihat Mengelola Anggota Kelas](#mengelola-anggota-kelas-menambahmengeluarkan-siswa)
 *   Cetak Kartu Kelas: [Lihat Mencetak Kartu Kelas](#mencetak-kartu-kelas)
 *   Cetak Kartu Siswa: [Lihat Mencetak Kartu Siswa](#mencetak-kartu-siswa)
 *   Cetak Jadwal Kelas: [Lihat Mencetak Jadwal Kelas](#mencetak-jadwal-kelas)
-*   Dashboard Admin: [Lihat Dashboard Admin](#dashboard-admin)
 *   Dashboard Guru: [Lihat Dashboard Guru](#dashboard-guru)
 *   Dashboard Siswa: [Lihat Dashboard Siswa](#dashboard-siswa)
 *   Edit Profil: [Lihat Mengedit Profil](#mengedit-profil)
 *   Ekspor Data Absensi: [Lihat Mengekspor Data Absensi](#mengekspor-data-absensi)
-*   Ekspor Jadwal: [Lihat Mengimpormengekspor Data Jadwal](#mengimpormengekspor-data-jadwal)
 *   Ekspor Laporan Siswa: [Lihat Mengekspor Laporan Absensi](#mengekspor-laporan-absensi)
-*   Ekspor Pengguna: [Lihat Mengimpormengekspor Data Pengguna](#mengimpormengekspor-data-pengguna)
-*   Guru Dashboard: [Lihat Dashboard Guru](#dashboard-guru)
 *   Hapus Akun: [Lihat Menghapus Akun](#menghapus-akun-hanya-untuk-profil-sendiri)
 *   Hapus Absensi: [Lihat Menghapus Data Absensi](#menghapus-data-absensi-individual-massal)
 *   Hapus Jadwal: [Lihat Menghapus Jadwal](#menghapus-jadwal-individual-massal)
 *   Hapus Mata Pelajaran: [Lihat Menghapus Mata Pelajaran](#menghapus-mata-pelajaran)
 *   Hapus Pengguna: [Lihat Menghapus Pengguna](#menghapus-pengguna-individual-massal)
-*   Impor Jadwal: [Lihat Mengimpormengekspor Data Jadwal](#mengimpormengekspor-data-jadwal)
-*   Impor Pengguna: [Lihat Mengimpormengekspor Data Pengguna](#mengimpormengekspor-data-pengguna)
+*   Impor/Ekspor Jadwal: [Lihat Mengimpormengekspor Data Jadwal](#mengimpormengekspor-data-jadwal)
+*   Impor/Ekspor Pengguna: [Lihat Mengimpormengekspor Data Pengguna](#mengimpormengekspor-data-pengguna)
 *   Jadwal Absensi: [Lihat Manajemen Jadwal Absensi](#manajemen-jadwal-absensi)
 *   Jadwal Mengajar & Absensi: [Lihat Jadwal Mengajar & Absensi](#jadwal-mengajar--absensi)
 *   Kelas: [Lihat Manajemen Kelas](#manajemen-kelas)
 *   Konfigurasi Cetak Kartu: [Lihat Konfigurasi Cetak Kartu](#konfigurasi-cetak-kartu)
 *   Konfigurasi Umum: [Lihat Konfigurasi Umum](#konfigurasi-umum)
 *   Laporan Absensi Siswa: [Lihat Laporan Absensi Siswa](#laporan-absensi-siswa)
-*   Login: [Lihat Login dan Logout](#login-dan-logout)
-*   Logout: [Lihat Login dan Logout](#login-dan-logout)
+*   Login/Logout: [Lihat Login dan Logout](#login-dan-logout)
 *   Manajemen Aset Kartu: [Lihat Manajemen Aset Kartu](#manajemen-aset-kartu)
 *   Manajemen Mata Pelajaran: [Lihat Manajemen Mata Pelajaran](#manajemen-mata-pelajaran)
 *   Manajemen Pengguna: [Lihat Manajemen Pengguna](#manajemen-pengguna)
@@ -713,110 +714,9 @@ Bagian ini memberikan rekomendasi untuk penggunaan aplikasi yang efektif dan ama
 *   Pengaturan Aplikasi: [Lihat Pengaturan Aplikasi](#pengaturan-aplikasi)
 *   Praktik Terbaik: [Lihat Praktik Terbaik](#praktik-terbaik)
 *   Profil Pengguna: [Lihat Manajemen Profil Pengguna](#manajemen-profil-pengguna)
-*   Rekap Absensi Admin: [Lihat Rekap Absensi](#rekap-absensi)
 *   Rekap Absensi Guru: [Lihat Rekap Absensi Sesuai Hak Akses Guru](#rekap-absensi-sesuai-hak-akses-guru)
 *   Reset Kata Sandi: [Lihat Reset Kata Sandi](#reset-kata-sandi)
 *   Scan Absensi Admin: [Lihat Scan Absensi](#scan-absensi)
 *   Scan Absensi Guru: [Lihat Scan Absensi](#scan-absensi-1)
-*   Siswa Dashboard: [Lihat Dashboard Siswa](#dashboard-siswa)
-*   Tips Pemecahan Masalah: [Lihat Tips Pemecahan Masalah Umum](#tips-pemecahan-masalah-umum)
-*   Ubah Kata Sandi: [Lihat Mengubah Kata Sandi](#mengubah-kata-sandi)
-
-### Masalah Login
-
-*   **Lupa Kata Sandi:** Gunakan fitur "Lupa Kata Sandi?" di halaman login untuk mereset kata sandi Anda melalui email.
-*   **Email/Kata Sandi Salah:** Pastikan Anda memasukkan email dan kata sandi dengan benar. Perhatikan huruf besar/kecil.
-*   **Akun Dinonaktifkan:** Hubungi Admin sekolah Anda jika akun Anda dinonaktifkan.
-
-### Data Tidak Muncul/Salah
-
-*   **Filter Tidak Tepat:** Pastikan Anda telah menerapkan filter yang benar (tanggal, kelas, siswa) saat mencari data.
-*   **Sinkronisasi Data:** Jika ada perbedaan data, coba refresh halaman atau hubungi Admin untuk memeriksa sinkronisasi data.
-*   **Hak Akses:** Pastikan Anda memiliki hak akses yang sesuai untuk melihat data tertentu. Guru hanya dapat melihat data yang relevan dengan kelas yang diajar, dan Siswa hanya data pribadi.
-
-### Kesulitan Scan QR Code
-
-*   **Pencahayaan:** Pastikan pencahayaan cukup terang dan tidak ada bayangan yang menutupi QR Code.
-*   **Jarak dan Fokus:** Jaga jarak yang tepat antara kamera dan QR Code, dan pastikan gambar tidak buram.
-*   **Kerusakan QR Code:** Jika QR Code rusak atau tidak jelas, hubungi Admin untuk mencetak ulang kartu.
-*   **Izin Kamera:** Pastikan aplikasi memiliki izin untuk mengakses kamera perangkat Anda.
-
-### Masalah Cetak Kartu/Laporan
-
-*   **Pengaturan Printer:** Periksa pengaturan printer Anda (ukuran kertas, orientasi) sebelum mencetak.
-*   **Koneksi Printer:** Pastikan printer terhubung dengan baik dan berfungsi.
-*   **Konfigurasi Cetak Kartu:** Admin harus memastikan konfigurasi cetak kartu sudah benar di halaman Pengaturan Aplikasi.
-
----
-
-## 7. Praktik Terbaik
-
-Bagian ini memberikan rekomendasi untuk penggunaan aplikasi yang efektif dan aman.
-
-### Keamanan Akun
-
-*   **Gunakan Kata Sandi Kuat:** Buat kata sandi yang unik dan sulit ditebak, kombinasi huruf besar/kecil, angka, dan simbol.
-*   **Jangan Bagikan Kata Sandi:** Jaga kerahasiaan kata sandi Anda.
-*   **Logout Setelah Selesai:** Selalu logout dari akun Anda, terutama jika menggunakan perangkat bersama.
-
-### Manajemen Data Efisien
-
-*   **Admin:** Lakukan pembersihan data secara berkala dan pastikan data pengguna, kelas, dan mata pelajaran selalu diperbarui.
-*   **Guru:** Pastikan absensi dicatat tepat waktu dan periksa kembali data sebelum disimpan.
-*   **Impor/Ekspor Data:** Manfaatkan fitur impor/ekspor untuk manajemen data massal yang lebih efisien.
-
-### Pemanfaatan Fitur Optimal
-
-*   **Eksplorasi Dashboard:** Manfaatkan dashboard untuk mendapatkan gambaran umum cepat tentang status absensi dan aktivitas.
-*   **Filter Data:** Gunakan fitur filter secara efektif untuk menemukan informasi yang Anda butuhkan dengan cepat.
-*   **Notifikasi:** Perhatikan notifikasi untuk informasi penting dan pembaruan.
-
----
-
-## 8. Indeks
-
-*   Absensi Manual: [Lihat Rekap Absensi](#rekap-absensi)
-*   Admin Dashboard: [Lihat Dashboard Admin](#dashboard-admin)
-*   Anggota Kelas: [Lihat Mengelola Anggota Kelas](#mengelola-anggota-kelas-menambahmengeluarkan-siswa)
-*   Cetak Kartu Kelas: [Lihat Mencetak Kartu Kelas](#mencetak-kartu-kelas)
-*   Cetak Kartu Siswa: [Lihat Mencetak Kartu Siswa](#mencetak-kartu-siswa)
-*   Cetak Jadwal Kelas: [Lihat Mencetak Jadwal Kelas](#mencetak-jadwal-kelas)
-*   Dashboard Admin: [Lihat Dashboard Admin](#dashboard-admin)
-*   Dashboard Guru: [Lihat Dashboard Guru](#dashboard-guru)
-*   Dashboard Siswa: [Lihat Dashboard Siswa](#dashboard-siswa)
-*   Edit Profil: [Lihat Mengedit Profil](#mengedit-profil)
-*   Ekspor Data Absensi: [Lihat Mengekspor Data Absensi](#mengekspor-data-absensi)
-*   Ekspor Jadwal: [Lihat Mengimpormengekspor Data Jadwal](#mengimpormengekspor-data-jadwal)
-*   Ekspor Laporan Siswa: [Lihat Mengekspor Laporan Absensi](#mengekspor-laporan-absensi)
-*   Ekspor Pengguna: [Lihat Mengimpormengekspor Data Pengguna](#mengimpormengekspor-data-pengguna)
-*   Guru Dashboard: [Lihat Dashboard Guru](#dashboard-guru)
-*   Hapus Akun: [Lihat Menghapus Akun](#menghapus-akun-hanya-untuk-profil-sendiri)
-*   Hapus Absensi: [Lihat Menghapus Data Absensi](#menghapus-data-absensi-individual-massal)
-*   Hapus Jadwal: [Lihat Menghapus Jadwal](#menghapus-jadwal-individual-massal)
-*   Hapus Mata Pelajaran: [Lihat Menghapus Mata Pelajaran](#menghapus-mata-pelajaran)
-*   Hapus Pengguna: [Lihat Menghapus Pengguna](#menghapus-pengguna-individual-massal)
-*   Impor Jadwal: [Lihat Mengimpormengekspor Data Jadwal](#mengimpormengekspor-data-jadwal)
-*   Impor Pengguna: [Lihat Mengimpormengekspor Data Pengguna](#mengimpormengekspor-data-pengguna)
-*   Jadwal Absensi: [Lihat Manajemen Jadwal Absensi](#manajemen-jadwal-absensi)
-*   Jadwal Mengajar & Absensi: [Lihat Jadwal Mengajar & Absensi](#jadwal-mengajar--absensi)
-*   Kelas: [Lihat Manajemen Kelas](#manajemen-kelas)
-*   Konfigurasi Cetak Kartu: [Lihat Konfigurasi Cetak Kartu](#konfigurasi-cetak-kartu)
-*   Konfigurasi Umum: [Lihat Konfigurasi Umum](#konfigurasi-umum)
-*   Laporan Absensi Siswa: [Lihat Laporan Absensi Siswa](#laporan-absensi-siswa)
-*   Login: [Lihat Login dan Logout](#login-dan-logout)
-*   Logout: [Lihat Login dan Logout](#login-dan-logout)
-*   Manajemen Aset Kartu: [Lihat Manajemen Aset Kartu](#manajemen-aset-kartu)
-*   Manajemen Mata Pelajaran: [Lihat Manajemen Mata Pelajaran](#manajemen-mata-pelajaran)
-*   Manajemen Pengguna: [Lihat Manajemen Pengguna](#manajemen-pengguna)
-*   Notifikasi: [Lihat Notifikasi](#notifikasi)
-*   Pengaturan Aplikasi: [Lihat Pengaturan Aplikasi](#pengaturan-aplikasi)
-*   Praktik Terbaik: [Lihat Praktik Terbaik](#praktik-terbaik)
-*   Profil Pengguna: [Lihat Manajemen Profil Pengguna](#manajemen-profil-pengguna)
-*   Rekap Absensi Admin: [Lihat Rekap Absensi](#rekap-absensi)
-*   Rekap Absensi Guru: [Lihat Rekap Absensi Sesuai Hak Akses Guru](#rekap-absensi-sesuai-hak-akses-guru)
-*   Reset Kata Sandi: [Lihat Reset Kata Sandi](#reset-kata-sandi)
-*   Scan Absensi Admin: [Lihat Scan Absensi](#scan-absensi)
-*   Scan Absensi Guru: [Lihat Scan Absensi](#scan-absensi-1)
-*   Siswa Dashboard: [Lihat Dashboard Siswa](#dashboard-siswa)
 *   Tips Pemecahan Masalah: [Lihat Tips Pemecahan Masalah Umum](#tips-pemecahan-masalah-umum)
 *   Ubah Kata Sandi: [Lihat Mengubah Kata Sandi](#mengubah-kata-sandi)
