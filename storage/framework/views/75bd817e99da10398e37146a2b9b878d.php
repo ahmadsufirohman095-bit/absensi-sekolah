@@ -293,7 +293,7 @@
 
             <!-- Pagination -->
             <div class="mt-4">
-                <?php echo e($absensis->links()); ?>
+                <?php echo e($absensis->appends(request()->query())->links('vendor.pagination.compact-tailwind')); ?>
 
             </div>
         </div>

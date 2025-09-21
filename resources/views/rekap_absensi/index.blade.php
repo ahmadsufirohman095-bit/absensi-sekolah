@@ -244,7 +244,7 @@
 
             <!-- Pagination -->
             <div class="mt-4">
-                {{ $absensis->links() }}
+                {{ $absensis->appends(request()->query())->links('vendor.pagination.compact-tailwind') }}
             </div>
         </div>
 
