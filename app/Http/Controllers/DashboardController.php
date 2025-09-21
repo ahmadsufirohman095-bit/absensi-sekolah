@@ -52,22 +52,17 @@ class DashboardController extends Controller
                 $jadwalMengajar = collect(); // Empty collection if no profile
             }
 
-            // Ambil daftar siswa yang belum hadir hari ini di kelas yang diampu
-            $siswaAbsen = collect();
+            // Ambil daftar siswa yang dimiliki oleh wali kelas tersebut
+            $daftarSiswaWaliKelas = collect();
             if ($kelasDiampu) {
-                // Query yang dioptimalkan: Mengambil siswa di kelas yang diampu 
-                // yang TIDAK memiliki record absensi pada hari ini.
-                                $siswaAbsen = User::with('siswaProfile') // Eager load the profile
+                $daftarSiswaWaliKelas = User::with('siswaProfile') // Eager load the profile
                     ->whereHas('siswaProfile', function ($query) use ($kelasDiampu) {
                         $query->where('kelas_id', $kelasDiampu->id);
-                    })
-                    ->whereDoesntHave('absensi', function ($query) {
-                        $query->whereDate('tanggal_absensi', today());
                     })
                     ->get();
             }
 
-            return view('guru.dashboard', compact('kelasDiampu', 'jadwalMengajar', 'siswaAbsen'));
+            return view('guru.dashboard', compact('kelasDiampu', 'jadwalMengajar', 'daftarSiswaWaliKelas'));
         } elseif ($user->hasRole('siswa')) {
             $riwayatTerbaru = Absensi::where('user_id', $user->id)
                 ->with(['jadwalAbsensi.mataPelajaran', 'jadwalAbsensi.kelas', 'jadwalAbsensi.guru'])
