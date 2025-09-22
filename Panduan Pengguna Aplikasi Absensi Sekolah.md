@@ -50,7 +50,6 @@ Dokumen ini adalah panduan komprehensif untuk menggunakan aplikasi absensi sekol
         *   Melihat dan Mengedit Jadwal
         *   Menghapus Jadwal (Individual & Massal)
         *   Mengimpor/Mengekspor Data Jadwal
-        *   Mengisi Lembar Absensi Manual
 
 4.  **Panduan untuk Guru**
     *   Dashboard Guru
@@ -120,6 +119,17 @@ Bagian ini menjelaskan fitur-fitur dasar yang dapat diakses oleh semua peran pen
 1.  Klik ikon profil atau menu pengguna di pojok kanan atas (atau lokasi yang relevan).
 2.  Pilih opsi **Logout** atau **Keluar**.
 3.  Anda akan diarahkan kembali ke halaman login.
+
+### Fitur Tambahan Halaman Login
+
+**Captcha Keamanan:**
+1.  Pada halaman login, Anda akan melihat pertanyaan matematika sederhana (misalnya, "Berapa 5 + 3?").
+2.  Masukkan jawaban yang benar pada kolom yang disediakan.
+3.  Ini adalah langkah keamanan tambahan untuk mencegah akses otomatis.
+
+**Tampilkan/Sembunyikan Kata Sandi:**
+1.  Di samping kolom input kata sandi, Anda akan menemukan ikon mata.
+2.  Klik ikon ini untuk menampilkan atau menyembunyikan kata sandi yang Anda masukkan. Ini berguna untuk memverifikasi kata sandi Anda saat mengetik.
 
 ### Manajemen Profil Pengguna
 
@@ -195,7 +205,6 @@ Dashboard Admin adalah halaman utama yang memberikan gambaran umum dan statistik
 *   **Tren Absensi Mingguan:** Grafik yang menunjukkan tren absensi siswa dari waktu ke waktu.
 *   **Statistik Pengguna:** Jumlah total Admin, Guru, dan Siswa.
 *   **Statistik Kelas dan Mata Pelajaran:** Jumlah total kelas dan mata pelajaran yang terdaftar.
-*   **Ringkasan Aktivitas Terbaru:** Log aktivitas sistem.
 
 **Cara Menggunakan:**
 1.  Setelah login sebagai Admin, Anda akan langsung diarahkan ke Dashboard.
@@ -233,7 +242,7 @@ Halaman ini memungkinkan Admin untuk mengelola dan melihat rekapitulasi data abs
 
 #### Menambah Absensi Manual
 
-**Perhatian:** Admin tidak dapat menambah absensi manual langsung dari halaman Rekap Absensi ini. Fitur penambahan absensi manual biasanya dilakukan oleh Guru melalui halaman "Jadwal Mengajar & Absensi" atau melalui proses lain yang terpisah.
+**Perhatian:** Admin tidak memiliki izin untuk menambah absensi manual. Fungsionalitas ini hanya tersedia untuk peran Guru.
 
 #### Mengedit Data Absensi
 
@@ -395,8 +404,10 @@ Halaman ini digunakan untuk mengelola data kelas di sekolah.
 
 #### Mengelola Anggota Kelas
 
-1.  Pada daftar Manajemen Kelas, klik nama kelas untuk melihat detail kelas dan daftar siswa yang tergabung.
-2.  Untuk menambah atau mengeluarkan siswa dari kelas, Anda perlu mengelola profil siswa tersebut melalui menu **Manajemen Pengguna**. Edit profil siswa dan atur kelasnya sesuai kebutuhan.
+1.  Pada daftar Manajemen Kelas, klik ikon **Aksi** (dropdown) di samping kelas, lalu pilih **Edit**.
+2.  Di halaman edit kelas, gulir ke bagian **Manajemen Siswa**.
+3.  Untuk menambah siswa: Klik tombol **Tambah Siswa**, pilih siswa dari daftar yang tersedia, lalu klik **Tambahkan Siswa Terpilih**.
+4.  Untuk mengeluarkan siswa: Temukan siswa di daftar "Manajemen Siswa", lalu klik tombol **Keluarkan** di samping nama siswa.
 
 #### Mencetak Kartu Kelas
 
@@ -477,11 +488,6 @@ Halaman ini khusus untuk Admin mengelola jadwal pelajaran yang menjadi dasar abs
 1.  Pada halaman Manajemen Jadwal Absensi, klik tombol **Ekspor Jadwal**.
 2.  File Excel berisi data semua jadwal akan diunduh.
 
-#### Mengisi Lembar Absensi Manual
-
-1.  Pada daftar Manajemen Jadwal Absensi, pilih jadwal yang ingin dibuat lembar absensinya.
-2.  Klik tombol **Isi Lembar Absensi**.
-3.  Anda akan diarahkan ke halaman di mana Anda dapat mencatat absensi siswa untuk jadwal tersebut secara manual.
 
 ---
 
@@ -500,7 +506,6 @@ Dashboard Guru adalah halaman utama yang menampilkan ringkasan informasi penting
 *   **Absensi Bulanan (Grafik Garis):** Menampilkan tren absensi siswa secara keseluruhan dalam sebulan.
 *   **Rekap Kehadiran Kelas (Grafik Donat - Hanya untuk Wali Kelas):** Ringkasan persentase kehadiran siswa di kelas yang diampu oleh wali kelas.
 *   **Daftar Siswa Wali Kelas (Hanya untuk Wali Kelas):** Menampilkan daftar siswa yang berada di bawah bimbingan wali kelas, dengan ringkasan status absensi mereka.
-*   **Notifikasi Terkait:** Pemberitahuan penting terkait jadwal atau absensi.
 
 **Cara Menggunakan:**
 1.  Setelah login sebagai Guru, Anda akan langsung diarahkan ke Dashboard.
@@ -580,7 +585,7 @@ Halaman ini memungkinkan Guru untuk melihat jadwal mengajar mereka dan mengelola
 
 #### Mengekspor Jadwal Mengajar
 
-1.  Pada halaman Jadwal Mengajar & Absensi, klik tombol **Ekspor Jadwal**.
+1.  Pada halaman Jadwal Mengajar & Absensi, klik tombol **Ekspor Jadwal** yang terletak di bagian atas halaman.
 2.  File Excel berisi jadwal mengajar Anda akan diunduh.
 
 ---
@@ -597,7 +602,6 @@ Dashboard Siswa adalah halaman utama yang menampilkan ringkasan informasi pentin
 *   **Rekap Absensi Bulan Ini:** Menampilkan diagram rekap absensi untuk bulan berjalan.
 *   **Rekap Absensi per Mata Pelajaran:** Menampilkan diagram rekap absensi berdasarkan mata pelajaran.
 *   **Riwayat Absensi Terbaru:** Menampilkan daftar riwayat absensi terbaru.
-*   **Notifikasi:** Pemberitahuan penting terkait absensi atau informasi sekolah.
 
 **Cara Menggunakan:**
 1.  Setelah login sebagai Siswa, Anda akan langsung diarahkan ke Dashboard.
