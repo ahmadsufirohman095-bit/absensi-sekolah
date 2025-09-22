@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -16,7 +17,27 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+        $num1 = rand(1, 9);
+        $num2 = rand(1, 9);
+        $operators = ['+', '-', 'x'];
+        $operator = $operators[array_rand($operators)];
+        $result = 0;
+
+        switch ($operator) {
+            case '+':
+                $result = $num1 + $num2;
+                break;
+            case '-':
+                $result = $num1 - $num2;
+                break;
+            case 'x':
+                $result = $num1 * $num2;
+                break;
+        }
+
+        session(['captcha_result' => $result]);
+
+        return view('auth.login', compact('num1', 'num2', 'operator'));
     }
 
     /**

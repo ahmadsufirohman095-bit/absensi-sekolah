@@ -29,6 +29,7 @@ class LoginRequest extends FormRequest
         return [
             'identifier' => ['required', 'string'],
             'password' => ['required', 'string'],
+            'captcha' => ['required', 'string'],
         ];
     }
 
@@ -38,6 +39,13 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+
+        if ($this->captcha != session('captcha_result')) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'captcha' => 'Hasil perhitungan salah.',
+            ]);
+        }
 
         // Coba temukan user berdasarkan identifier (NIS/NIP)
         $user = \App\Models\User::where('identifier', $this->identifier)->first();

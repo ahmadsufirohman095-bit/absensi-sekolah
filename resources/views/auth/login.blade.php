@@ -57,6 +57,15 @@
                 @endif
             </div>
 
+            <!-- Captcha -->
+            <div class="text-center">
+                <x-input-label for="captcha" class="text-slate-300 text-lg font-semibold mb-2">
+                    Berapa {{ $num1 }} {{ $operator }} {{ $num2 }}?
+                </x-input-label>
+                <x-text-input id="captcha" name="captcha" type="text" class="mt-1 block w-full bg-slate-200/20 border-slate-600 text-white focus:border-indigo-400 focus:ring-indigo-400 text-center text-xl py-2" required placeholder="Masukkan hasil perhitungan" />
+                <x-input-error :messages="$errors->get('captcha')" class="mt-2" />
+            </div>
+
             <!-- Remember Me -->
             <div class="block">
                 <label for="remember_me" class="inline-flex items-center">
