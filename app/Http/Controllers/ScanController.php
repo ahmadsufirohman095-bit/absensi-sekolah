@@ -73,6 +73,15 @@ class ScanController extends Controller
             ], 404);
         }
 
+        // Validasi status siswa
+        if (!$user->is_active) {
+            Log::warning('Scan Gagal: Siswa nonaktif mencoba absen.', ['user_id' => $user->id, 'is_active' => $user->is_active]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak dapat absen karena status Anda nonaktif.'
+            ], 403); // 403 Forbidden
+        }
+
         // Get the selected JadwalAbsensi
         $jadwalAbsensi = JadwalAbsensi::with(['kelas', 'mataPelajaran', 'guru'])->find($jadwalAbsensiId);
 
