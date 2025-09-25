@@ -34,7 +34,6 @@
                     </svg>
                 </button>
             </div>
-            <div id="password-strength" class="mt-2 text-sm"></div>
             <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2">
                 @if ($errors->updatePassword->has('password'))
                     @foreach ($errors->updatePassword->get('password') as $message)

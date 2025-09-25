@@ -50,7 +50,6 @@
                         </svg>
                     </button>
                 </div>
-                <div id="password-strength-login" class="mt-2 text-sm"></div>
                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
                 @if ($errors->has('email'))
                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
