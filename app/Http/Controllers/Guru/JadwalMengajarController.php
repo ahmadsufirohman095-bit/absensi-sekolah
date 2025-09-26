@@ -39,13 +39,17 @@ class JadwalMengajarController extends Controller
                 $jadwal->status_pertemuan = $this->getMeetingStatus($jadwal, $carbonSelectedDate);
                 
                 $jadwal->siswa_dengan_absensi = $jadwal->kelas->siswa->map(function ($siswa) use ($jadwal) {
+                    $siswaClone = clone $siswa; // Buat salinan bersih dari objek siswa
+
                     // Ambil absensi yang sudah di-eager load dan filter berdasarkan jadwal_absensi_id
                     $absensi = $siswa->absensi->where('jadwal_absensi_id', $jadwal->id)->first();
 
-                    $siswa->absensi_status = $absensi ? $absensi->status : null;
-                    $siswa->absensi_keterangan = $absensi ? $absensi->keterangan : null;
-                    $siswa->absensi_waktu_masuk = $absensi ? $absensi->waktu_masuk : null;
-                    return $siswa;
+                    // Atur properti pada salinan, bukan pada objek asli
+                    $siswaClone->absensi_status = $absensi ? $absensi->status : null;
+                    $siswaClone->absensi_keterangan = $absensi ? $absensi->keterangan : null;
+                    $siswaClone->absensi_waktu_masuk = $absensi ? $absensi->waktu_masuk : null;
+                    
+                    return $siswaClone; // Kembalikan salinan
                 });
 
                 // Hitung ringkasan absensi untuk jadwal ini

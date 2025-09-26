@@ -18,7 +18,7 @@
                         <div class="space-y-6">
                             <div>
                                 <x-input-label for="student_name" :value="__('Nama Siswa')" />
-                                <x-text-input id="student_name" type="text" class="mt-1 block w-full" value="{{ $absensi->user->name }}" disabled />
+                                <x-text-input id="student_name" type="text" class="mt-1 block w-full" value="{{ $absensi->user->name ?? 'User Dihapus' }}" disabled />
                             </div>
 
                             <div>

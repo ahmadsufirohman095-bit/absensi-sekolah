@@ -15,8 +15,14 @@ class KelasController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Kelas::with(['waliKelas', 'siswaProfiles.user'])
-                      ->withCount('siswaProfiles')
+        $query = Kelas::with(['waliKelas' => function ($query) {
+                $query->withTrashed();
+            }, 'siswaProfiles.user'])
+                      ->withCount(['siswaProfiles' => function ($query) {
+                          $query->whereHas('user', function ($q) {
+                              $q->whereNull('deleted_at');
+                          });
+                      }])
                       ->latest('created_at');
 
         // Search
@@ -62,7 +68,16 @@ class KelasController extends Controller
 
     public function show(Kelas $kela)
     {
-        $kela->load(['waliKelas', 'siswaProfiles.user', 'jadwalAbsensis.mataPelajaran', 'jadwalAbsensis.guru']);
+        $kela->load(['waliKelas' => function ($query) {
+                $query->withTrashed();
+            }, 'siswaProfiles.user', 'jadwalAbsensis.mataPelajaran', 'jadwalAbsensis.guru' => function ($query) {
+                $query->withTrashed();
+            }]);
+
+        // Filter siswaProfiles untuk hanya menyertakan user yang tidak soft deleted
+        $kela->siswaProfiles = $kela->siswaProfiles->filter(function ($siswaProfile) {
+            return $siswaProfile->user && !$siswaProfile->user->trashed();
+        });
 
         $jadwalPelajaran = $kela->jadwalAbsensis->groupBy('hari')->sortKeysUsing(function ($a, $b) {
             $days = ['Senin' => 1, 'Selasa' => 2, 'Rabu' => 3, 'Kamis' => 4, 'Jumat' => 5, 'Sabtu' => 6, 'Minggu' => 7];
@@ -167,12 +182,16 @@ class KelasController extends Controller
 
     public function destroy(Kelas $kela)
     {
-        // Cek relasi siswa. withCount() lebih efisien.
-        $kela->loadCount('siswaProfiles');
+        // Cek relasi siswa aktif.
+        $kela->loadCount(['siswaProfiles' => function ($query) {
+            $query->whereHas('user', function ($q) {
+                $q->whereNull('deleted_at');
+            });
+        }]);
 
         if ($kela->siswa_profiles_count > 0) {
             return redirect()->route('kelas.index')
-                ->with('error', 'Gagal menghapus! Kelas masih memiliki ' . $kela->siswa_profiles_count . ' siswa. Harap kosongkan kelas terlebih dahulu.');
+                ->with('error', 'Gagal menghapus! Kelas masih memiliki ' . $kela->siswa_profiles_count . ' siswa aktif. Harap kosongkan kelas terlebih dahulu.');
         }
 
         // Jika tidak ada siswa, baru hapus kelas.

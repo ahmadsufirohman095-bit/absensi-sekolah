@@ -22,7 +22,9 @@ class RekapAbsensiController extends Controller
     {
         $user = auth()->user();
         $query = Absensi::with([
-            'user',
+            'user' => function ($query) {
+                $query->withTrashed();
+            },
             'jadwalAbsensi.kelas',
             'jadwalAbsensi.mataPelajaran',
             'jadwalAbsensi.guru'
@@ -203,7 +205,16 @@ class RekapAbsensiController extends Controller
         $this->authorize('update', $absensi);
 
         // Load relationships for display
-        $absensi->load('user', 'jadwalAbsensi.kelas', 'jadwalAbsensi.mataPelajaran', 'jadwalAbsensi.guru');
+        $absensi->load([
+            'user' => function ($query) {
+                $query->withTrashed();
+            },
+            'jadwalAbsensi.kelas',
+            'jadwalAbsensi.mataPelajaran',
+            'jadwalAbsensi.guru' => function ($query) {
+                $query->withTrashed();
+            }
+        ]);
 
         $statusOptions = ['hadir', 'terlambat', 'sakit', 'izin', 'alpha'];
         $attendanceTypeOptions = ['manual', 'qr_code'];
@@ -323,4 +334,3 @@ class RekapAbsensiController extends Controller
         return Excel::download(new \App\Exports\SiswaLaporanAbsensiExport($request), $fileName);
     }
 }
-

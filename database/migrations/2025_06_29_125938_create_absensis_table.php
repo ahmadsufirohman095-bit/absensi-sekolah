@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('absensis', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade')->index('absensis_user_id_foreign');
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null')->index('absensis_user_id_foreign');
             $table->date('tanggal_absensi')->index();
             $table->time('waktu_masuk')->nullable();
             $table->time('waktu_selesai')->nullable();

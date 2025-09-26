@@ -49,8 +49,8 @@
                                                 <div class="flex items-center justify-center space-x-4">
                                                     @foreach ($statuses as $status)
                                                         <label class="flex items-center">
-                                                            <input type="radio" name="absensi[{{ $student->id }}][status]" value="{{ strtolower($status) }}" 
-                                                                   class="radio-status text-indigo-600" 
+                                                            <input type="radio" id="status_{{ $student->id }}_{{ $status }}" name="absensi[{{ $student->id }}][status]" value="{{ strtolower($status) }}" 
+                                                                   class="text-indigo-600" 
                                                                    @checked(strtolower($student->status_hari_ini) == strtolower($status))>
                                                             <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">{{ $status }}</span>
                                                         </label>
