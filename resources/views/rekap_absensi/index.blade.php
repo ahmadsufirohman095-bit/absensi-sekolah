@@ -19,6 +19,7 @@
                     <i class="fa-solid fa-file-excel mr-2"></i>
                     Ekspor Excel
                 </button>
+                @if(auth()->user()->role !== 'admin')
                 <button @click="$store.rekapAbsensi.showBulkDeleteConfirm = true" type="button"
                     x-show="$store.rekapAbsensi.selectedAbsensi.length > 0"
                     x-transition
@@ -28,6 +29,7 @@
                     <span x-show="!$store.rekapAbsensi.isDeleting"><i class="fa-solid fa-trash-can mr-2"></i>Hapus (<span x-text="$store.rekapAbsensi.selectedAbsensi.length"></span>)</span>
                     <span x-show="$store.rekapAbsensi.isDeleting">Menghapus...</span>
                 </button>
+                @endif
             </div>
         </div>
     </x-slot>
@@ -175,12 +177,14 @@
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 min-w-full">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
+                            @if(auth()->user()->role !== 'admin')
                             <th scope="col" class="p-4">
                                 <div class="flex items-center">
                                     <input id="checkbox-all-items" type="checkbox" @change="$store.rekapAbsensi.toggleSelectAll($event)" class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                     <label for="checkbox-all-items" class="sr-only">checkbox</label>
                                 </div>
                             </th>
+                            @endif
                             <th scope="col" class="px-6 py-3">Tanggal</th>
                             <th scope="col" class="px-6 py-3">Waktu</th>
                             <th scope="col" class="px-6 py-3">Siswa</th>
@@ -196,12 +200,14 @@
                     <tbody>
                         @forelse ($absensis as $absensi)
                             <tr id="absensi-row-{{ $absensi->id }}" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 odd:bg-gray-50 dark:odd:bg-gray-900">
+                                @if(auth()->user()->role !== 'admin')
                                 <td class="w-4 p-4">
                                     <div class="flex items-center">
                                         <input id="checkbox-item-{{ $absensi->id }}" type="checkbox" class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" value="{{ $absensi->id }}" x-model="$store.rekapAbsensi.selectedAbsensi">
                                         <label for="checkbox-item-{{ $absensi->id }}" class="sr-only">checkbox</label>
                                     </div>
                                 </td>
+                                @endif
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $absensi->tanggal_absensi->format('d M Y') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $absensi->waktu_masuk ? $absensi->waktu_masuk->format('H:i') : '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $absensi->user->name ?? 'User Dihapus' }}</td>
@@ -265,6 +271,7 @@
                 </div>
             </div>
         </div>
+        @if(auth()->user()->role !== 'admin')
         <div x-show="$store.rekapAbsensi.showBulkDeleteConfirm" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center p-4" x-cloak>
             <div @click.away="$store.rekapAbsensi.showBulkDeleteConfirm = false" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Konfirmasi Hapus Massal</h3>
@@ -281,6 +288,7 @@
                 </div>
             </div>
         </div>
+        @endif
         <div x-show="$store.rekapAbsensi.showExportModal" 
              @keydown.escape.window="$store.rekapAbsensi.showExportModal = false; $store.rekapAbsensi.destroyExportModal()" 
              x-init="$watch('$store.rekapAbsensi.showExportModal', value => { if (value) { $nextTick(() => $store.rekapAbsensi.initExportModal()); } else { $store.rekapAbsensi.destroyExportModal(); } })" 
