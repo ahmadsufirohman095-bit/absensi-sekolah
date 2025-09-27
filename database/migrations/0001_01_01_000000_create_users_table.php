@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('username')->unique();
-            $table->string('identifier')->nullable()->unique()->index();
-            $table->string('email')->unique(); // Email address, made unique for user identification
+            $table->string('username');
+            $table->unique(['username', 'deleted_at']);
+            $table->string('identifier')->nullable()->index();
+            $table->unique(['identifier', 'deleted_at']);
+            $table->string('email'); // Email address
+            $table->unique(['email', 'deleted_at']);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['admin', 'guru', 'siswa'])->default('siswa');
@@ -48,6 +51,16 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropUnique(['username', 'deleted_at']);
+            $table->dropUnique(['identifier', 'deleted_at']);
+            $table->dropUnique(['email', 'deleted_at']);
+
+            $table->string('username')->unique()->change();
+            $table->string('identifier')->nullable()->unique()->index()->change();
+            $table->string('email')->unique()->change();
+        });
+
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');

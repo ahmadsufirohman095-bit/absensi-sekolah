@@ -97,9 +97,24 @@ class UserController extends Controller
 
         $validatedData = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'username' => ['required', 'string', 'max:255', 'unique:users,username'],
-            'identifier' => ['required', 'string', 'max:255', 'unique:users,identifier'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'username' => [
+                'required', 'string', 'max:255',
+                \Illuminate\Validation\Rule::unique('users', 'username')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
+            'identifier' => [
+                'required', 'string', 'max:255',
+                \Illuminate\Validation\Rule::unique('users', 'identifier')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
+            'email' => [
+                'required', 'string', 'email', 'max:255',
+                \Illuminate\Validation\Rule::unique('users', 'email')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
             'role' => ['required', Rule::in(['admin', 'guru', 'siswa'])],
             'password' => ['required', 'confirmed', ValidationRules\Password::min(8)],
 
@@ -256,9 +271,24 @@ class UserController extends Controller
         // 1. Validate all incoming data
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'username' => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)],
-            'identifier' => ['required', 'string', 'max:255', Rule::unique('users', 'identifier')->ignore($user->id)],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'username' => [
+                'required', 'string', 'max:255',
+                Rule::unique('users', 'username')->ignore($user->id)->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
+            'identifier' => [
+                'required', 'string', 'max:255',
+                Rule::unique('users', 'identifier')->ignore($user->id)->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
+            'email' => [
+                'required', 'string', 'email', 'max:255',
+                Rule::unique('users', 'email')->ignore($user->id)->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
             'role' => ['required', Rule::in(['admin', 'guru', 'siswa'])],
             'password' => ['nullable', 'confirmed', ValidationRules\Password::min(8)],
             'jenis_kelamin' => ['nullable', Rule::in(['laki-laki', 'perempuan'])], // Ditambahkan di sini
