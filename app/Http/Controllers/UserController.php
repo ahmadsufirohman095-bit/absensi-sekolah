@@ -126,7 +126,8 @@ class UserController extends Controller
             'guru_telepon' => ['nullable', 'string', 'max:255'],
             'guru_foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             'kelas_id' => ['nullable', 'exists:kelas,id'],
-            'tanggal_lahir' => ['nullable', 'date'],
+            'tanggal_lahir' => ['nullable', 'date'], // Untuk siswa
+            'guru_tanggal_lahir' => ['nullable', 'date'], // Untuk guru
             'nama_ayah' => ['nullable', 'string', 'max:255'],
             'nama_ibu' => ['nullable', 'string', 'max:255'],
             'telepon_ayah' => ['nullable', 'string', 'max:255'],
@@ -176,7 +177,7 @@ class UserController extends Controller
                         $profileData = [
                             'jabatan' => $validatedData['guru_jabatan'] ?? null,
                             'telepon' => $validatedData['guru_telepon'] ?? null,
-                            'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null,
+                            'tanggal_lahir' => $validatedData['guru_tanggal_lahir'] ?? null, // Mengambil dari guru_tanggal_lahir
                             'alamat' => $validatedData['alamat'] ?? null,
                             'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
                             'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,

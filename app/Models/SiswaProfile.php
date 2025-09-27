@@ -44,10 +44,21 @@ class SiswaProfile extends Model
     public function setTanggalLahirAttribute($value)
     {
         if ($value) {
+            \Log::info('SiswaProfile setTanggalLahirAttribute - Input value:', ['value' => $value]);
             try {
+                // Coba format d/m/Y
                 $this->attributes['tanggal_lahir'] = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+                \Log::info('SiswaProfile setTanggalLahirAttribute - Formatted d/m/Y:', ['formatted' => $this->attributes['tanggal_lahir']]);
             } catch (\Exception $e) {
-                $this->attributes['tanggal_lahir'] = Carbon::parse($value)->format('Y-m-d');
+                // Jika gagal, coba parse secara umum
+                try {
+                    $this->attributes['tanggal_lahir'] = Carbon::parse($value)->format('Y-m-d');
+                    \Log::info('SiswaProfile setTanggalLahirAttribute - Parsed general:', ['parsed' => $this->attributes['tanggal_lahir']]);
+                } catch (\Exception $e2) {
+                    // Jika masih gagal, set null
+                    $this->attributes['tanggal_lahir'] = null;
+                    \Log::warning('SiswaProfile setTanggalLahirAttribute - Failed to parse date, setting to null:', ['value' => $value, 'error' => $e2->getMessage()]);
+                }
             }
         } else {
             $this->attributes['tanggal_lahir'] = null;

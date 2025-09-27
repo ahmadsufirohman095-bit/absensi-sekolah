@@ -285,13 +285,20 @@ window.initializeFlatpickrTime = function() {
 
 window.initializeFlatpickrDMY = function() {
     document.querySelectorAll('.flatpickr-dmy').forEach(function(element) {
+        // Destroy existing instance if it exists to ensure re-initialization
         if (element._flatpickr) {
-            return; // Already initialized
+            element._flatpickr.destroy();
         }
+
+        // Get the initial value from the element's 'value' attribute
+        const initialValue = element.value;
+
         flatpickr(element, {
             altInput: true,
             altFormat: "d/m/Y", // User-friendly format
             dateFormat: "Y-m-d", // Server-friendly format
+            defaultDate: initialValue, // Set default date from the input's value
+            allowInput: true, // Allow manual input to prevent potential issues with initial value parsing
         });
     });
 };

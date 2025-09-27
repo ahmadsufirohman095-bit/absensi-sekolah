@@ -173,7 +173,8 @@
                 </div>
                 <div>
                     <x-input-label for="guru_tanggal_lahir" value="Tanggal Lahir" />
-                    <x-text-input id="guru_tanggal_lahir" name="guru_tanggal_lahir" :value="old('guru_tanggal_lahir', optional($user->guruProfile)->tanggal_lahir ? $user->guruProfile->tanggal_lahir->format('Y-m-d') : null)"
+                    <x-text-input id="guru_tanggal_lahir" name="guru_tanggal_lahir"
+                        value="{{ old('guru_tanggal_lahir', optional($user->guruProfile)->tanggal_lahir ? $user->guruProfile->tanggal_lahir->format('Y-m-d') : '') }}"
                         class="block mt-1 w-full flatpickr-dmy" type="text" placeholder="yyyy-mm-dd" />
                     <x-input-error :messages="$errors->get('guru_tanggal_lahir')" class="mt-2" />
                 </div>
@@ -227,7 +228,8 @@
                 </div>
                 <div>
                     <x-input-label for="tanggal_lahir" value="Tanggal Lahir" />
-                    <x-text-input id="tanggal_lahir" name="tanggal_lahir" :value="old('tanggal_lahir', optional($user->siswaProfile)->tanggal_lahir ? $user->siswaProfile->tanggal_lahir->format('Y-m-d') : null)"
+                    <x-text-input id="tanggal_lahir" name="tanggal_lahir"
+                        value="{{ old('tanggal_lahir', optional($user->siswaProfile)->tanggal_lahir ? $user->siswaProfile->tanggal_lahir->format('Y-m-d') : '') }}"
                         class="block mt-1 w-full flatpickr-dmy" type="text" placeholder="yyyy-mm-dd" />
                     <x-input-error :messages="$errors->get('tanggal_lahir')" class="mt-2" />
                 </div>
