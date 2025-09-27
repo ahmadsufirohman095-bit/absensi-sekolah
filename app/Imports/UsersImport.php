@@ -40,6 +40,16 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, WithChunkR
 
         try {
             // Cari user yang sudah ada (termasuk yang soft deleted) berdasarkan username atau email
+            $password = null;
+            if (isset($row['password']) && !empty($row['password'])) {
+                // Periksa apakah password sudah di-hash (misalnya bcrypt)
+                if (str_starts_with($row['password'], '$2y$') || str_starts_with($row['password'], '$2a$') || str_starts_with($row['password'], '$2b$')) {
+                    $password = $row['password']; // Sudah di-hash, simpan langsung
+                } else {
+                    $password = Hash::make($row['password']); // Belum di-hash, hash sekarang
+                }
+            }
+
             $user = User::withTrashed()
                         ->where('username', $row['username'])
                         ->orWhere('email', $row['email'])
@@ -55,7 +65,7 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, WithChunkR
                     'email'    => $row['email'],
                     'role'     => $role,
                     'identifier' => (string) $nisNip,
-                    'password' => isset($row['password']) && !empty($row['password']) ? Hash::make($row['password']) : $user->password, // Pertahankan password jika tidak ada yang baru
+                    'password' => $password ?? $user->password, // Gunakan password baru atau pertahankan yang lama
                     'is_active' => true, // Aktifkan kembali user saat diimpor/diperbarui
                 ]);
                 \Log::info('User diperbarui/direstore:', ['user_id' => $user->id, 'username' => $user->username]);
@@ -67,7 +77,7 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, WithChunkR
                     'email'    => $row['email'],
                     'role'     => $role,
                     'identifier' => (string) $nisNip,
-                    'password' => isset($row['password']) && !empty($row['password']) ? Hash::make($row['password']) : Hash::make('password'),
+                    'password' => $password ?? Hash::make('password'), // Gunakan password baru atau default 'password'
                     'is_active' => true,
                 ]);
                 $user->save();
