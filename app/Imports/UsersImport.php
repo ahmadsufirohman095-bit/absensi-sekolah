@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Illuminate\Validation\Rule;
 
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use App\Models\AdminProfile;
@@ -38,44 +39,75 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, WithChunkR
         $alamat = $row['alamat'] ?? null;
 
         try {
-            // 1. Create the User model
-            $user = new User([
-                'name'     => $row['nama_lengkap'],
-                'username' => $row['username'],
-                'email'    => $row['email'],
-                'role'     => $role,
-                'identifier' => (string) $nisNip,
-                'password' => isset($row['password']) && !empty($row['password']) ? $row['password'] : Hash::make('password'),
-            ]);
-            $user->save(); // Save the user first to get an ID
+            // Cari user yang sudah ada (termasuk yang soft deleted) berdasarkan username atau email
+            $user = User::withTrashed()
+                        ->where('username', $row['username'])
+                        ->orWhere('email', $row['email'])
+                        ->first();
 
-            // 2. Handle profile data based on role
+            if ($user) {
+                // Jika user ditemukan, restore jika soft deleted dan update datanya
+                if ($user->trashed()) {
+                    $user->restore();
+                }
+                $user->update([
+                    'name'     => $row['nama_lengkap'],
+                    'email'    => $row['email'],
+                    'role'     => $role,
+                    'identifier' => (string) $nisNip,
+                    'password' => isset($row['password']) && !empty($row['password']) ? Hash::make($row['password']) : $user->password, // Pertahankan password jika tidak ada yang baru
+                    'is_active' => true, // Aktifkan kembali user saat diimpor/diperbarui
+                ]);
+                \Log::info('User diperbarui/direstore:', ['user_id' => $user->id, 'username' => $user->username]);
+            } else {
+                // Jika user tidak ditemukan, buat user baru
+                $user = new User([
+                    'name'     => $row['nama_lengkap'],
+                    'username' => $row['username'],
+                    'email'    => $row['email'],
+                    'role'     => $role,
+                    'identifier' => (string) $nisNip,
+                    'password' => isset($row['password']) && !empty($row['password']) ? Hash::make($row['password']) : Hash::make('password'),
+                    'is_active' => true,
+                ]);
+                $user->save();
+                \Log::info('User baru dibuat:', ['user_id' => $user->id, 'username' => $user->username]);
+            }
+
+            // Handle profile data based on role (create or update)
+            $profileData = [
+                'tempat_lahir' => $tempatLahir,
+                'jenis_kelamin' => $jenisKelamin,
+                'alamat' => $alamat,
+            ];
+
             switch ($role) {
                 case 'admin':
-                    AdminProfile::create([
-                        'user_id' => $user->id,
-                        'jabatan' => $row['jabatan'] ?? null,
-                        'telepon' => $row['telepon'] ?? null,
-                        'tanggal_bergabung' => $row['tanggal_bergabung'] ?? null,
-                        'tempat_lahir' => $tempatLahir,
-                        'jenis_kelamin' => $jenisKelamin,
-                    ]);
+                    $user->adminProfile()->updateOrCreate(
+                        [],
+                        array_merge($profileData, [
+                            'jabatan' => $row['jabatan'] ?? null,
+                            'telepon' => $row['telepon'] ?? null,
+                            'tanggal_bergabung' => $row['tanggal_bergabung'] ?? $user->created_at,
+                        ])
+                    );
                     break;
                 case 'guru':
-                    $guruProfile = GuruProfile::create([
-                        'user_id' => $user->id,
-                        'jabatan' => $row['jabatan'] ?? null,
-                        'telepon' => $row['telepon'] ?? null,
-                        'tanggal_lahir' => $tanggalLahir,
-                        'tempat_lahir' => $tempatLahir,
-                        'jenis_kelamin' => $jenisKelamin,
-                        'alamat' => $alamat,
-                    ]);
+                    $guruProfile = $user->guruProfile()->updateOrCreate(
+                        [],
+                        array_merge($profileData, [
+                            'jabatan' => $row['jabatan'] ?? null,
+                            'telepon' => $row['telepon'] ?? null,
+                            'tanggal_lahir' => $tanggalLahir,
+                        ])
+                    );
                     // Handle Mata Pelajaran (many-to-many)
                     if (isset($row['mata_pelajaran']) && !empty($row['mata_pelajaran'])) {
                         $mapelNames = explode(', ', $row['mata_pelajaran']);
                         $mapelIds = MataPelajaran::whereIn('nama_mapel', $mapelNames)->pluck('id');
                         $user->mataPelajarans()->sync($mapelIds);
+                    } else {
+                        $user->mataPelajarans()->detach(); // Hapus semua mata pelajaran jika tidak ada di impor
                     }
                     break;
                 case 'siswa':
@@ -89,24 +121,23 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, WithChunkR
                             // Optionally, handle error or create new class
                         }
                     }
-                    SiswaProfile::create([
-                        'user_id' => $user->id,
-                        'kelas_id' => $kelasId,
-                        'nis' => (string) $nisNip, // NIS is identifier for siswa
-                        'nama_lengkap' => $row['nama_lengkap'],
-                        'tanggal_lahir' => $tanggalLahir,
-                        'tempat_lahir' => $tempatLahir,
-                        'jenis_kelamin' => $jenisKelamin,
-                        'alamat' => $alamat,
-                        'nama_ayah' => $row['nama_ayah'] ?? null,
-                        'nama_ibu' => $row['nama_ibu'] ?? null,
-                        'telepon_ayah' => $row['telepon_ayah'] ?? null,
-                        'telepon_ibu' => $row['telepon_ibu'] ?? null,
-                    ]);
+                    $user->siswaProfile()->updateOrCreate(
+                        [],
+                        array_merge($profileData, [
+                            'kelas_id' => $kelasId,
+                            'nis' => (string) $nisNip,
+                            'nama_lengkap' => $row['nama_lengkap'],
+                            'tanggal_lahir' => $tanggalLahir,
+                            'nama_ayah' => $row['nama_ayah'] ?? null,
+                            'nama_ibu' => $row['nama_ibu'] ?? null,
+                            'telepon_ayah' => $row['telepon_ayah'] ?? null,
+                            'telepon_ibu' => $row['telepon_ibu'] ?? null,
+                        ])
+                    );
                     break;
             }
 
-            return $user; // Return the created user model
+            return $user; // Return the created/updated user model
         } catch (\Illuminate\Database\QueryException $e) {
             \Log::error('Database error during user import:', [
                 'exception' => $e->getMessage(),
@@ -145,10 +176,27 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, WithChunkR
     {
         return [
             'nama_lengkap' => 'required|string',
-            'username' => 'required|string|unique:users,username',
-            'email' => 'required|email|unique:users,email',
+            'username' => [
+                'required',
+                'string',
+                Rule::unique('users', 'username')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
             'role' => 'required|in:admin,guru,siswa,Admin,Guru,Siswa', // Accept capitalized roles as well
-            'nisnip' => 'nullable|unique:users,identifier', // Removed 'string' validation, and made nullable
+            'nisnip' => [
+                'nullable',
+                Rule::unique('users', 'identifier')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
             'password' => 'nullable|string',
 
             // Common profile fields
