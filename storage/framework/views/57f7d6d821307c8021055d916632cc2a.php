@@ -210,14 +210,32 @@
                 createNewChart('teachingSummaryChart', 'bar', {
                     labels: data.teachingSummary.labels,
                     datasets: [{
-                        label: 'Jumlah Jam',
+                        label: 'Total Jam Mengajar',
                         data: data.teachingSummary.data,
                         backgroundColor: 'rgba(167, 139, 250, 0.5)',
                         borderColor: 'rgba(139, 92, 246, 1)',
                         borderWidth: 2,
                         borderRadius: 4,
                     }]
-                }, { ...defaultOptions, plugins: { ...defaultOptions.plugins, legend: { display: false } } });
+                }, {
+                    ...defaultOptions,
+                    indexAxis: 'y', // Membuat diagram batang horizontal
+                    plugins: {
+                        ...defaultOptions.plugins,
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { font: chartFont, color: document.body.classList.contains('dark') ? '#9ca3af' : '#6b7280' },
+                            grid: { color: document.body.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)' }
+                        },
+                        y: {
+                            ticks: { font: chartFont, color: document.body.classList.contains('dark') ? '#9ca3af' : '#6b7280' },
+                            grid: { display: false }
+                        }
+                    }
+                });
 
                 // --- Chart: Rekap Kehadiran (Wali Kelas) ---
                 if (data.rekapKehadiran) {
@@ -233,20 +251,29 @@
                 }
 
                 // --- Chart: Absensi Bulanan ---
-                createNewChart('monthlyAbsenceChartGuru', 'line', {
+                createNewChart('monthlyAbsenceChartGuru', 'bar', {
                     labels: data.monthlyAbsence.labels,
-                    datasets: [{
-                        label: 'Total Absensi',
-                        data: data.monthlyAbsence.data,
-                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
-                        borderColor: 'rgba(99, 102, 241, 1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
-                        pointRadius: 4,
-                        tension: 0.4,
-                        fill: true,
-                    }]
-                }, { ...defaultOptions, plugins: { ...defaultOptions.plugins, legend: { display: false } } });
+                    datasets: data.monthlyAbsence.datasets,
+                }, {
+                    ...defaultOptions,
+                    plugins: {
+                        ...defaultOptions.plugins,
+                        legend: { position: 'bottom', labels: { font: chartFont, color: document.body.classList.contains('dark') ? '#cbd5e1' : '#4b5563' } }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: { font: chartFont, color: document.body.classList.contains('dark') ? '#9ca3af' : '#6b7280' },
+                            grid: { display: false }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: { font: chartFont, color: document.body.classList.contains('dark') ? '#9ca3af' : '#6b7280' },
+                            grid: { color: document.body.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)' }
+                        }
+                    }
+                });
             })
             .catch(error => {
                 console.error('Chart rendering failed:', error);

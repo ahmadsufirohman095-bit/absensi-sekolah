@@ -157,10 +157,22 @@ class DashboardController extends Controller
             $query->where('guru_id', $guru->id);
         })->whereDate('tanggal_absensi', today())->count();
 
+        $teachingSummaryData = JadwalAbsensi::where('guru_id', $guru->id)
+            ->join('mata_pelajarans', 'jadwal_absensis.mata_pelajaran_id', '=', 'mata_pelajarans.id')
+            ->select(
+                'mata_pelajarans.nama_mapel',
+                DB::raw('SUM(TIME_TO_SEC(TIMEDIFF(jam_selesai, jam_mulai)) / 3600) as total_hours')
+            )
+            ->groupBy('mata_pelajarans.nama_mapel')
+            ->get();
+
+        $teachingSummaryLabels = $teachingSummaryData->pluck('nama_mapel')->toArray();
+        $teachingSummaryValues = $teachingSummaryData->pluck('total_hours')->map(fn($hours) => round($hours, 1))->toArray();
+
         $data = [
             'teachingSummary' => [
-                'labels' => ['Mata Pelajaran', 'Kelas Diajar', 'Absensi Tercatat'],
-                'data' => [$totalMataPelajaranDiampu, $totalKelasDiajar, $absensiTercatatHariIni],
+                'labels' => $teachingSummaryLabels,
+                'data' => $teachingSummaryValues,
             ],
         ];
 
@@ -187,29 +199,46 @@ class DashboardController extends Controller
 
         $monthlyAbsenceDataGuru = Absensi::select(
                 DB::raw('MONTH(tanggal_absensi) as month'),
-                DB::raw('COUNT(*) as total_absensi')
+                'status',
+                DB::raw('COUNT(*) as count')
             )
             ->whereHas('jadwalAbsensi', function ($query) use ($guru) {
-                $query->where('guru_id', $guru->id);
+                $query->withTrashed()->where('guru_id', $guru->id);
             })
             ->whereYear('tanggal_absensi', now()->year)
-            ->groupBy('month')
+            ->groupBy('month', 'status')
             ->orderBy('month')
             ->get();
 
         $monthsGuru = [];
-        $absencesGuru = [];
-        $monthlyDataMap = $monthlyAbsenceDataGuru->keyBy('month');
-
         for ($i = 1; $i <= 12; $i++) {
-            $monthName = \Carbon\Carbon::create(null, $i, 1)->translatedFormat('F');
-            $monthsGuru[] = $monthName;
-            $absencesGuru[] = $monthlyDataMap->get($i)->total_absensi ?? 0;
+            $monthsGuru[] = \Carbon\Carbon::create(null, $i, 1)->translatedFormat('F');
+        }
+
+        $statuses = ['hadir', 'terlambat', 'sakit', 'izin', 'alpha'];
+        $datasets = [];
+
+        foreach ($statuses as $status) {
+            $dataForStatus = [];
+            for ($i = 1; $i <= 12; $i++) {
+                $count = $monthlyAbsenceDataGuru
+                    ->where('month', $i)
+                    ->where('status', $status)
+                    ->sum('count');
+                $dataForStatus[] = $count;
+            }
+            $datasets[] = [
+                'label' => ucfirst($status),
+                'data' => $dataForStatus,
+                'backgroundColor' => $this->getStatusColor($status, 0.5),
+                'borderColor' => $this->getStatusColor($status, 1),
+                'borderWidth' => 1,
+            ];
         }
 
         $data['monthlyAbsence'] = [
             'labels' => $monthsGuru,
-            'data' => $absencesGuru,
+            'datasets' => $datasets,
         ];
 
         return response()->json($data);
@@ -271,5 +300,30 @@ class DashboardController extends Controller
         }
 
         return $summary;
+    }
+
+    /**
+     * Get color for attendance status.
+     *
+     * @param string $status
+     * @param float $alpha
+     * @return string
+     */
+    private function getStatusColor(string $status, float $alpha = 1.0): string
+    {
+        switch ($status) {
+            case 'hadir':
+                return "rgba(52, 211, 153, {$alpha})"; // Green
+            case 'terlambat':
+                return "rgba(251, 191, 36, {$alpha})"; // Yellow
+            case 'sakit':
+                return "rgba(96, 165, 250, {$alpha})"; // Blue
+            case 'izin':
+                return "rgba(167, 139, 250, {$alpha})"; // Purple
+            case 'alpha':
+                return "rgba(248, 113, 113, {$alpha})"; // Red
+            default:
+                return "rgba(107, 114, 128, {$alpha})"; // Gray
+        }
     }
 }

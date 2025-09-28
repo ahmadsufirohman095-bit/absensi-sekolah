@@ -324,6 +324,35 @@ unset($__defined_vars, $__key, $__value); ?>
 <?php unset($__componentOriginal2e340925a8bf40d3894bf118093fdd54); ?>
 <?php endif; ?>
         <?php endif; ?>
+
+        
+        <?php if(in_array(auth()->user()->role, ['admin', 'guru', 'siswa'])): ?>
+            <?php if (isset($component)) { $__componentOriginal2e340925a8bf40d3894bf118093fdd54 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal2e340925a8bf40d3894bf118093fdd54 = $attributes; } ?>
+<?php $component = App\View\Components\SideNavLink::resolve(['active' => request()->routeIs('pengaturan.faq'),'sidebarOpen' => $sidebarOpen] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('side-nav-link'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\SideNavLink::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['href' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('pengaturan.faq'))]); ?>
+                 <?php $__env->slot('icon', null, []); ?> 
+                    <i class="fas fa-question-circle w-6 h-6 flex items-center justify-center"></i>
+                 <?php $__env->endSlot(); ?>
+                <?php echo e(__('FAQ')); ?>
+
+             <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal2e340925a8bf40d3894bf118093fdd54)): ?>
+<?php $attributes = $__attributesOriginal2e340925a8bf40d3894bf118093fdd54; ?>
+<?php unset($__attributesOriginal2e340925a8bf40d3894bf118093fdd54); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal2e340925a8bf40d3894bf118093fdd54)): ?>
+<?php $component = $__componentOriginal2e340925a8bf40d3894bf118093fdd54; ?>
+<?php unset($__componentOriginal2e340925a8bf40d3894bf118093fdd54); ?>
+<?php endif; ?>
+        <?php endif; ?>
     </nav>
 </div>
 <?php /**PATH C:\xampp\htdocs\absensi-sekolah\resources\views/layouts/navigation.blade.php ENDPATH**/ ?>
