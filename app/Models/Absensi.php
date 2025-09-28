@@ -32,6 +32,6 @@ class Absensi extends Model
      */
     public function jadwalAbsensi()
     {
-        return $this->belongsTo(JadwalAbsensi::class);
+        return $this->belongsTo(JadwalAbsensi::class)->withTrashed();
     }
 }
