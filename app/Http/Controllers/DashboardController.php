@@ -65,7 +65,9 @@ class DashboardController extends Controller
             return view('guru.dashboard', compact('kelasDiampu', 'jadwalMengajar', 'daftarSiswaWaliKelas'));
         } elseif ($user->hasRole('siswa')) {
             $riwayatTerbaru = Absensi::where('user_id', $user->id)
-                ->with(['jadwalAbsensi.mataPelajaran', 'jadwalAbsensi.kelas', 'jadwalAbsensi.guru'])
+                ->with(['jadwalAbsensi' => function ($query) {
+                    $query->withTrashed()->with(['mataPelajaran', 'kelas', 'guru']);
+                }])
                 ->orderBy('tanggal_absensi', 'desc')
                 ->orderBy('waktu_masuk', 'desc')
                 ->take(10)
