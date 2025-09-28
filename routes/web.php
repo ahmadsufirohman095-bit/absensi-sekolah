@@ -147,6 +147,11 @@ Route::get('/jadwal/import-template', [JadwalAbsensiController::class, 'download
         Route::get('/admin/dashboard/chart-data', [App\Http\Controllers\DashboardController::class, 'chartData'])->name('admin.dashboard.chart-data');
     });
 
+    // Rute untuk FAQ (dapat diakses oleh semua pengguna terotentikasi)
+    Route::get('/pengaturan/faq', function () {
+        return view('pengaturan.faq');
+    })->name('pengaturan.faq');
+
     // Rute khusus untuk Guru
     Route::middleware('role:guru')->group(function () {
         Route::get('/guru/jadwal-mengajar', [App\Http\Controllers\Guru\JadwalMengajarController::class, 'index'])->name('guru.jadwal-mengajar.index');

@@ -106,5 +106,15 @@
                 {{ __('Pengaturan') }}
             </x-side-nav-link>
         @endcan
+
+        {{-- Tautan FAQ untuk semua peran terotentikasi, di bagian paling bawah --}}
+        @if(in_array(auth()->user()->role, ['admin', 'guru', 'siswa']))
+            <x-side-nav-link :href="route('pengaturan.faq')" :active="request()->routeIs('pengaturan.faq')" :sidebarOpen="$sidebarOpen">
+                <x-slot name="icon">
+                    <i class="fas fa-question-circle w-6 h-6 flex items-center justify-center"></i>
+                </x-slot>
+                {{ __('FAQ') }}
+            </x-side-nav-link>
+        @endif
     </nav>
 </div>
