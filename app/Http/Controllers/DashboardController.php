@@ -81,6 +81,7 @@ class DashboardController extends Controller
 
     public function chartData()
     {
+        \Log::debug('chartData() called');
         try {
             $totalAdmin = User::where('role', 'admin')->count();
             $totalGuru = User::where('role', 'guru')->count();
@@ -103,6 +104,47 @@ class DashboardController extends Controller
                     'labels' => ['Hadir', 'Terlambat', 'Izin & Sakit', 'Alpha'],
                     'data' => [$hadir, $terlambat, $izin + $sakit, $alpha],
                 ],
+            ];
+
+            // Hapus bagian 'kehadiran' yang lama karena sudah diganti dengan 'attendanceBySubject'
+            unset($data['kehadiran']);
+
+            $dailyAttendanceBySubject = $this->getDailyAttendanceBySubjectSummary();
+            \Log::debug('dailyAttendanceBySubject: ' . json_encode($dailyAttendanceBySubject));
+            $subjectLabels = array_keys($dailyAttendanceBySubject);
+            $subjectData = array_values($dailyAttendanceBySubject);
+
+            // Generate dynamic colors for subjects
+            $subjectColors = [
+                'background' => [],
+                'border' => [],
+            ];
+            
+            if (!empty($subjectLabels)) {
+                $baseColors = [
+                    'rgba(255, 99, 132,', // Red
+                    'rgba(54, 162, 235,', // Blue
+                    'rgba(255, 206, 86,', // Yellow
+                    'rgba(75, 192, 192,', // Green
+                    'rgba(153, 102, 255,', // Purple
+                    'rgba(255, 159, 64,', // Orange
+                    'rgba(199, 199, 199,', // Grey
+                    'rgba(83, 102, 255,', // Indigo
+                    'rgba(231, 233, 237,', // Light Grey
+                ];
+
+                foreach ($subjectLabels as $index => $label) {
+                    $colorIndex = $index % count($baseColors);
+                    $subjectColors['background'][] = $baseColors[$colorIndex] . ' 0.6)';
+                    $subjectColors['border'][] = $baseColors[$colorIndex] . ' 1)';
+                }
+            }
+
+            $data['attendanceBySubject'] = [
+                'labels' => $subjectLabels,
+                'data' => $subjectData,
+                'backgroundColor' => $subjectColors['background'],
+                'borderColor' => $subjectColors['border'],
             ];
 
             // Data Absensi Bulanan (untuk diagram batang)
@@ -138,6 +180,7 @@ class DashboardController extends Controller
                 'data' => $classData,
             ];
 
+            \Log::debug('chartData() returning data: ' . json_encode($data));
             return response()->json($data);
         } catch (\Exception $e) {
             // Log the error for debugging purposes
@@ -300,6 +343,24 @@ class DashboardController extends Controller
         }
 
         return $summary;
+    }
+
+    /**
+     * Get daily attendance summary grouped by subject.
+     *
+     * @return array
+     */
+    private function getDailyAttendanceBySubjectSummary(): array
+    {
+        $attendanceBySubject = Absensi::whereDate('tanggal_absensi', today())
+            ->join('jadwal_absensis', 'absensis.jadwal_absensi_id', '=', 'jadwal_absensis.id')
+            ->join('mata_pelajarans', 'jadwal_absensis.mata_pelajaran_id', '=', 'mata_pelajarans.id')
+            ->select('mata_pelajarans.nama_mapel', DB::raw('count(absensis.id) as total_absensi'))
+            ->groupBy('mata_pelajarans.nama_mapel')
+            ->pluck('total_absensi', 'mata_pelajarans.nama_mapel')
+            ->toArray();
+
+        return $attendanceBySubject;
     }
 
     /**

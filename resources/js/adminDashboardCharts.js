@@ -47,36 +47,23 @@ function initCharts(data) {
         });
     }
 
-    // Attendance Chart
+    // Attendance By Subject Chart
     const attendanceCanvas = document.getElementById('attendanceChart');
     if (attendanceCanvas) {
         const attendanceCtx = attendanceCanvas.getContext('2d');
         window.charts.attendanceChart = new Chart(attendanceCtx, {
             type: 'bar',
             data: {
-                labels: data.kehadiran.labels,
+                labels: data.attendanceBySubject.labels,
                 datasets: [{
-                    label: 'Status Kehadiran',
-                    data: data.kehadiran.data,
-                    backgroundColor: [
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(255, 159, 64, 0.2)',
-                        'rgba(255, 99, 132, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(255, 159, 64, 1)',
-                        'rgba(255, 99, 132, 1)'
-                    ],
+                    label: 'Total Absensi',
+                    data: data.attendanceBySubject.data,
+                    backgroundColor: data.attendanceBySubject.backgroundColor,
+                    borderColor: data.attendanceBySubject.borderColor,
                     borderWidth: 1
                 }]
             },
             options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
                 responsive: true,
                 plugins: {
                     legend: {
@@ -84,7 +71,12 @@ function initCharts(data) {
                     },
                     title: {
                         display: true,
-                        text: 'Status Kehadiran Hari Ini'
+                        text: 'Kehadiran per Mata Pelajaran Hari Ini'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
             }
