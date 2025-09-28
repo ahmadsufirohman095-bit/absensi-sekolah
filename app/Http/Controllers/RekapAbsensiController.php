@@ -25,15 +25,15 @@ class RekapAbsensiController extends Controller
             'user' => function ($query) {
                 $query->withTrashed();
             },
-            'jadwalAbsensi.kelas',
-            'jadwalAbsensi.mataPelajaran',
-            'jadwalAbsensi.guru'
+            'jadwalAbsensi' => function ($query) {
+                $query->withTrashed()->with(['kelas', 'mataPelajaran', 'guru']);
+            }
         ]);
 
         // Role-based access control
         if ($user->role === 'guru') {
             $query->whereHas('jadwalAbsensi', function ($q) use ($user) {
-                $q->where('guru_id', $user->id);
+                $q->where('guru_id', $user->id)->withTrashed();
             });
         }
 
@@ -47,22 +47,22 @@ class RekapAbsensiController extends Controller
 
         // Filter by kelas
         if ($request->filled('kelas_id')) {
-            $query->whereHas('jadwalAbsensi.kelas', function ($q) use ($request) {
-                $q->where('id', $request->kelas_id);
+            $query->whereHas('jadwalAbsensi', function ($q) use ($request) {
+                $q->where('kelas_id', $request->kelas_id)->withTrashed();
             });
         }
 
         // Filter by mata pelajaran
         if ($request->filled('mata_pelajaran_id')) {
-            $query->whereHas('jadwalAbsensi.mataPelajaran', function ($q) use ($request) {
-                $q->where('id', $request->mata_pelajaran_id);
+            $query->whereHas('jadwalAbsensi', function ($q) use ($request) {
+                $q->where('mata_pelajaran_id', $request->mata_pelajaran_id)->withTrashed();
             });
         }
 
         // Filter by guru (only for admin)
         if ($user->role === 'admin' && $request->filled('guru_id')) {
-            $query->whereHas('jadwalAbsensi.guru', function ($q) use ($request) {
-                $q->where('id', $request->guru_id);
+            $query->whereHas('jadwalAbsensi', function ($q) use ($request) {
+                $q->where('guru_id', $request->guru_id)->withTrashed();
             });
         }
 
@@ -83,14 +83,20 @@ class RekapAbsensiController extends Controller
                 $q->whereHas('user', function ($qr) use ($searchTerm) {
                     $qr->where('name', 'like', $searchTerm);
                 })
-                ->orWhereHas('jadwalAbsensi.guru', function ($qr) use ($searchTerm) {
-                    $qr->where('name', 'like', $searchTerm);
+                ->orWhereHas('jadwalAbsensi', function ($qr) use ($searchTerm) {
+                    $qr->whereHas('guru', function ($qrr) use ($searchTerm) {
+                        $qrr->where('name', 'like', $searchTerm);
+                    })->withTrashed();
                 })
-                ->orWhereHas('jadwalAbsensi.mataPelajaran', function ($qr) use ($searchTerm) {
-                    $qr->where('nama_mapel', 'like', $searchTerm);
+                ->orWhereHas('jadwalAbsensi', function ($qr) use ($searchTerm) {
+                    $qr->whereHas('mataPelajaran', function ($qrr) use ($searchTerm) {
+                        $qrr->where('nama_mapel', 'like', $searchTerm);
+                    })->withTrashed();
                 })
-                ->orWhereHas('jadwalAbsensi.kelas', function ($qr) use ($searchTerm) {
-                    $qr->where('nama_kelas', 'like', $searchTerm);
+                ->orWhereHas('jadwalAbsensi', function ($qr) use ($searchTerm) {
+                    $qr->whereHas('kelas', function ($qrr) use ($searchTerm) {
+                        $qrr->where('nama_kelas', 'like', $searchTerm);
+                    })->withTrashed();
                 });
             });
         }
@@ -149,10 +155,10 @@ class RekapAbsensiController extends Controller
         $this->authorize('create', Absensi::class);
 
         $user = auth()->user();
-        $jadwalQuery = JadwalAbsensi::with(['kelas', 'mataPelajaran', 'guru']);
+        $jadwalQuery = JadwalAbsensi::with(['kelas', 'mataPelajaran', 'guru'])->withTrashed();
 
         if ($user->isGuru()) {
-            $jadwalQuery->where('guru_id', $user->id);
+            $jadwalQuery->where('guru_id', $user->id)->withTrashed();
         }
 
         $allJadwal = $jadwalQuery->get();
@@ -209,10 +215,8 @@ class RekapAbsensiController extends Controller
             'user' => function ($query) {
                 $query->withTrashed();
             },
-            'jadwalAbsensi.kelas',
-            'jadwalAbsensi.mataPelajaran',
-            'jadwalAbsensi.guru' => function ($query) {
-                $query->withTrashed();
+            'jadwalAbsensi' => function ($query) {
+                $query->withTrashed()->with(['kelas', 'mataPelajaran', 'guru']);
             }
         ]);
 
@@ -298,7 +302,10 @@ class RekapAbsensiController extends Controller
         $query = Absensi::where('user_id', $user->id)
                         ->with(['jadwalAbsensi.mataPelajaran', 'jadwalAbsensi.guru'])
                         ->orderBy('tanggal_absensi', 'desc')
-                        ->orderBy('waktu_masuk', 'desc');
+                        ->orderBy('waktu_masuk', 'desc')
+                        ->with(['jadwalAbsensi' => function ($query) {
+                            $query->withTrashed();
+                        }]);
 
         // Filter berdasarkan rentang tanggal
         if ($request->filled('start_date') && $request->filled('end_date')) {

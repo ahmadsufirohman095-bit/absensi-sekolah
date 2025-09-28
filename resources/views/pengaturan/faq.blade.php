@@ -501,9 +501,7 @@
                                     <ul class="list-disc list-inside ml-4 mt-2">
                                         <li><strong>Periksa Koneksi Internet:</strong> Pastikan perangkat yang digunakan untuk absensi dan perangkat yang melihat laporan memiliki koneksi internet yang stabil.</li>
                                         <li><strong>Refresh Halaman:</strong> Coba muat ulang halaman laporan absensi.</li>
-                                        <li><strong>Periksa Jadwal:</strong> Pastikan jadwal absensi sudah diatur dengan benar dan waktu absensi masih dalam periode yang aktif.</li>
-                                        <li><strong>Log Aktivitas:</strong> Admin dapat memeriksa log aktivitas untuk melihat apakah ada kesalahan saat absensi dicatat.</li>
-                                        <li><strong>Hubungi Dukungan:</strong> Jika masalah berlanjut, kumpulkan informasi detail (waktu kejadian, nama siswa/guru, jadwal) dan hubungi tim dukungan teknis.</li>
+                                        <li><strong>Periksa Jadwal:</strong> Pastikan jadwal absensi sudah diatur dengan benar dan waktu absensi masih dalam periode yang aktif.</li>                                        <li><strong>Hubungi Dukungan:</strong> Jika masalah berlanjut, kumpulkan informasi detail (waktu kejadian, nama siswa/guru, jadwal) dan hubungi tim dukungan teknis.</li>
                                     </ul>',
                                 'roles' => ['admin', 'guru', 'siswa'],
                             ],
