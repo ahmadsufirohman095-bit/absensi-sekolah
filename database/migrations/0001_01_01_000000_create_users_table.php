@@ -22,7 +22,8 @@ return new class extends Migration
             $table->unique(['email', 'deleted_at']);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['admin', 'guru', 'siswa'])->default('siswa');
+            $table->string('role')->default('siswa');
+            $table->string('custom_role')->nullable();
             $table->rememberToken();
             $table->boolean('is_active')->default(true); // User account status
             $table->timestamp('last_login_at')->nullable(); // Last login timestamp

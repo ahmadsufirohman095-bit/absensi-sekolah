@@ -15,42 +15,46 @@
                 $faqs = [
                     [
                         'category_title' => 'Pengantar Aplikasi Absensi Sekolah',
-                        'roles' => ['admin', 'guru', 'siswa'],
+                        'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                         'items' => [
                             [
                                 'question' => 'Apa itu Aplikasi Absensi Sekolah?',
-                                'answer' => 'Aplikasi Absensi Sekolah adalah sistem manajemen kehadiran berbasis web yang dirancang untuk memudahkan proses pencatatan absensi siswa di lingkungan sekolah. Aplikasi ini mendukung berbagai peran pengguna (Admin, Guru, Siswa) dengan fitur-fitur yang disesuaikan untuk setiap peran.',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                'answer' => 'Aplikasi Absensi Sekolah adalah sistem manajemen kehadiran berbasis web yang dirancang untuk memudahkan proses pencatatan absensi siswa dan pegawai di lingkungan sekolah. Aplikasi ini mendukung berbagai peran pengguna (Admin, Guru, Siswa, TU, Lainnya) dengan fitur-fitur yang disesuaikan untuk setiap peran.',
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                             [
                                 'question' => 'Siapa saja pengguna aplikasi ini?',
-                                'answer' => 'Aplikasi ini dirancang untuk tiga jenis pengguna utama:
-                                    <ul class="list-disc list-inside ml-4 mt-2">
-                                        <li><strong>Administrator (Admin):</strong> Bertanggung jawab atas konfigurasi sistem, manajemen pengguna, kelas, mata pelajaran, jadwal, dan rekapitulasi absensi.</li>
-                                        <li><strong>Guru:</strong> Bertanggung jawab untuk mengelola absensi siswa di kelas yang diajar, melihat jadwal mengajar, dan memantau kehadiran siswa.</li>
+                                'answer' => 'Aplikasi ini dirancang untuk beberapa jenis pengguna utama:
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
+                                        <li><strong>Administrator (Admin):</strong> Bertanggung jawab atas konfigurasi sistem, manajemen pengguna, kelas, mata pelajaran, jadwal, serta rekapitulasi absensi siswa dan pegawai.</li>
+                                        <li><strong>Guru:</strong> Bertanggung jawab untuk mengelola absensi siswa di kelas yang diajar, melihat jadwal mengajar, memantau kehadiran siswa, serta dapat mencetak kartu absensi pegawai untuk dirinya sendiri atau guru lain.</li>
+                                        <li><strong>TU (Tata Usaha):</strong> Bertanggung jawab atas manajemen data kepegawaian, pengelolaan jadwal dan rekap absensi pegawai (karyawan), serta dapat mencetak kartu absensi pegawai.</li>
+                                        <li><strong>Lainnya (Other):</strong> Pengguna dengan hak akses yang disesuaikan, biasanya terkait dengan manajemen pegawai dan absensi (karyawan), serta dapat mencetak kartu absensi pegawai.</li>
                                         <li><strong>Siswa:</strong> Bertanggung jawab untuk melakukan absensi menggunakan QR Code dan melihat riwayat kehadiran serta jadwal pelajaran mereka.</li>
-                                    </ul>',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                    </ol>',
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                             [
                                 'question' => 'Apa saja fitur utama aplikasi ini?',
                                 'answer' => 'Fitur-fitur utama Aplikasi Absensi Sekolah meliputi:
-                                    <ul class="list-disc list-inside ml-4 mt-2">
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
                                         <li>Absensi berbasis QR Code untuk siswa.</li>
-                                        <li>Manajemen pengguna (Admin, Guru, Siswa) dengan peran dan hak akses yang berbeda.</li>
-                                        <li>Manajemen kelas, mata pelajaran, dan jadwal absensi.</li>
-                                        <li>Rekapitulasi dan pelaporan absensi yang komprehensif.</li>
+                                        <li>Manajemen pengguna (Admin, Guru, Siswa, TU, Lainnya) dengan peran dan hak akses yang berbeda.</li>
+                                        <li>Manajemen kelas, mata pelajaran, dan jadwal absensi siswa.</li>
+                                        <li>Manajemen jadwal dan rekapitulasi absensi pegawai.</li>
+                                        <li>Cetak kartu absensi kustom untuk siswa dan pegawai.</li>
+                                        <li>Rekapitulasi dan pelaporan absensi yang komprehensif untuk siswa dan pegawai.</li>
                                         <li>Kustomisasi tampilan aplikasi (nama, halaman login, kartu absensi).</li>
                                         <li>Sistem notifikasi untuk informasi penting.</li>
                                         <li>Ekspor dan impor data untuk memudahkan pengelolaan.</li>
-                                    </ul>',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                    </ol>',
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                         ],
                     ],
                     [
                         'category_title' => 'Untuk Pengguna Umum (Login, Profil, Notifikasi)',
-                        'roles' => ['admin', 'guru', 'siswa'],
+                        'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                         'items' => [
                             [
                                 'question' => 'Bagaimana cara masuk (login) ke aplikasi?',
@@ -204,12 +208,12 @@
                                         <li>Masuk sebagai admin.</li>
                                         <li>Navigasikan ke menu <strong>"Pengaturan"</strong>.</li>
                                         <li>Pada bagian <strong>"Kustomisasi Halaman Login"</strong>:
-                                            <ul class="list-disc list-inside ml-4 mt-1">
+                                            <ol class="list-decimal list-inside ml-4 mt-1">
                                                 <li><strong>Judul Halaman:</strong> Masukkan teks utama yang akan muncul di bawah logo.</li>
                                                 <li><strong>Subjudul Halaman:</strong> Masukkan teks kecil di bawah judul utama.</li>
                                                 <li><strong>Logo Sekolah:</strong> Unggah gambar logo sekolah Anda (format PNG, JPG, SVG, maks 5MB).</li>
                                                 <li><strong>Gambar Latar:</strong> Unggah gambar latar belakang untuk halaman login (resolusi tinggi, maks 10MB).</li>
-                                            </ul>
+                                            </ol>
                                         </li>
                                         <li>Gunakan pratinjau di tengah halaman untuk melihat perubahan secara langsung.</li>
                                         <li>Klik tombol <strong>"Simpan Pengaturan"</strong> di bagian bawah halaman.</li>
@@ -230,14 +234,14 @@
                                 'roles' => ['admin'],
                             ],
                             [
-                                'question' => 'Bagaimana cara menambah pengguna baru (admin, guru, siswa)?',
+                                'question' => 'Bagaimana cara menambah pengguna baru (admin, guru, siswa, TU, Lainnya)?',
                                 'answer' => 'Untuk menambah pengguna baru:
                                     <ol class="list-decimal list-inside ml-4 mt-2">
                                         <li>Masuk sebagai admin.</li>
                                         <li>Navigasikan ke menu <strong>"Manajemen Pengguna"</strong>.</li>
                                         <li>Klik tombol <strong>"Tambah Pengguna"</strong>.</li>
                                         <li>Isi formulir dengan detail pengguna baru (nama, email, password, peran, dll.).</li>
-                                        <li>Pilih peran yang sesuai (Admin, Guru, atau Siswa).</li>
+                                        <li>Pilih peran yang sesuai (Admin, Guru, Siswa, TU, atau Lainnya).</li>
                                         <li>Klik tombol <strong>"Simpan"</strong>.</li>
                                     </ol>
                                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><strong>Tips:</strong> Pastikan untuk memberikan password awal yang aman dan informasikan kepada pengguna baru.</p>',
@@ -259,41 +263,54 @@
                             [
                                 'question' => 'Bagaimana cara mengimpor atau mengekspor data pengguna?',
                                 'answer' => 'Untuk mengelola data pengguna dalam jumlah besar:
-                                    <ul class="list-disc list-inside ml-4 mt-2">
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
                                         <li><strong>Ekspor Data Pengguna:</strong>
                                             <ol class="list-decimal list-inside ml-4 mt-1">
                                                 <li>Masuk sebagai admin.</li>
-                                                <li>Navigasikan ke menu <strong>"Manajemen Pengguna"</strong>.</li>
-                                                <li>Klik tombol <strong>"Ekspor"</strong>.</li>
-                                                <li>Data pengguna akan diunduh dalam format Excel.</li>
+                                                <li>Navigasikan ke menu <strong>"Manajemen Pengguna"</strong>.
+                                                <li>Klik tombol <strong>"Ekspor"</strong>.
+                                                <li>Data pengguna akan diunduh dalam format Excel.
                                             </ol>
                                         </li>
                                         <li><strong>Impor Data Pengguna:</strong>
                                             <ol class="list-decimal list-inside ml-4 mt-1">
-                                                <li>Masuk sebagai admin.</li>
-                                                <li>Navigasikan ke menu <strong>"Manajemen Pengguna"</strong>.</li>
-                                                <li>Klik tombol <strong>"Impor"</strong>.</li>
-                                                <li>Anda dapat mengunduh <strong>template impor</strong> untuk memastikan format data yang benar.</li>
-                                                <li>Unggah file Excel yang berisi data pengguna yang ingin diimpor.</li>
-                                                <li>Ikuti instruksi di layar untuk menyelesaikan proses impor.</li>
+                                                <li>Masuk sebagai admin.
+                                                <li>Navigasikan ke menu <strong>"Manajemen Pengguna"</strong>.
+                                                <li>Klik tombol <strong>"Impor"</strong>.
+                                                <li>Anda dapat mengunduh <strong>template impor</strong> untuk memastikan format data yang benar.
+                                                <li>Unggah file Excel yang berisi data pengguna yang ingin diimpor.
+                                                <li>Ikuti instruksi di layar untuk menyelesaikan proses impor.
                                             </ol>
                                         </li>
-                                    </ul>
+                                    </ol>
                                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><strong>Tips:</strong> Selalu gunakan template yang disediakan untuk impor data guna menghindari kesalahan format.</p>',
                                 'roles' => ['admin'],
                             ],
                             [
-                                'question' => 'Bagaimana cara mencetak kartu absensi untuk pengguna?',
-                                'answer' => 'Untuk mencetak kartu absensi yang berisi QR Code untuk setiap pengguna:
+                                'question' => 'Bagaimana cara mencetak kartu absensi untuk siswa?',
+                                'answer' => 'Untuk mencetak kartu absensi yang berisi QR Code untuk siswa:
                                     <ol class="list-decimal list-inside ml-4 mt-2">
                                         <li>Masuk sebagai admin.</li>
                                         <li>Navigasikan ke menu <strong>"Manajemen Pengguna"</strong>.</li>
-                                        <li>Pilih pengguna yang ingin dicetak kartunya (Anda bisa memilih satu per satu atau beberapa sekaligus).</li>
-                                        <li>Klik tombol <strong>"Cetak Kartu"</strong>.</li>
+                                        <li>Pilih siswa yang ingin dicetak kartunya (Anda bisa memilih satu per satu atau beberapa sekaligus).</li>
+                                        <li>Klik tombol <strong>"Cetak Kartu Siswa"</strong>.</li>
                                         <li>Sistem akan menghasilkan file PDF yang berisi kartu absensi siap cetak.</li>
                                     </ol>
                                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><strong>Fungsi:</strong> Kartu ini digunakan siswa untuk melakukan absensi melalui pemindaian QR Code.</p>',
                                 'roles' => ['admin'],
+                            ],
+                            [
+                                'question' => 'Bagaimana cara mencetak kartu absensi untuk pegawai (Guru, TU, Lainnya)?',
+                                'answer' => 'Untuk mencetak kartu absensi yang berisi QR Code untuk Guru, TU, atau peran Lainnya:
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
+                                        <li>Masuk sebagai admin.</li>
+                                        <li>Navigasikan ke menu <strong>"Cetak Kartu Absensi Pegawai"</strong>.</li>
+                                        <li>Pilih pegawai yang ingin dicetak kartunya (Anda bisa memilih satu per satu atau beberapa sekaligus).</li>
+                                        <li>Klik tombol <strong>"Cetak Kartu Pegawai"</strong>.</li>
+                                        <li>Sistem akan menghasilkan file PDF yang berisi kartu absensi siap cetak.</li>
+                                    </ol>
+                                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><strong>Fungsi:</strong> Kartu ini digunakan pegawai untuk melakukan absensi melalui pemindaian QR Code.</p>',
+                                'roles' => ['admin', 'guru', 'tu', 'other'],
                             ],
                             [
                                 'question' => 'Bagaimana cara mengaktifkan/menonaktifkan akun pengguna (toggle status)?',
@@ -403,7 +420,7 @@
                             [
                                 'question' => 'Bagaimana cara mengimpor atau mengekspor Kelola Jadwal?',
                                 'answer' => 'Untuk mengelola Kelola Jadwal dalam jumlah besar:
-                                    <ul class="list-disc list-inside ml-4 mt-2">
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
                                         <li><strong>Ekspor Jadwal:</strong>
                                             <ol class="list-decimal list-inside ml-4 mt-1">
                                                 <li>Masuk sebagai admin.</li>
@@ -422,7 +439,7 @@
                                                 <li>Ikuti instruksi di layar untuk menyelesaikan proses impor.
                                             </ol>
                                         </li>
-                                    </ul>
+                                    </ol>
                                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><strong>Tips:</strong> Selalu gunakan template yang disediakan untuk impor data guna menghindari kesalahan format.</p>',
                                 'roles' => ['admin'],
                             ],
@@ -455,11 +472,11 @@
                             [
                                 'question' => 'Bagaimana cara mengelola data absensi (CRUD, bulk destroy)?',
                                 'answer' => 'Admin memiliki kontrol penuh atas data absensi:
-                                    <ul class="list-disc list-inside ml-4 mt-2">
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
                                         <li><strong>Melihat/Mengedit:</strong> Di menu <strong>"Rekap Absensi"</strong>, Anda dapat melihat detail absensi dan mengedit status kehadiran siswa jika ada kesalahan.</li>
                                         <li><strong>Menghapus:</strong> Anda dapat menghapus catatan absensi individual.</li>
                                         <li><strong>Hapus Massal (Bulk Destroy):</strong> Pilih beberapa catatan absensi yang ingin dihapus (centang kotak di sampingnya), lalu klik tombol <strong>"Hapus Massal"</strong>.</li>
-                                    </ul>
+                                    </ol>
                                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><strong>Peringatan:</strong> Pengelolaan data absensi harus dilakukan dengan hati-hati untuk menjaga integritas data.</p>',
                                 'roles' => ['admin'],
                             ],
@@ -476,117 +493,144 @@
                                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><strong>Fungsi:</strong> Memungkinkan sekolah untuk mencetak kartu absensi yang sesuai dengan branding dan kebutuhan informasi mereka.</p>',
                                 'roles' => ['admin'],
                             ],
+                            [
+                                'question' => 'Bagaimana cara mengelola rekap absensi pegawai?',
+                                'answer' => 'Untuk melihat ringkasan dan mengunduh laporan absensi seluruh pegawai:
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
+                                        <li>Masuk sebagai admin.</li>
+                                        <li>Navigasikan ke menu <strong>"Rekap Absensi Pegawai"</strong>.</li>
+                                        <li>Gunakan filter yang tersedia (tanggal, peran, nama pegawai, status kehadiran) untuk menyaring data.</li>
+                                        <li>Klik tombol <strong>"Filter"</strong> untuk melihat data di layar.</li>
+                                        <li>Untuk mengunduh laporan, klik tombol <strong>"Ekspor Excel"</strong>.</li>
+                                    </ol>
+                                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><strong>Fungsi:</strong> Memberikan gambaran umum kehadiran pegawai di seluruh sekolah untuk analisis dan pelaporan.</p>',
+                                'roles' => ['admin', 'tu', 'other'],
+                            ],
+                            [
+                                'question' => 'Bagaimana cara mengelola jadwal absensi pegawai?',
+                                'answer' => 'Untuk mengelola jadwal absensi pegawai (kapan dan di mana absensi dilakukan):
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
+                                        <li>Masuk sebagai admin.</li>
+                                        <li>Navigasikan ke menu <strong>"Kelola Jadwal Absensi Pegawai"</strong>.</li>
+                                        <li><strong>Membuat Jadwal:</strong> Klik tombol <strong>"Tambah Jadwal"</strong>, isi detail (pegawai, waktu, hari), lalu simpan.</li>
+                                        <li><strong>Mengedit Jadwal:</strong> Klik <strong>ikon pensil</strong> (Edit) di samping jadwal, ubah informasi, lalu simpan.</li>
+                                        <li><strong>Menghapus Jadwal:</strong> Klik <strong>ikon tempat sampah</strong> (Hapus) di samping jadwal, lalu konfirmasi penghapusan.</li>
+                                    </ol>
+                                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><strong>Fungsi:</strong> Jadwal ini menentukan kapan pegawai dapat melakukan absensi.</p>',
+                                'roles' => ['admin', 'tu', 'other'],
+                            ],
                         ],
                     ],
                     [
                         'category_title' => 'Pemecahan Masalah (Troubleshooting)',
-                        'roles' => ['admin', 'guru', 'siswa'],
+                        'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                         'items' => [
                             [
                                 'question' => 'Kode QR tidak terbaca saat absensi.',
-                                'answer' => 'Jika siswa mengalami kesulitan dalam memindai kode QR:
-                                    <ul class="list-disc list-inside ml-4 mt-2">
+                                'answer' => 'Jika mengalami kesulitan dalam memindai kode QR:
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
                                         <li><strong>Periksa Pencahayaan:</strong> Pastikan area sekitar kode QR memiliki pencahayaan yang cukup dan tidak ada bayangan atau pantulan yang mengganggu.</li>
-                                        <li><strong>Bersihkan Lensa Kamera:</strong> Pastikan lensa kamera perangkat siswa bersih dari kotoran atau sidik jari.</li>
+                                        <li><strong>Bersihkan Lensa Kamera:</strong> Pastikan lensa kamera perangkat bersih dari kotoran atau sidik jari.</li>
                                         <li><strong>Jarak Pemindaian:</strong> Coba sesuaikan jarak antara perangkat dan kode QR. Terkadang terlalu dekat atau terlalu jauh dapat menyebabkan kegagalan pemindaian.</li>
                                         <li><strong>Kualitas QR Code:</strong> Pastikan kode QR yang ditampilkan atau dicetak tidak rusak, buram, atau terlipat.</li>
-                                        <li><strong>Koneksi Internet:</strong> Pastikan perangkat siswa memiliki koneksi internet yang stabil.</li>
-                                        <li><strong>Laporkan ke Guru/Admin:</strong> Jika masalah berlanjut, siswa harus segera melaporkan kepada guru atau admin untuk absensi manual.</li>
-                                    </ul>',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                        <li><strong>Koneksi Internet:</strong> Pastikan perangkat memiliki koneksi internet yang stabil.</li>
+                                        <li><strong>Laporkan ke Guru/Admin:</strong> Jika masalah berlanjut, laporkan kepada guru atau admin untuk absensi manual.</li>
+                                    </ol>',
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                             [
                                 'question' => 'Data absensi tidak sinkron atau tidak muncul di laporan.',
                                 'answer' => 'Jika Anda mendapati data absensi tidak sinkron atau tidak muncul di laporan:
-                                    <ul class="list-disc list-inside ml-4 mt-2">
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
                                         <li><strong>Periksa Koneksi Internet:</strong> Pastikan perangkat yang digunakan untuk absensi dan perangkat yang melihat laporan memiliki koneksi internet yang stabil.</li>
                                         <li><strong>Refresh Halaman:</strong> Coba muat ulang halaman laporan absensi.</li>
-                                        <li><strong>Periksa Jadwal:</strong> Pastikan jadwal absensi sudah diatur dengan benar dan waktu absensi masih dalam periode yang aktif.</li>                                        <li><strong>Hubungi Dukungan:</strong> Jika masalah berlanjut, kumpulkan informasi detail (waktu kejadian, nama siswa/guru, jadwal) dan hubungi tim dukungan teknis.</li>
-                                    </ul>',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                        <li><strong>Periksa Jadwal:</strong> Pastikan jadwal absensi sudah diatur dengan benar dan waktu absensi masih dalam periode yang aktif.</li>
+                                        <li><strong>Hubungi Dukungan:</strong> Jika masalah berlanjut, kumpulkan informasi detail (waktu kejadian, nama siswa/guru, jadwal) dan hubungi tim dukungan teknis.</li>
+                                    </ol>',
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                             [
                                 'question' => 'Tidak bisa login ke aplikasi.',
                                 'answer' => 'Jika Anda tidak bisa masuk ke aplikasi:
-                                    <ul class="list-disc list-inside ml-4 mt-2">
-                                        <li><strong>Periksa Kredensial:</strong> Pastikan Anda memasukkan alamat email dan kata sandi dengan benar (perhatikan huruf besar/kecil).</li>
-                                        <li><strong>Reset Password:</strong> Gunakan fitur "Lupa Password?" jika Anda yakin lupa kata sandi Anda (lihat FAQ 2.2).</li>
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
+                                        <li><strong>Periksa Kredensial:</strong> Pastikan Anda memasukkan ID Pengguna (NIS/NIP/Username) dan kata sandi dengan benar (perhatikan huruf besar/kecil).</li>
+                                        <li><strong>Reset Password:</strong> Gunakan fitur "Lupa Password?" jika Anda yakin lupa kata sandi Anda (lihat FAQ terkait).</li>
                                         <li><strong>Status Akun:</strong> Pastikan akun Anda tidak dinonaktifkan oleh administrator.</li>
                                         <li><strong>Koneksi Internet:</strong> Pastikan perangkat Anda terhubung ke internet.</li>
                                         <li><strong>Hubungi Admin:</strong> Jika semua langkah di atas tidak berhasil, hubungi administrator sekolah Anda untuk memeriksa status akun atau bantuan lebih lanjut.</li>
-                                    </ul>',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                    </ol>',
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                         ],
                     ],
                     [
                         'category_title' => 'Definisi Istilah Teknis',
-                        'roles' => ['admin', 'guru', 'siswa'],
+                        'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                         'items' => [
                             [
                                 'question' => 'QR Code',
-                                'answer' => '<strong>QR Code (Quick Response Code)</strong> adalah jenis kode batang dua dimensi yang dapat dibaca oleh perangkat seluler. Dalam aplikasi ini, QR Code digunakan sebagai metode cepat dan efisien untuk mencatat kehadiran siswa.',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                'answer' => '<strong>QR Code (Quick Response Code)</strong> adalah jenis kode batang dua dimensi yang dapat dibaca oleh perangkat seluler. Dalam aplikasi ini, QR Code digunakan sebagai metode cepat dan efisien untuk mencatat kehadiran.',
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                             [
                                 'question' => 'Dashboard',
-                                'answer' => '<strong>Dashboard</strong> adalah halaman utama yang menampilkan ringkasan informasi penting dan metrik kinerja aplikasi. Setiap peran pengguna (Admin, Guru, Siswa) memiliki tampilan dashboard yang disesuaikan dengan kebutuhan mereka.',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                'answer' => '<strong>Dashboard</strong> adalah halaman utama yang menampilkan ringkasan informasi penting dan metrik kinerja aplikasi. Setiap peran pengguna (Admin, Guru, Siswa, TU, Lainnya) memiliki tampilan dashboard yang disesuaikan dengan kebutuhan mereka.',
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                             [
                                 'question' => 'Rekap Absensi',
-                                'answer' => '<strong>Rekap Absensi</strong> adalah fitur yang memungkinkan pengguna (terutama Admin dan Guru) untuk melihat, mengelola, dan mengunduh ringkasan data kehadiran siswa dalam periode waktu tertentu.',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                'answer' => '<strong>Rekap Absensi</strong> adalah fitur yang memungkinkan pengguna (terutama Admin, Guru, TU, dan Lainnya) untuk melihat, mengelola, dan mengunduh ringkasan data kehadiran siswa atau pegawai dalam periode waktu tertentu.',
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                             [
                                 'question' => 'Toggle Status',
                                 'answer' => '<strong>Toggle Status</strong> adalah fungsi yang memungkinkan administrator untuk dengan cepat mengubah status aktif atau nonaktif suatu akun pengguna atau fitur tertentu dengan satu klik.',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                             [
                                 'question' => 'Bulk Action (Aksi Massal)',
                                 'answer' => '<strong>Bulk Action (Aksi Massal)</strong> adalah kemampuan untuk melakukan operasi (seperti menghapus, mengaktifkan, atau menonaktifkan) pada beberapa item (misalnya, pengguna, jadwal, catatan absensi) secara bersamaan, menghemat waktu dan usaha.',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                         ],
                     ],
                     [
                         'category_title' => 'Informasi Penting Lainnya',
-                        'roles' => ['admin', 'guru', 'siswa'],
+                        'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                         'items' => [
                             [
                                 'question' => 'Apa saja persyaratan sistem minimum untuk menggunakan aplikasi ini?',
                                 'answer' => 'Untuk memastikan pengalaman terbaik dalam menggunakan aplikasi, berikut adalah persyaratan sistem minimum yang direkomendasikan:
-                                    <ul class="list-disc list-inside ml-4 mt-2">
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
                                         <li><strong>Perangkat Keras:</strong>
-                                            <ul class="list-disc list-inside ml-4 mt-1">
-                                                <li>Untuk siswa/guru (scan QR): Smartphone atau tablet dengan kamera belakang yang berfungsi baik.</li>
-                                                <li>Untuk admin/guru (manajemen): Komputer atau laptop dengan spesifikasi standar.</li>
-                                            </ul>
+                                            <ol class="list-decimal list-inside ml-4 mt-1">
+                                                <li>Untuk siswa/guru/pegawai (scan QR): Smartphone atau tablet dengan kamera belakang yang berfungsi baik.</li>
+                                                <li>Untuk admin/guru/TU/lainnya (manajemen): Komputer atau laptop dengan spesifikasi standar.</li>
+                                            </ol>
                                         </li>
                                         <li><strong>Peramban Web yang Didukung:</strong>
-                                            <ul class="list-disc list-inside ml-4 mt-1">
+                                            <ol class="list-decimal list-inside ml-4 mt-1">
                                                 <li>Google Chrome (versi terbaru)</li>
                                                 <li>Mozilla Firefox (versi terbaru)</li>
                                                 <li>Microsoft Edge (versi terbaru)</li>
                                                 <li>Safari (versi terbaru)</li>
-                                            </ul>
+                                            </ol>
                                         </li>
                                         <li><strong>Koneksi Internet:</strong> Koneksi internet stabil (minimal 4G atau Wi-Fi) untuk akses penuh fitur dan sinkronisasi data real-time.</li>
-                                    </ul>',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                    </ol>',
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                             [
                                 'question' => 'Bagaimana data saya dikumpulkan, disimpan, digunakan, dan dilindungi?',
                                 'answer' => 'Kami berkomitmen penuh untuk melindungi privasi dan keamanan data Anda. Berikut adalah ringkasan kebijakan kami:
-                                    <ul class="list-disc list-inside ml-4 mt-2">
-                                        <li><strong>Pengumpulan Data:</strong> Kami mengumpulkan data kehadiran siswa, informasi profil dasar pengguna (nama, email, peran, kelas, mata pelajaran), dan log aktivitas sistem untuk tujuan operasional dan peningkatan layanan.</li>
+                                    <ol class="list-decimal list-inside ml-4 mt-2">
+                                        <li><strong>Pengumpulan Data:</strong> Kami mengumpulkan data kehadiran (siswa dan pegawai), informasi profil dasar pengguna (nama, email, peran, kelas, mata pelajaran, NIP, jabatan), dan log aktivitas sistem untuk tujuan operasional dan peningkatan layanan.</li>
                                         <li><strong>Penyimpanan Data:</strong> Semua data disimpan di server yang aman dengan implementasi enkripsi data saat transit dan saat istirahat, serta kontrol akses yang ketat.</li>
                                         <li><strong>Penggunaan Data:</strong> Data digunakan semata-mata untuk tujuan absensi, manajemen pengguna, pelaporan, analisis kinerja, dan peningkatan kualitas layanan aplikasi. Data tidak akan digunakan untuk tujuan pemasaran atau dibagikan kepada pihak ketiga tanpa persetujuan eksplisit Anda, kecuali diwajibkan oleh hukum.</li>
                                         <li><strong>Perlindungan Data:</strong> Kami menerapkan langkah-langkah keamanan fisik, teknis, dan administratif yang komprehensif untuk melindungi data dari akses tidak sah, pengungkapan, perubahan, atau penghancuran. Ini termasuk firewall, deteksi intrusi, dan audit keamanan rutin.</li>
-                                    </ul>
+                                    </ol>
                                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Untuk informasi lebih lanjut, silakan lihat Kebijakan Privasi lengkap kami.</p>',
-                                'roles' => ['admin', 'guru', 'siswa'],
+                                'roles' => ['admin', 'guru', 'siswa', 'tu', 'other'],
                             ],
                         ],
                     ],

@@ -74,6 +74,12 @@ class UserController extends Controller
             case 'siswa':
                 $user->load(['siswaProfile', 'siswaProfile.kelas']);
                 break;
+            case 'tu':
+                $user->load('adminProfile');
+                break;
+            case 'other':
+                // Peran kustom mungkin tidak memiliki profil khusus secara default
+                break;
         }
         return view('users.show', compact('user'));
     }
@@ -115,18 +121,22 @@ class UserController extends Controller
                     return $query->whereNull('deleted_at');
                 }),
             ],
-            'role' => ['required', Rule::in(['admin', 'guru', 'siswa'])],
+            'role' => ['required', Rule::in(['admin', 'guru', 'siswa', 'tu', 'other'])],
+            'custom_role_name' => ['nullable', 'string', 'max:255', 'required_if:role,other'], // Validasi untuk peran kustom
             'password' => ['required', 'confirmed', ValidationRules\Password::min(8)],
 
             // Validasi untuk field profil spesifik (dibuat nullable semua agar lebih fleksibel)
             'admin_jabatan' => ['nullable', 'string', 'max:255'],
             'admin_telepon' => ['nullable', 'string', 'max:255'],
             'admin_foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'tempat_lahir' => ['nullable', 'string', 'max:255'], // Untuk peran 'other'
+            'jenis_kelamin' => ['nullable', Rule::in(['laki-laki', 'perempuan'])], // Untuk peran 'other'
+            'tanggal_lahir' => ['nullable', 'date'], // Untuk admin (TU dan Other juga)
             'guru_jabatan' => ['nullable', 'string', 'max:255'],
             'guru_telepon' => ['nullable', 'string', 'max:255'],
             'guru_foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             'kelas_id' => ['nullable', 'exists:kelas,id'],
-            'tanggal_lahir' => ['nullable', 'date'], // Untuk siswa
+            'siswa_tanggal_lahir' => ['nullable', 'date'], // Untuk siswa
             'guru_tanggal_lahir' => ['nullable', 'date'], // Untuk guru
             'nama_ayah' => ['nullable', 'string', 'max:255'],
             'nama_ibu' => ['nullable', 'string', 'max:255'],
@@ -151,6 +161,7 @@ class UserController extends Controller
                     'identifier' => $validatedData['identifier'],
                     'email' => $validatedData['email'],
                     'role' => $validatedData['role'],
+                    'custom_role' => $validatedData['role'] === 'other' ? $validatedData['custom_role_name'] : null, // Simpan peran kustom jika role 'other'
                     'password' => Hash::make($validatedData['password']),
                     'is_active' => $validatedData['is_active'] ?? true, // Set default true jika tidak ada
                 ]);
@@ -162,10 +173,12 @@ class UserController extends Controller
 
                 switch ($user->role) {
                     case 'admin':
+                    case 'tu': // TU juga menggunakan profil admin
                         $profileData = [
                             'jabatan' => $validatedData['admin_jabatan'] ?? null,
                             'telepon' => $validatedData['admin_telepon'] ?? null,
                             'tanggal_bergabung' => $user->created_at, // Otomatis diisi
+                            'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null, // Tambahkan tanggal_lahir
                             'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,
                             'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
                         ];
@@ -187,12 +200,12 @@ class UserController extends Controller
                             \Log::info('UserController@store: Foto guru diupload dalam transaksi.', ['path' => $fotoPath]);
                         }
                         break;
-                    case 'siswa': 
+                    case 'siswa':
                         $profileData = [
                             'kelas_id' => $validatedData['kelas_id'] ?? null,
                             'nis' => $validatedData['identifier'],
                             'nama_lengkap' => $validatedData['name'], // Menggunakan nama dari user
-                            'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null,
+                            'tanggal_lahir' => $validatedData['siswa_tanggal_lahir'] ?? null,
                             'alamat' => $validatedData['alamat'] ?? null,
                             'nama_ayah' => $validatedData['nama_ayah'] ?? null,
                             'nama_ibu' => $validatedData['nama_ibu'] ?? null,
@@ -206,6 +219,19 @@ class UserController extends Controller
                             \Log::info('UserController@store: Foto siswa diupload dalam transaksi.', ['path' => $fotoPath]);
                         }
                         break;
+                    case 'other': // Peran kustom menggunakan profil admin untuk input data generik
+                        $profileData = [
+                            'jabatan' => $validatedData['admin_jabatan'] ?? null,
+                            'telepon' => $validatedData['admin_telepon'] ?? null,
+                            'tanggal_bergabung' => $user->created_at, // Otomatis diisi
+                            'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null, // Tambahkan tanggal_lahir
+                            'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,
+                            'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
+                        ];
+                        if ($request->hasFile('admin_foto')) {
+                            $fotoPath = $request->file('admin_foto')->store('fotos', 'public');
+                        }
+                        break;
                 }
 
                 if ($fotoPath) {
@@ -215,18 +241,24 @@ class UserController extends Controller
 
                 if (!empty($profileData)) {
                     switch ($user->role) {
-                        case 'admin': 
+                        case 'admin':
+                        case 'tu': // TU juga menggunakan profil admin
                             $user->adminProfile()->create($profileData);
-                            \Log::info('UserController@store: Profil admin dibuat dalam transaksi.');
+                            \Log::info('UserController@store: Profil admin/TU dibuat dalam transaksi.');
                             break;
-                        case 'guru': 
-                            $user->guruProfile()->create($profileData); 
+                        case 'guru':
+                            $user->guruProfile()->create($profileData);
                             $user->mataPelajarans()->sync($request->input('mata_pelajaran_ids', []));
                             \Log::info('UserController@store: Profil guru dibuat dan mata pelajaran disinkronkan dalam transaksi.');
                             break;
-                        case 'siswa': 
+                        case 'siswa':
                             $user->siswaProfile()->create($profileData);
                             \Log::info('UserController@store: Profil siswa dibuat dalam transaksi.');
+                            break;
+                        case 'other':
+                            // Untuk peran 'other', menggunakan profil admin untuk penyimpanan
+                            $user->adminProfile()->create($profileData);
+                            \Log::info('UserController@store: Profil kustom (other) dibuat menggunakan profil admin dalam transaksi.');
                             break;
                     }
                 }
@@ -236,7 +268,7 @@ class UserController extends Controller
             \Log::error('UserController@store: Error saat membuat user atau profil: ' . $e->getMessage(), ['exception' => $e]);
             return back()->withInput()->with('error', 'Terjadi kesalahan saat menambahkan user: ' . $e->getMessage());
         }
-        
+
         \Log::info('UserController@store: User berhasil ditambahkan, mengarahkan ke halaman index.');
         return redirect()->route('users.index')->with('success', 'User baru berhasil ditambahkan.');
     }
@@ -244,7 +276,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         // Muat profil spesifik berdasarkan peran user
-        if ($user->role === 'admin') {
+        if ($user->role === 'admin' || $user->role === 'tu') {
             $user->load('adminProfile');
         } elseif ($user->role === 'guru') {
             $user->load(['guruProfile', 'mataPelajarans']);
@@ -257,8 +289,10 @@ class UserController extends Controller
             ]);
         } elseif ($user->role === 'siswa') {
             $user->load(['siswaProfile', 'siswaProfile.kelas']);
+        } elseif ($user->role === 'other') {
+            $user->load('adminProfile'); // Muat profil admin jika peran adalah 'other'
         }
-        
+
         $kelas = Kelas::orderBy('nama_kelas')->get();
         $mataPelajaranList = MataPelajaran::orderBy('nama_mapel')->get();
 
@@ -290,18 +324,20 @@ class UserController extends Controller
                     return $query->whereNull('deleted_at');
                 }),
             ],
-            'role' => ['required', Rule::in(['admin', 'guru', 'siswa'])],
+            'role' => ['required', Rule::in(['admin', 'guru', 'siswa', 'tu', 'other'])],
+            'custom_role_name' => ['nullable', 'string', 'max:255', 'required_if:role,other'], // Validasi untuk peran kustom
             'password' => ['nullable', 'confirmed', ValidationRules\Password::min(8)],
             'jenis_kelamin' => ['nullable', Rule::in(['laki-laki', 'perempuan'])], // Ditambahkan di sini
         ];
 
         // Add role-specific validation rules
-        if ($request->role === 'admin') {
+        if ($request->role === 'admin' || $request->role === 'tu') { // Admin dan TU berbagi aturan validasi profil yang sama
             $rules['admin_jabatan'] = ['nullable', 'string', 'max:255'];
             $rules['admin_telepon'] = ['nullable', 'string', 'max:255'];
             $rules['admin_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
             $rules['tempat_lahir'] = ['nullable', 'string', 'max:255']; // Explicitly added
             $rules['jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])]; // Explicitly added
+            $rules['tanggal_lahir'] = ['nullable', 'date']; // Untuk Admin, TU, Other
         } elseif ($request->role === 'guru') {
             $rules['guru_jabatan'] = ['nullable', 'string', 'max:255'];
             $rules['guru_telepon'] = ['nullable', 'string', 'max:255'];
@@ -323,12 +359,21 @@ class UserController extends Controller
             $rules['tempat_lahir'] = ['nullable', 'string', 'max:255']; // TAMBAHKAN INI
             $rules['is_active'] = ['boolean']; // Tambahkan validasi untuk is_active
         }
+        // Tidak ada aturan validasi khusus untuk peran 'other' secara default, tetapi custom_role_name divalidasi di atas
 
         $validatedData = $request->validate($rules);
         \Log::info('UserController@update: Data tervalidasi.', ['validatedData' => $validatedData]);
 
         // 2. Update User model's core data
         $user->update($request->only('name', 'username', 'identifier', 'email', 'role', 'is_active'));
+
+        // Update custom_role if the role is 'other'
+        if ($request->role === 'other') {
+            $user->custom_role = $validatedData['custom_role_name'];
+        } else {
+            $user->custom_role = null; // Clear custom_role if role is not 'other'
+        }
+        $user->save();
 
         if ($request->filled('password')) {
             \Log::info('UserController@update: Bidang password diisi, mencoba memperbarui password secara langsung di DB.');
@@ -343,10 +388,12 @@ class UserController extends Controller
 
         switch ($user->role) {
             case 'admin':
+            case 'tu': // TU juga menggunakan profil admin
                 $profileData = [
                     'jabatan' => $validatedData['admin_jabatan'] ?? null,
                     'telepon' => $validatedData['admin_telepon'] ?? null,
                     'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
+                    'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null, // Tambahkan tanggal_lahir
                     'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,
                 ];
                 $currentProfile = $user->adminProfile;
@@ -387,6 +434,19 @@ class UserController extends Controller
                     $fotoPath = $request->file('siswa_foto')->store('fotos', 'public');
                 }
                 break;
+            case 'other': // Peran kustom menggunakan profil admin
+                $profileData = [
+                    'jabatan' => $validatedData['admin_jabatan'] ?? null,
+                    'telepon' => $validatedData['admin_telepon'] ?? null,
+                    'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
+                    'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null, // Tambahkan tanggal_lahir
+                    'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,
+                ];
+                $currentProfile = $user->adminProfile;
+                if ($request->hasFile('admin_foto')) {
+                    $fotoPath = $request->file('admin_foto')->store('fotos', 'public');
+                }
+                break;
         }
 
         // 4. Handle photo upload (delete old and set new path)
@@ -410,7 +470,10 @@ class UserController extends Controller
         // 5. Update or Create the specific profile
         if (!empty($profileData)) {
             switch ($user->role) {
-                case 'admin': $user->adminProfile()->updateOrCreate([], $profileData); break;
+                case 'admin':
+                case 'tu': // TU juga menggunakan profil admin
+                    $user->adminProfile()->updateOrCreate([], $profileData);
+                    break;
                 case 'guru':
                     \Log::info('UserController@update: Memperbarui profil guru.', [
                         'user_id' => $user->id,
@@ -420,7 +483,13 @@ class UserController extends Controller
                     ]);
                     $user->guruProfile()->updateOrCreate([], $profileData);
                     break;
-                case 'siswa': $user->siswaProfile()->updateOrCreate([], $profileData); break;
+                case 'siswa':
+                    $user->siswaProfile()->updateOrCreate([], $profileData);
+                    break;
+                case 'other':
+                    // Untuk peran 'other', menggunakan profil admin untuk penyimpanan
+                    $user->adminProfile()->updateOrCreate([], $profileData);
+                    break;
             }
         }
 
@@ -500,36 +569,29 @@ class UserController extends Controller
 
         $configId = $request->input('config_id');
         $config = null;
+        $targetRole = $user->role; // Get the role of the specific user being printed
 
         if ($configId) {
             $config = PrintCardConfig::find($configId);
         }
 
-        // Jika tidak ada konfigurasi yang ditemukan atau tidak ada config_id, gunakan default
+        // If no specific config is requested or found, try to find a default config
         if (!$config) {
-            // Coba ambil konfigurasi default dari database
-            $config = PrintCardConfig::where('is_default', true)->first();
-
-            // Jika tidak ada default di DB, buat konfigurasi default hardcoded
+            // First, try to find a default config specific to the target role
+            if ($targetRole) {
+                $config = PrintCardConfig::where('is_default', true)
+                                         ->where('role_target', $targetRole)
+                                         ->first();
+            }
+            // If no role-specific default or no target role, try to find a general default
             if (!$config) {
-                $config = new PrintCardConfig();
-                $config->config_json = [
-                    'selected_fields' => ['name', 'nis', 'kelas', 'foto', 'tanggal_lahir'],
-                    'qr_size' => 70,
-                    'watermark_enabled' => true,
-                    'watermark_opacity' => 0.1,
-                    'card_orientation' => 'portrait',
-                ];
+                $config = PrintCardConfig::where('is_default', true)
+                                         ->whereNull('role_target')
+                                         ->first();
             }
         }
 
-        // Pastikan config_json adalah array asosiatif
-        if (is_string($config->config_json)) {
-            $config->config_json = json_decode($config->config_json, true);
-        }
-        if (!is_array($config->config_json)) {
-            $config->config_json = []; // Fallback ke array kosong jika decoding gagal
-        }
+        $config = PrintCardConfig::getMergedConfig($config);
 
         // Since we are printing a single card, we pass the user in an array
         $siswa = collect([$user]); // Wrap the single user in a collection to match the view's expectation
@@ -545,9 +607,9 @@ class UserController extends Controller
             return back()->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
         }
 
-        // ATURAN BARU: Hanya guru dan siswa yang bisa diubah statusnya
-        if (!in_array($user->role, ['guru', 'siswa'])) {
-            return back()->with('error', 'Status akun untuk peran ' . $user->role . ' tidak dapat diubah.');
+        // ATURAN BARU: Hanya guru, siswa, dan TU yang bisa diubah statusnya
+        if (!in_array($user->role, ['guru', 'siswa', 'tu'])) {
+            return back()->with('error', 'Status akun untuk peran ' . ($user->role === 'other' ? $user->custom_role : $user->role) . ' tidak dapat diubah.');
         }
 
         $oldStatus = $user->is_active;
@@ -590,9 +652,9 @@ class UserController extends Controller
             return $id == $authId;
         })->all();
 
-        // Ambil user yang akan diupdate (hanya guru dan siswa)
+        // Ambil user yang akan diupdate (hanya guru, siswa, dan TU)
         $usersToUpdate = User::whereIn('id', $filteredUserIds)
-                               ->whereIn('role', ['guru', 'siswa'])
+                               ->whereIn('role', ['guru', 'siswa', 'tu'])
                                ->get();
 
         if ($usersToUpdate->isEmpty()) {
@@ -619,7 +681,7 @@ class UserController extends Controller
                     'new_status' => $newStatus,
                     'description' => 'Aksi massal: Akun ' . $user->name . ' di' . ($newStatus ? 'aktifkan' : 'nonaktifkan') . ' oleh ' . auth()->user()->name,
                     'ip_address' => $request->ip(),
-                    'user_agent' => $request->header('User-Agent'),
+                    'user_agent' => request()->header('User-Agent'),
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
@@ -682,7 +744,7 @@ class UserController extends Controller
                     'action' => 'deleted_account',
                     'description' => 'Aksi massal: Akun ' . $user->name . ' dihapus oleh ' . auth()->user()->name,
                     'ip_address' => $request->ip(),
-                    'user_agent' => $request->header('User-Agent'),
+                    'user_agent' => request()->header('User-Agent'),
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];

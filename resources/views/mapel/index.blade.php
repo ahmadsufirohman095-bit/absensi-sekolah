@@ -17,16 +17,27 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     {{-- Notifikasi --}}
                     {{-- Fitur Pencarian --}}
-                    <div class="mb-4">
+                    <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg shadow-sm" x-data="tomSelectManager">
                         <form action="{{ route('mata-pelajaran.index') }}" method="GET">
-                            <div class="flex items-center">
-                                <input type="text" name="search" placeholder="Cari nama atau kode mapel..."
-                                       class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
-                                       value="{{ $search ?? '' }}">
-                                <button type="submit"
-                                        class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    Cari
-                                </button>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                                <div>
+                                    <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cari Nama atau Kode Mapel:</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <svg class="w-5 h-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                        </div>
+                                        <input type="text" name="search" id="search" placeholder="Cari nama atau kode mapel..."
+                                               class="block w-full pl-10 pr-3 py-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                               value="{{ $search ?? '' }}">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end gap-2">
+                                    <button type="submit"
+                                            class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        Terapkan Filter
+                                    </button>
+                                    <a href="{{ route('mata-pelajaran.index') }}" class="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-md hover:bg-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Reset Filter</a>
+                                </div>
                             </div>
                         </form>
                     </div>

@@ -14,31 +14,51 @@ use PhpOffice\PhpSpreadsheet\Style\Font;
 
 class JadwalAbsensiTemplateExport implements FromArray, WithHeadings, ShouldAutoSize, WithEvents, WithTitle
 {
+    private $isSiswaSchedule;
+
+    public function __construct(bool $isSiswaSchedule = true)
+    {
+        $this->isSiswaSchedule = $isSiswaSchedule;
+    }
+
     public function headings(): array
     {
-        return [
+        $headings = [
             'Hari',
             'Jam Mulai',
             'Jam Selesai',
-            'Kode Mapel',
-            'Mata Pelajaran',
-            'Guru',
-            'NIP',
-            'Kelas',
+            'Kode Mapel', // Optional for non-siswa
+            'Mata Pelajaran', // Optional for non-siswa
+            'Nama Penanggung Jawab', // Common for both
+            'Identifier Penanggung Jawab', // Common for both (NIP for Guru, Identifier for Admin/TU/Other)
         ];
+
+        if ($this->isSiswaSchedule) {
+            $headings[] = 'Kelas';
+        }
+
+        return $headings;
     }
 
     public function array(): array
     {
-        return [
-            ['Senin', '07:00', '08:00', 'MTK-01', 'Matematika', 'Nama Guru Lengkap', '198001012010011001', 'VII-A'],
-            ['Selasa', '08:00', '09:00', 'IPA-01', 'Ilmu Pengetahuan Alam', 'Nama Guru Lain', '198502022012022002', 'VII-B'],
-        ];
+        if ($this->isSiswaSchedule) {
+            return [
+                ['Senin', '07:00', '08:00', 'MTK-01', 'Matematika', 'Nama Guru Lengkap', '198001012010011001', 'VII-A'],
+                ['Selasa', '08:00', '09:00', 'IPA-01', 'Ilmu Pengetahuan Alam', 'Nama Guru Lain', '198502022012022002', 'VII-B'],
+            ];
+        } else {
+            return [
+                // Contoh untuk jadwal non-siswa (Guru, TU, Lainnya)
+                ['Senin', '09:00', '10:00', 'UMUM-01', 'Rapat Staf', 'Nama Admin', 'ADM-001'],
+                ['Rabu', '13:00', '14:00', null, 'Pembinaan Pegawai', 'Nama TU', 'TU-002'], // Mata pelajaran bisa null
+            ];
+        }
     }
 
     public function title(): string
     {
-        return 'Template Impor Jadwal';
+        return $this->isSiswaSchedule ? 'Template Impor Jadwal Siswa' : 'Template Impor Jadwal Non-Siswa';
     }
 
     public function registerEvents(): array
@@ -47,7 +67,10 @@ class JadwalAbsensiTemplateExport implements FromArray, WithHeadings, ShouldAuto
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                $sheet->getStyle('A1:H1')->applyFromArray([
+                // Determine the highest column based on schedule type
+                $highestColumn = $this->isSiswaSchedule ? 'H' : 'G'; // H for siswa, G for non-siswa
+
+                $sheet->getStyle('A1:' . $highestColumn . '1')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['argb' => 'FFFFFFFF'],
@@ -62,7 +85,6 @@ class JadwalAbsensiTemplateExport implements FromArray, WithHeadings, ShouldAuto
                 ]);
 
                 $highestRow = $sheet->getHighestRow();
-                $highestColumn = $sheet->getHighestColumn();
 
                 $sheet->getStyle('A1:' . $highestColumn . $highestRow)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
 
@@ -76,7 +98,7 @@ class JadwalAbsensiTemplateExport implements FromArray, WithHeadings, ShouldAuto
                 $sheet->getStyle('B2:C' . $highestRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
                 $sheet->freezePane('A2');
-                $sheet->setAutoFilter('A1:H1');
+                $sheet->setAutoFilter('A1:' . $highestColumn . '1');
             },
         ];
     }

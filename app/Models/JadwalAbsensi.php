@@ -74,4 +74,14 @@ class JadwalAbsensi extends Model
     {
         return $this->belongsTo(User::class, 'guru_id');
     }
+
+    /**
+     * Determine if the schedule is specifically for students (i.e., tied to a class).
+     *
+     * @return bool
+     */
+    public function isForSiswa(): bool
+    {
+        return $this->kelas_id !== null;
+    }
 }

@@ -28,7 +28,8 @@ class JadwalAbsensiController extends Controller
     {
         $this->authorize('viewAny', JadwalAbsensi::class);
 
-        $query = JadwalAbsensi::query()->with(['kelas', 'mataPelajaran', 'guru']);
+        // Filter hanya jadwal untuk siswa (memiliki kelas_id)
+        $query = JadwalAbsensi::query()->whereNotNull('kelas_id')->with(['kelas', 'mataPelajaran', 'guru']);
 
         $kelasId = $request->query('kelas_id');
         $kelasName = null;
@@ -103,17 +104,100 @@ class JadwalAbsensiController extends Controller
     }
 
     /**
+     * Display a listing of the non-student schedules.
+     */
+    public function indexNonSiswa(Request $request)
+    {
+        $this->authorize('viewAny', JadwalAbsensi::class); // Admin only
+
+        // Filter hanya jadwal non-siswa (kelas_id null)
+        $query = JadwalAbsensi::query()->whereNull('kelas_id')->with(['mataPelajaran', 'guru']);
+
+        if ($request->filled('mata_pelajaran_id')) {
+            $query->where('mata_pelajaran_id', $request->mata_pelajaran_id);
+        }
+
+        if ($request->filled('guru_id')) {
+            $query->where('guru_id', $request->guru_id);
+        }
+
+        if ($request->filled('hari')) {
+            $query->where('hari', $request->hari);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('mataPelajaran', function ($qr) use ($search) {
+                    $qr->where('nama_mapel', 'like', '%' . $search . '%');
+                })->orWhereHas('guru', function ($qr) use ($search) {
+                    $qr->where('name', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        $allJadwal = $query->orderBy('hari')->orderBy('jam_mulai')->get();
+
+        $timeSlots = $allJadwal->map(function ($jadwal) {
+            return [
+                'jam_mulai' => $jadwal->jam_mulai->format('H:i'),
+                'jam_selesai' => $jadwal->jam_selesai->format('H:i'),
+            ];
+        })->unique()->sortBy('jam_mulai')->values();
+
+        $hariOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+
+        $allMataPelajaran = MataPelajaran::orderBy('nama_mapel')->get();
+        // Untuk jadwal non-siswa, kita mungkin perlu guru (untuk jadwal guru) atau user lain
+        // Untuk sekarang, kita hanya ambil semua guru.
+        $allGurus = \App\Models\User::where('role', 'guru')->orderBy('name')->get();
+        $allUsersNonSiswa = \App\Models\User::whereIn('role', ['admin', 'tu', 'other', 'guru'])
+                                            ->orderBy('name')->get();
+
+
+        return view('jadwal.non-siswa.index', [
+            'timeSlots' => $timeSlots,
+            'hariOrder' => $hariOrder,
+            'allMataPelajaran' => $allMataPelajaran,
+            'allGurus' => $allGurus, // Digunakan untuk filter guru di jadwal non-siswa
+            'hariOptions' => $hariOrder,
+            'currentFilters' => [
+                'mata_pelajaran_id' => $request->query('mata_pelajaran_id'),
+                'guru_id' => $request->query('guru_id'),
+                'hari' => $request->query('hari'),
+            ],
+            'allJadwal' => $allJadwal,
+            'allUsersNonSiswa' => $allUsersNonSiswa, // Digunakan untuk dropdown saat membuat jadwal
+        ]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
         $this->authorize('create', JadwalAbsensi::class);
 
+        // Hanya untuk jadwal siswa, jadi kelas wajib
         $kelas = Kelas::all();
         $mataPelajaran = MataPelajaran::all();
         $gurus = \App\Models\User::where('role', 'guru')->orderBy('name')->get();
         $hariOptions = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
         return view('jadwal.create', compact('kelas', 'mataPelajaran', 'gurus', 'hariOptions'));
+    }
+
+    /**
+     * Show the form for creating a new non-student schedule.
+     */
+    public function createNonSiswa()
+    {
+        $this->authorize('create', JadwalAbsensi::class); // Admin only
+
+        $mataPelajaran = MataPelajaran::all();
+        $usersNonSiswa = \App\Models\User::whereIn('role', ['admin', 'tu', 'other', 'guru'])
+                                            ->orderBy('name')->get();
+        $hariOptions = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+        return view('jadwal.non-siswa.create', compact('mataPelajaran', 'usersNonSiswa', 'hariOptions'));
     }
 
     /**
@@ -125,6 +209,7 @@ class JadwalAbsensiController extends Controller
 
         $validatedData = $request->validate([
             'jadwal' => 'required|array',
+            // Validasi untuk jadwal siswa (kelas_id wajib)
             'jadwal.*.kelas_id' => 'required|array',
             'jadwal.*.kelas_id.*' => 'required|exists:kelas,id',
             'jadwal.*.mata_pelajaran_id' => 'required|array',
@@ -164,9 +249,9 @@ class JadwalAbsensiController extends Controller
                             JadwalAbsensi::create([
                                 'kelas_id' => $kelasId,
                                 'mata_pelajaran_id' => $mapelId,
-                                'guru_id' => $guruId, // Gunakan guru_id yang dipilih
+                                'guru_id' => $guruId,
                                 'hari' => $hari,
-                                'tanggal' => $jadwalData['tanggal'] ?? null, // Gunakan tanggal jika ada, jika tidak null
+                                'tanggal' => $jadwalData['tanggal'] ?? null,
                                 'jam_mulai' => $jamMulai,
                                 'jam_selesai' => $jamSelesai,
                             ]);
@@ -174,25 +259,90 @@ class JadwalAbsensiController extends Controller
                     }
                 }
             });
-            Log::info('Jadwal Absensi berhasil disimpan.'); // Tambahkan logging sukses
+            Log::info('Jadwal Absensi Siswa berhasil disimpan.');
         } catch (\Throwable $e) {
-            Log::error('Error storing schedule: ' . $e->getMessage(), ['exception' => $e]); // Perbarui logging error
+            Log::error('Error storing student schedule: ' . $e->getMessage(), ['exception' => $e]);
             return back()
-                ->with('error', 'Terjadi kesalahan server saat menyimpan jadwal. Silakan coba lagi.')
+                ->with('error', 'Terjadi kesalahan server saat menyimpan jadwal siswa. Silakan coba lagi.')
                 ->withInput();
         }
 
-        // Check if there's a kelas_id in the first schedule item to redirect back
         $firstKelasId = $validatedData['jadwal'][0]['kelas_id'][0] ?? null;
 
         if ($firstKelasId) {
-            // Redirect to the general schedule index
             return redirect()->route('jadwal.index')
-                         ->with('success', 'Jadwal absensi berhasil ditambahkan.');
+                         ->with('success', 'Jadwal absensi siswa berhasil ditambahkan.');
         }
 
-        // Fallback redirect to the general schedule index
-        return redirect()->route('jadwal.index')->with('success', 'Jadwal absensi berhasil ditambahkan.');
+        return redirect()->route('jadwal.index')->with('success', 'Jadwal absensi siswa berhasil ditambahkan.');
+    }
+
+    /**
+     * Store a newly created non-student resource in storage.
+     */
+    public function storeNonSiswa(Request $request)
+    {
+        $this->authorize('create', JadwalAbsensi::class); // Admin only
+
+        $validatedData = $request->validate([
+            'jadwal' => 'required|array',
+            'jadwal.*.mata_pelajaran_id' => 'nullable|array', // Mata pelajaran bisa null untuk jadwal umum
+            'jadwal.*.mata_pelajaran_id.*' => 'exists:mata_pelajarans,id',
+            'jadwal.*.guru_id' => 'required|exists:users,id', // Guru, TU, Admin, Other
+            'jadwal.*.hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
+            'jadwal.*.jam_mulai' => 'required|date_format:H:i',
+            'jadwal.*.jam_selesai' => [
+                'required',
+                'date_format:H:i',
+                function (string $attribute, mixed $value, \Closure $fail) use ($request) {
+                    $jamMulaiAttribute = str_replace('jam_selesai', 'jam_mulai', $attribute);
+                    $jamMulai = $request->input($jamMulaiAttribute);
+                    if ($jamMulai && strtotime($value) <= strtotime($jamMulai)) {
+                        $fail('Jam selesai pada baris ' . (explode('.', $attribute)[1] + 1) . ' harus setelah jam mulai.');
+                    }
+                },
+            ],
+            'jadwal.*.tanggal' => 'nullable|date',
+        ], [
+            'jadwal.*.jam_selesai.after' => 'Jam selesai harus setelah jam mulai.',
+            'jadwal.*.guru_id.required' => 'Penanggung jawab wajib dipilih.',
+        ]);
+
+        Log::info('Validated Non-Siswa Jadwal Data:', $validatedData);
+
+        try {
+            DB::transaction(function () use ($validatedData) {
+                foreach ($validatedData['jadwal'] as $jadwalData) {
+                    $hari = $jadwalData['hari'];
+                    $jamMulai = $jadwalData['jam_mulai'];
+                    $jamSelesai = $jadwalData['jam_selesai'];
+                    $guruId = $jadwalData['guru_id']; // Di sini guru_id bisa jadi ID admin/tu/other juga
+
+                    // Tidak ada kelas_id untuk jadwal non-siswa
+                    $mataPelajaranIds = $jadwalData['mata_pelajaran_id'] ?? [null]; // Allow null if no mata pelajaran selected
+
+                    foreach ($mataPelajaranIds as $mapelId) {
+                        JadwalAbsensi::create([
+                            'kelas_id' => null, // Ini adalah kunci untuk jadwal non-siswa
+                            'mata_pelajaran_id' => $mapelId,
+                            'guru_id' => $guruId,
+                            'hari' => $hari,
+                            'tanggal' => $jadwalData['tanggal'] ?? null,
+                            'jam_mulai' => $jamMulai,
+                            'jam_selesai' => $jamSelesai,
+                        ]);
+                    }
+                }
+            });
+            Log::info('Jadwal Absensi Non-Siswa berhasil disimpan.');
+        } catch (\Throwable $e) {
+            Log::error('Error storing non-student schedule: ' . $e->getMessage(), ['exception' => $e]);
+            return back()
+                ->with('error', 'Terjadi kesalahan server saat menyimpan jadwal non-siswa. Silakan coba lagi.')
+                ->withInput();
+        }
+
+        return redirect()->route('jadwal.non-siswa.index')->with('success', 'Jadwal absensi non-siswa berhasil ditambahkan.');
     }
 
     /**
@@ -211,11 +361,31 @@ class JadwalAbsensiController extends Controller
     {
         $this->authorize('update', $jadwal);
 
+        // Hanya untuk jadwal siswa
         $kelas = Kelas::all();
         $mataPelajaran = MataPelajaran::all();
         $gurus = \App\Models\User::where('role', 'guru')->orderBy('name')->get();
         $hariOptions = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
         return view('jadwal.edit', compact('jadwal', 'kelas', 'mataPelajaran', 'gurus', 'hariOptions'));
+    }
+
+    /**
+     * Show the form for editing the specified non-student schedule.
+     */
+    public function editNonSiswa(JadwalAbsensi $jadwal)
+    {
+        $this->authorize('update', $jadwal); // Admin only
+
+        // Pastikan ini adalah jadwal non-siswa
+        if ($jadwal->kelas_id !== null) {
+            abort(404, 'Jadwal tidak ditemukan atau bukan jadwal non-siswa.');
+        }
+
+        $mataPelajaran = MataPelajaran::all();
+        $usersNonSiswa = \App\Models\User::whereIn('role', ['admin', 'tu', 'other', 'guru'])
+                                            ->orderBy('name')->get();
+        $hariOptions = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+        return view('jadwal.non-siswa.edit', compact('jadwal', 'mataPelajaran', 'usersNonSiswa', 'hariOptions'));
     }
 
     /**
@@ -226,7 +396,7 @@ class JadwalAbsensiController extends Controller
         $this->authorize('update', $jadwal);
 
         $validatedData = $request->validate([
-            'kelas_id' => 'required|exists:kelas,id',
+            'kelas_id' => 'required|exists:kelas,id', // Kelas_id wajib untuk jadwal siswa
             'mata_pelajaran_id' => 'required|exists:mata_pelajarans,id',
             'guru_id' => 'required|exists:users,id',
             'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
@@ -242,19 +412,62 @@ class JadwalAbsensiController extends Controller
             ],
         ]);
 
-        Log::info('JadwalAbsensi Update Validated Data:', $validatedData);
+        Log::info('Jadwal Absensi Siswa Update Validated Data:', $validatedData);
 
         try {
             $jadwal->update($validatedData);
-            Log::info('JadwalAbsensi Update Success for ID: ' . $jadwal->id, $validatedData);
+            Log::info('Jadwal Absensi Siswa Update Success for ID: ' . $jadwal->id, $validatedData);
         } catch (\Throwable $e) {
-            Log::error('Error updating schedule: ' . $e->getMessage());
+            Log::error('Error updating student schedule: ' . $e->getMessage());
             return back()
-                ->with('error', 'Terjadi kesalahan server saat memperbarui jadwal. Silakan coba lagi.')
+                ->with('error', 'Terjadi kesalahan server saat memperbarui jadwal siswa. Silakan coba lagi.')
                 ->withInput();
         }
 
-        return redirect()->route('jadwal.index', ['kelas_id' => $jadwal->kelas_id])->with('success', 'Jadwal absensi berhasil diperbarui.');
+        return redirect()->route('jadwal.index', ['kelas_id' => $jadwal->kelas_id])->with('success', 'Jadwal absensi siswa berhasil diperbarui.');
+    }
+
+    /**
+     * Update the specified non-student resource in storage.
+     */
+    public function updateNonSiswa(Request $request, JadwalAbsensi $jadwal)
+    {
+        $this->authorize('update', $jadwal); // Admin only
+
+        // Pastikan ini adalah jadwal non-siswa
+        if ($jadwal->kelas_id !== null) {
+            abort(404, 'Jadwal tidak ditemukan atau bukan jadwal non-siswa.');
+        }
+
+        $validatedData = $request->validate([
+            'mata_pelajaran_id' => 'nullable|exists:mata_pelajarans,id', // Mata pelajaran bisa null
+            'guru_id' => 'required|exists:users,id',
+            'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
+            'jam_mulai' => 'required|date_format:H:i',
+            'jam_selesai' => [
+                'required',
+                'date_format:H:i',
+                function (string $attribute, mixed $value, \Closure $fail) use ($request) {
+                    if (strtotime($value) <= strtotime($request->jam_mulai)) {
+                        $fail('Jam selesai harus setelah jam mulai.');
+                    }
+                },
+            ],
+        ]);
+
+        Log::info('Jadwal Absensi Non-Siswa Update Validated Data:', $validatedData);
+
+        try {
+            $jadwal->update($validatedData);
+            Log::info('Jadwal Absensi Non-Siswa Update Success for ID: ' . $jadwal->id, $validatedData);
+        } catch (\Throwable $e) {
+            Log::error('Error updating non-student schedule: ' . $e->getMessage());
+            return back()
+                ->with('error', 'Terjadi kesalahan server saat memperbarui jadwal non-siswa. Silakan coba lagi.')
+                ->withInput();
+        }
+
+        return redirect()->route('jadwal.non-siswa.index')->with('success', 'Jadwal absensi non-siswa berhasil diperbarui.');
     }
 
     /**
@@ -267,11 +480,34 @@ class JadwalAbsensiController extends Controller
         try {
             $jadwal->delete();
         } catch (\Throwable $e) {
-            Log::error('Error deleting schedule: ' . $e->getMessage());
-            return back()->with('error', 'Terjadi kesalahan server saat menghapus jadwal. Silakan coba lagi.');
+            Log::error('Error deleting student schedule: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan server saat menghapus jadwal siswa. Silakan coba lagi.');
         }
 
-        return back()->with('success', 'Jadwal absensi berhasil dihapus.');
+        // Redirect ke index jadwal siswa
+        return back()->with('success', 'Jadwal absensi siswa berhasil dihapus.');
+    }
+
+    /**
+     * Remove the specified non-student resource from storage.
+     */
+    public function destroyNonSiswa(JadwalAbsensi $jadwal)
+    {
+        $this->authorize('delete', $jadwal); // Admin only
+
+        // Pastikan ini adalah jadwal non-siswa
+        if ($jadwal->kelas_id !== null) {
+            abort(404, 'Jadwal tidak ditemukan atau bukan jadwal non-siswa.');
+        }
+
+        try {
+            $jadwal->delete();
+        } catch (\Throwable $e) {
+            Log::error('Error deleting non-student schedule: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan server saat menghapus jadwal non-siswa. Silakan coba lagi.');
+        }
+
+        return back()->with('success', 'Jadwal absensi non-siswa berhasil dihapus.');
     }
 
     /**
@@ -344,7 +580,7 @@ class JadwalAbsensiController extends Controller
     {
         $validated = $request->validate([
             'jadwal_ids' => 'required|array',
-            'jadwal_ids.*' => 'exists:jadwal_absensis,id', // Validate each ID in the array
+            'jadwal_ids.*' => 'exists:jadwal_absensis,id',
         ]);
 
         $jadwalIds = $validated['jadwal_ids'];
@@ -353,14 +589,49 @@ class JadwalAbsensiController extends Controller
             DB::transaction(function () use ($jadwalIds) {
                 foreach ($jadwalIds as $id) {
                     $jadwal = JadwalAbsensi::findOrFail($id);
+                    // Pastikan ini adalah jadwal siswa sebelum menghapus secara massal
+                    if ($jadwal->kelas_id === null) {
+                        throw new \Exception("Jadwal ID {$id} bukan jadwal siswa. Tidak dapat dihapus melalui bulk action ini.");
+                    }
                     $this->authorize('delete', $jadwal);
                     $jadwal->delete();
                 }
             });
-            return response()->json(['success' => true, 'message' => 'Jadwal terpilih berhasil dihapus.']);
+            return response()->json(['success' => true, 'message' => 'Jadwal siswa terpilih berhasil dihapus.']);
         } catch (\Throwable $e) {
-            Log::error('Error deleting schedules in bulk: ' . $e->getMessage(), ['exception' => $e]);
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat menghapus jadwal. Silakan coba lagi.'], 500);
+            Log::error('Error deleting student schedules in bulk: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat menghapus jadwal siswa. Silakan coba lagi.'], 500);
+        }
+    }
+
+    /**
+     * Remove multiple specified non-student resources from storage.
+     */
+    public function bulkDestroyNonSiswa(Request $request)
+    {
+        $validated = $request->validate([
+            'jadwal_ids' => 'required|array',
+            'jadwal_ids.*' => 'exists:jadwal_absensis,id',
+        ]);
+
+        $jadwalIds = $validated['jadwal_ids'];
+
+        try {
+            DB::transaction(function () use ($jadwalIds) {
+                foreach ($jadwalIds as $id) {
+                    $jadwal = JadwalAbsensi::findOrFail($id);
+                    // Pastikan ini adalah jadwal non-siswa sebelum menghapus secara massal
+                    if ($jadwal->kelas_id !== null) {
+                        throw new \Exception("Jadwal ID {$id} bukan jadwal non-siswa. Tidak dapat dihapus melalui bulk action ini.");
+                    }
+                    $this->authorize('delete', $jadwal);
+                    $jadwal->delete();
+                }
+            });
+            return response()->json(['success' => true, 'message' => 'Jadwal non-siswa terpilih berhasil dihapus.']);
+        } catch (\Throwable $e) {
+            Log::error('Error deleting non-student schedules in bulk: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat menghapus jadwal non-siswa. Silakan coba lagi.'], 500);
         }
     }
 
@@ -368,9 +639,10 @@ class JadwalAbsensiController extends Controller
     {
         $this->authorize('viewAny', JadwalAbsensi::class);
 
-        $query = JadwalAbsensi::query()->with(['kelas', 'mataPelajaran', 'guru']);
+        // Filter hanya jadwal untuk siswa
+        $query = JadwalAbsensi::query()->whereNotNull('kelas_id')->with(['kelas', 'mataPelajaran', 'guru']);
 
-        $fileNameParts = ['jadwal-pelajaran'];
+        $fileNameParts = ['jadwal-pelajaran-siswa'];
 
         if ($request->filled('kelas_id')) {
             $kelasId = $request->kelas_id;
@@ -416,6 +688,51 @@ class JadwalAbsensiController extends Controller
         return Excel::download(new JadwalAbsensiExport($jadwal), $fileName);
     }
 
+    /**
+     * Export non-student schedules to Excel.
+     */
+    public function exportExcelNonSiswa(Request $request)
+    {
+        $this->authorize('viewAny', JadwalAbsensi::class); // Admin only
+
+        // Filter hanya jadwal non-siswa
+        $query = JadwalAbsensi::query()->whereNull('kelas_id')->with(['mataPelajaran', 'guru']);
+
+        $fileNameParts = ['jadwal-non-siswa'];
+
+        if ($request->filled('hari')) {
+            $hari = $request->hari;
+            $query->where('hari', $hari);
+            $fileNameParts[] = 'hari-' . $hari;
+        }
+        
+        if ($request->filled('mata_pelajaran_id')) {
+            $query->where('mata_pelajaran_id', $request->mata_pelajaran_id);
+        }
+
+        if ($request->filled('guru_id')) {
+            $query->where('guru_id', $request->guru_id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('mataPelajaran', function ($qr) use ($search) {
+                    $qr->where('nama_mapel', 'like', '%' . $search . '%');
+                })->orWhereHas('guru', function ($qr) use ($search) {
+                    $qr->where('name', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        $jadwal = $query->get();
+        
+        $fileNameParts[] = Carbon::now()->format('Y-m-d');
+        $fileName = implode('-', $fileNameParts) . '.xlsx';
+
+        return Excel::download(new JadwalAbsensiExport($jadwal), $fileName);
+    }
+
     public function importExcel(Request $request)
     {
         $this->authorize('create', JadwalAbsensi::class);
@@ -424,7 +741,8 @@ class JadwalAbsensiController extends Controller
             'import_file' => 'required|file|mimes:xlsx'
         ]);
 
-        $import = new JadwalAbsensiImport;
+        // Pastikan import hanya untuk jadwal siswa (kelas_id wajib)
+        $import = new JadwalAbsensiImport(true); // true mengindikasikan import jadwal siswa
 
         try {
             Excel::import($import, $request->file('import_file'));
@@ -447,9 +765,53 @@ class JadwalAbsensiController extends Controller
         }
     }
 
+    /**
+     * Import non-student schedules from Excel.
+     */
+    public function importExcelNonSiswa(Request $request)
+    {
+        $this->authorize('create', JadwalAbsensi::class); // Admin only
+
+        $request->validate([
+            'import_file' => 'required|file|mimes:xlsx'
+        ]);
+
+        // Pastikan import hanya untuk jadwal non-siswa (kelas_id null)
+        $import = new JadwalAbsensiImport(false); // false mengindikasikan import jadwal non-siswa
+
+        try {
+            Excel::import($import, $request->file('import_file'));
+            
+            $failures = $import->failures();
+
+            if ($failures->isNotEmpty()) {
+                $errorMessages = [];
+                foreach ($failures as $failure) {
+                    $errorMessages[] = 'Baris ' . $failure->row() . ': ' . implode(', ', $failure->errors()) . ' (Nilai: ' . $failure->values()[$failure->attribute()] . ')';
+                }
+                return back()->with('error', 'Impor selesai, tetapi beberapa baris gagal diimpor. Silakan periksa kesalahan berikut:')->with('validation_errors', $errorMessages);
+            }
+
+            return back()->with('success', 'Jadwal non-siswa berhasil diimpor.');
+
+        } catch (\Throwable $e) { // Tangkap Throwable agar lebih umum
+            Log::error('Error importing non-student schedule: ' . $e->getMessage(), ['exception' => $e]);
+            return back()->with('error', 'Terjadi kesalahan tak terduga saat mengimpor file. Pesan: ' . $e->getMessage());
+        }
+    }
+
     public function downloadTemplate()
     {
         $this->authorize('viewAny', JadwalAbsensi::class);
-        return Excel::download(new JadwalAbsensiTemplateExport(), 'template_impor_jadwal.xlsx');
+        return Excel::download(new JadwalAbsensiTemplateExport(true), 'template_impor_jadwal_siswa.xlsx');
+    }
+
+    /**
+     * Download import template for non-student schedules.
+     */
+    public function downloadTemplateNonSiswa()
+    {
+        $this->authorize('viewAny', JadwalAbsensi::class); // Admin only
+        return Excel::download(new JadwalAbsensiTemplateExport(false), 'template_impor_jadwal_non_siswa.xlsx');
     }
 }

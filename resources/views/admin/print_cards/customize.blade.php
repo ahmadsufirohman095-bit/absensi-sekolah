@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12" x-data="cardCustomizer()" x-init="init()" x-cloak>
+    <div class="py-12" x-data="cardCustomizer()" x-init="init(); $watch('selectedRoleFilter', value => fetchConfigs());" x-cloak>
         <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
 
             <div x-show="isLoading" class="flex justify-center items-center p-8">
@@ -14,9 +14,19 @@
 
             <div x-show="!isLoading" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-1 bg-white dark:bg-gray-800 overflow-hidden shadow-lg sm:rounded-lg p-6">
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
                         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Tema Tersimpan</h3>
                         <x-primary-button @click="createNew()">Buat Baru</x-primary-button>
+                    </div>
+                    <div class="mb-4">
+                        <label for="filter_role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter Berdasarkan Role:</label>
+                        <select id="filter_role" x-model="selectedRoleFilter" class="block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <option value="">Semua Role</option>
+                            <option value="siswa">Siswa</option>
+                            <option value="guru">Guru</option>
+                            <option value="tu">Tata Usaha</option>
+                            <option value="other">Lainnya</option>
+                        </select>
                     </div>
                     <div class="space-y-2">
                         <template x-for="config in configs" :key="config.id">
@@ -25,7 +35,12 @@
                                     <p class="font-semibold text-gray-800 dark:text-gray-200" x-text="config.name"></p>
                                     <span x-show="config.is_default" class="text-xs bg-green-200 text-green-800 font-bold px-2 py-1 rounded-full">Default</span>
                                 </div>
-                                <button @click.stop="deleteConfig(config.id)" class="text-gray-400 hover:text-red-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                <div class="flex items-center space-x-2">
+                                    <button @click.stop="duplicateConfig(config)" class="text-gray-400 hover:text-blue-500" title="Duplikasi Tema">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v4a1 1 0 001 1h4m-4 0v4a1 1 0 001 1h4m-4-8V7m-4 0h4m-4 0v4m4-4h4m-4 0v4M4 7v4a1 1 0 001 1h4a1 1 0 001-1V7a1 1 0 00-1-1H5a1 1 0 00-1 1zm0 8v4a1 1 0 001 1h4a1 1 0 001-1v-4a1 1 0 00-1-1H5a1 1 0 00-1 1zm8-8v4a1 1 0 001 1h4a1 1 0 001-1V7a1 1 0 00-1-1h-4a1 1 0 00-1 1zm0 8v4a1 1 0 001 1h4a1 1 0 001-1v-4a1 1 0 00-1-1h-4a1 1 0 00-1 1z"></path></svg>
+                                    </button>
+                                    <button @click.stop="deleteConfig(config.id)" class="text-gray-400 hover:text-red-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                </div>
                             </div>
                         </template>
                     </div>
@@ -42,8 +57,30 @@
                                         <x-input-label for="name" :value="__('Nama Tema')" />
                                         <x-text-input id="name" class="block mt-1 w-full" type="text" x-model="selectedConfig.name" required />
                                     </div>
-                                    <div class="flex items-end">
+                                    <div>
+                                        <x-input-label for="role_target" :value="__('Target Role')" />
+                                        <select id="role_target" x-model="selectedConfig.role_target" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                            <option value="">Semua Role (Umum)</option>
+                                            <option value="siswa">Siswa</option>
+                                            <option value="guru">Guru</option>
+                                            <option value="tu">Tata Usaha</option>
+                                            <option value="other">Lainnya</option>
+                                        </select>
+                                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Pilih role target untuk tema ini. Kosongkan jika tema bersifat umum.</p>
+                                    </div>
+                                    <div class="md:col-span-2 flex items-end">
                                         <label class="inline-flex items-center"><input type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500" x-model="selectedConfig.is_default"><span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Jadikan Tema Default</span></label>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                    <h4 class="font-semibold mb-3 text-gray-900 dark:text-gray-100">Orientasi Kartu</h4>
+                                    <div class="mt-4">
+                                        <label for="card_orientation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pilih Orientasi Kartu:</label>
+                                        <select id="card_orientation" x-model="selectedConfig.card_orientation" class="block w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                            <option value="portrait">Vertikal (Potret)</option>
+                                            <option value="landscape">Horizontal (Lanskap)</option>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -54,6 +91,18 @@
                                             Ukuran Kode QR: <span x-text="selectedConfig.config_json.qr_size"></span>px
                                         </label>
                                         <input type="range" id="qr_size" min="30" max="200" step="10" x-model.number="selectedConfig.config_json.qr_size" class="w-full">
+                                    </div>
+                                    <div class="mt-4">
+                                        <label for="qr_position_x" class="block font-medium text-sm text-gray-700 dark:text-gray-300">
+                                            Posisi Horizontal QR: <span x-text="selectedConfig.config_json.qr_position_x"></span>%
+                                        </label>
+                                        <input type="range" id="qr_position_x" min="0" max="100" step="1" x-model.number="selectedConfig.config_json.qr_position_x" class="w-full">
+                                    </div>
+                                    <div class="mt-4">
+                                        <label for="qr_position_y" class="block font-medium text-sm text-gray-700 dark:text-gray-300">
+                                            Posisi Vertikal QR: <span x-text="selectedConfig.config_json.qr_position_y"></span>%
+                                        </label>
+                                        <input type="range" id="qr_position_y" min="0" max="100" step="1" x-model.number="selectedConfig.config_json.qr_position_y" class="w-full">
                                     </div>
                                 </div>
 
@@ -165,7 +214,9 @@
                                     <h4 class="font-semibold mb-2 text-gray-900 dark:text-gray-100">Pratinjau Langsung</h4>
                                     <style>
                                         .card-container-preview { display: flex; justify-content: center; padding: 5px; }
-                                        .card-preview { width: 323.5px; height: 204.0px; position: relative; overflow: hidden; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+                                        .card-preview { position: relative; overflow: hidden; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+                                        .card-preview.portrait { width: 204.0px; height: 323.5px; } /* Lebar dan tinggi untuk orientasi potret (vertikal) */
+                                        .card-preview.landscape { width: 323.5px; height: 204.0px; } /* Lebar dan tinggi untuk orientasi lanskap (horizontal) */
                                         .card-header-preview { padding: 5px 8px; display: flex; align-items: center; position: relative; z-index: 1; }
                                         .card-header-preview img { width: 35px; height: 35px; margin-right: 8px; }
                                         .card-header-preview p { font-size: 10px; margin: 0; }
@@ -176,12 +227,28 @@
                                         .card-body-preview .info { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
                                         .card-body-preview .info table { font-size: 9px; width: 100%; color: inherit; }
                                         .card-body-preview .info table td { padding-bottom: 1px; }
-                                        .card-body-preview .info .qr-section { display: flex; justify-content: flex-end; align-self: flex-end; margin-top: 3px; }
-                                        .qr-code-container-preview { border: 2px solid white; border-radius: 6px; box-shadow: 0 3px 5px rgba(0,0,0,0.1); padding: 2px; background-color: white; display: flex; justify-content: center; align-items: center; }
+                                        /* Hapus gaya qr-section yang lama karena sudah dipindah ke inline style */
+                                        /* .card-body-preview .info .qr-section { display: flex; justify-content: flex-end; align-self: flex-end; margin-top: 3px; } */
+                                        .qr-code-container-preview {
+                                            border: 2px solid white;
+                                            border-radius: 6px;
+                                            box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+                                            padding: 2px;
+                                            background-color: white;
+                                            display: flex;
+                                            justify-content: center;
+                                            align-items: center;
+                                            flex-shrink: 0; /* Mencegah container menyusut */
+                                        }
+                                        .qr-code-container-preview img {
+                                            width: 100%; /* Mengisi lebar container */
+                                            height: 100%; /* Mengisi tinggi container */
+                                            object-fit: contain; /* Menjaga aspek rasio */
+                                        }
                                         .card-watermark-preview { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-repeat: no-repeat; z-index: 0; }
                                     </style>
                                     <div class="card-container-preview">
-                                        <div class="card-preview rounded-lg" :style="`background-color: ${hexToRgba(selectedConfig.config_json.theme.background_color, selectedConfig.config_json.theme.background_opacity)};`">
+                                        <div class="card-preview rounded-lg" :class="selectedConfig.card_orientation" :style="`background-color: ${hexToRgba(selectedConfig.config_json.theme.background_color, selectedConfig.config_json.theme.background_opacity)};`">
                                             <div class="card-watermark-preview" :style="`background-image: ${selectedConfig.config_json.assets.watermark_url ? `url(${selectedConfig.config_json.assets.watermark_url})` : 'none'}; opacity: ${selectedConfig.config_json.assets.watermark_opacity}; background-size: ${selectedConfig.config_json.assets.watermark_size}%; background-position: center ${selectedConfig.config_json.assets.watermark_position_y}%;`"></div>
                                             
                                             <!-- Header -->
@@ -230,9 +297,9 @@
                                                             </tr>
                                                         </tbody>
                                                     </table>
-                                                    <div class="qr-section">
-                                                        <div class="qr-code-container-preview">
-                                                            <img :src="`https://api.qrserver.com/v1/create-qr-code/?size=${selectedConfig.config_json.qr_size}x${selectedConfig.config_json.qr_size}&data=1234567890`" :style="`width: ${selectedConfig.config_json.qr_size}px; height: ${selectedConfig.config_json.qr_size}px;`" alt="QR Code Preview">
+                                                    <div class="qr-section" :style="`position: absolute; left: ${selectedConfig.config_json.qr_position_x}%; top: ${selectedConfig.config_json.qr_position_y}%; transform: translate(-50%, -50%);`">
+                                                        <div class="qr-code-container-preview" :style="`width: ${selectedConfig.config_json.qr_size}px; height: ${selectedConfig.config_json.qr_size}px;`">
+                                                            <img :src="`https://api.qrserver.com/v1/create-qr-code/?size=${selectedConfig.config_json.qr_size}x${selectedConfig.config_json.qr_size}&data=1234567890`" alt="QR Code Preview">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -276,9 +343,12 @@
                 isUploading: { logo: false, watermark: false },
                 configs: [],
                 selectedConfig: null,
+                selectedRoleFilter: '', // Tambahkan state untuk filter role
                 defaultConfigTemplate: {
                     name: 'Tema Baru',
                     is_default: false,
+                    role_target: null,
+                    card_orientation: 'portrait', // Tambahkan card_orientation default
                     config_json: {
                         theme: {
                             background_color: '#ffffff',
@@ -295,14 +365,16 @@
                         photo_height: 90,
                         header_title: 'Kartu Absensi Siswa',
                         school_name: 'Nama Sekolah Contoh',
-                        header_padding_x: 8
+                        header_padding_x: 8,
+                        qr_position_x: 75, // Default horizontal position for QR
+                        qr_position_y: 75  // Default vertical position for QR
                     }
                 },
                 init() { this.fetchConfigs(); },
                 async fetchConfigs() {
                     this.isLoading = true;
                     try {
-                        const response = await fetch('{{ url("/print-card-configs") }}');
+                        const response = await fetch('{{ url("/print-card-configs") }}' + '?role_target=' + (this.selectedRoleFilter || ''));
                         const data = await response.json();
                         this.configs = data;
                         if (this.configs.length > 0) {
@@ -425,6 +497,8 @@
                     const payload = {
                         name: this.selectedConfig.name,
                         is_default: this.selectedConfig.is_default,
+                        role_target: this.selectedConfig.role_target,
+                        card_orientation: this.selectedConfig.card_orientation, // Sertakan card_orientation
                         config_json: this.selectedConfig.config_json
                     };
 
@@ -481,9 +555,50 @@
                         console.error(err);
                         alert('Gagal menghapus tema: ' + (err.error || 'Error tidak diketahui'));
                     }
+                },
+                async duplicateConfig(configToDuplicate) {
+                    let newName = prompt('Masukkan nama untuk tema duplikat:', `Salinan dari ${configToDuplicate.name}`);
+                    if (!newName) return; // Pengguna membatalkan
+
+                    let newRoleTarget = prompt('Masukkan role target baru (siswa, guru, tu, other) atau kosongkan untuk umum:', configToDuplicate.role_target || '');
+                    if (newRoleTarget === null) { // Jika pengguna mengklik Cancel
+                        return; // Batalkan duplikasi
+                    }
+                    if (!['siswa', 'guru', 'tu', 'other', ''].includes(newRoleTarget.toLowerCase())) {
+                        alert('Role target tidak valid. Harap masukkan "siswa", "guru", "tu", "other", atau kosongkan.');
+                        return;
+                    }
+                    if (newRoleTarget === '') newRoleTarget = null; // Setel ke null jika kosong
+
+                    this.isLoading = true;
+                    try {
+                        const response = await fetch(`{{ url("/print-card-configs") }}/${configToDuplicate.id}/duplicate`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({ name: newName, role_target: newRoleTarget })
+                        });
+
+                        if (!response.ok) {
+                            const err = await response.json();
+                            throw err;
+                        }
+
+                        alert('Tema berhasil diduplikasi!');
+                        await this.fetchConfigs(); // Muat ulang daftar konfigurasi
+                        this.selectedConfig = null; // Hapus pilihan saat ini
+
+                    } catch (err) {
+                        console.error(err);
+                        alert('Gagal menduplikasi tema: ' + (err.message || JSON.stringify(err.errors) || 'Error tidak diketahui'));
+                    } finally {
+                        this.isLoading = false;
+                    }
                 }
             }
         }
     </script>
 </x-app-layout>
-

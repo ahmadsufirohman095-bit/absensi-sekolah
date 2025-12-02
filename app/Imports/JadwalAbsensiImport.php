@@ -19,16 +19,26 @@ class JadwalAbsensiImport implements ToModel, WithHeadingRow, WithValidation, Sk
 {
     use Importable, SkipsFailures, SkipsErrors;
 
+    private $isSiswaSchedule;
     private $kelasMap;
     private $mapelMap;
-    private $guruMap;
+    private $userMap; // Mengganti guruMap menjadi userMap untuk menampung semua role yang mungkin
 
-    public function __construct()
+    public function __construct(bool $isSiswaSchedule = true)
     {
+        $this->isSiswaSchedule = $isSiswaSchedule;
+
         // Cache necessary data to avoid querying in a loop
-        $this->kelasMap = Kelas::all()->keyBy('nama_kelas');
-        $this->mapelMap = MataPelajaran::all()->keyBy('kode_mapel');
-        $this->guruMap = User::where('role', 'guru')->get()->keyBy('identifier'); // Key by NIP (identifier)
+        if ($this->isSiswaSchedule) {
+            $this->kelasMap = Kelas::all()->keyBy('nama_kelas');
+            $this->mapelMap = MataPelajaran::all()->keyBy('kode_mapel');
+            $this->userMap = User::where('role', 'guru')->get()->keyBy('identifier'); // Hanya guru untuk jadwal siswa
+        } else {
+            // Untuk jadwal non-siswa, kelas_id null, mata pelajaran bisa null, guru_id bisa dari berbagai role
+            $this->kelasMap = collect(); // Tidak perlu kelas map
+            $this->mapelMap = MataPelajaran::all()->keyBy('kode_mapel');
+            $this->userMap = User::whereIn('role', ['admin', 'guru', 'tu', 'other'])->get()->keyBy('identifier');
+        }
     }
 
     /**
@@ -38,41 +48,62 @@ class JadwalAbsensiImport implements ToModel, WithHeadingRow, WithValidation, Sk
     */
     public function model(array $row)
     {
-        $kelas = $this->kelasMap->get($row['kelas']);
-        $mapel = $this->mapelMap->get($row['kode_mapel']);
-        $guru = $this->guruMap->get($row['nip']);
+        $kelasId = null;
+        if ($this->isSiswaSchedule) {
+            $kelas = $this->kelasMap->get($row['kelas']);
+            $kelasId = $kelas->id ?? null; // Should be valid due to validation rules
+        }
 
-        // Validation handles non-existent relations. 
-        // This method is only called for rows that pass validation.
+        $mapelId = null;
+        if (isset($row['kode_mapel']) && $row['kode_mapel']) {
+            $mapel = $this->mapelMap->get($row['kode_mapel']);
+            $mapelId = $mapel->id ?? null;
+        }
+        
+        $user = $this->userMap->get($row['identifier_penanggung_jawab']); // Menggunakan identifier_penanggung_jawab
+        $userId = $user->id ?? null; // Should be valid due to validation rules
+
         return new JadwalAbsensi([
             'hari'              => $row['hari'],
             'jam_mulai'         => $row['jam_mulai'],
             'jam_selesai'       => $row['jam_selesai'],
-            'kelas_id'          => $kelas->id,
-            'mata_pelajaran_id' => $mapel->id,
-            'guru_id'           => $guru->id,
+            'kelas_id'          => $kelasId, // Nullable for non-siswa
+            'mata_pelajaran_id' => $mapelId, // Nullable for non-siswa
+            'guru_id'           => $userId, // Bisa jadi ID admin/tu/other juga
         ]);
     }
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            
-            'kelas' => 'required|exists:kelas,nama_kelas',
-            'kode_mapel' => 'required|exists:mata_pelajarans,kode_mapel',
-            'nip' => ['required', 'exists:users,identifier,role,guru'],
         ];
+
+        if ($this->isSiswaSchedule) {
+            $rules['kelas'] = 'required|exists:kelas,nama_kelas';
+            $rules['kode_mapel'] = 'required|exists:mata_pelajarans,kode_mapel';
+            $rules['identifier_penanggung_jawab'] = ['required', 'exists:users,identifier,role,guru'];
+        } else {
+            $rules['kelas'] = 'nullable'; // Tidak diperlukan untuk non-siswa
+            $rules['kode_mapel'] = 'nullable|exists:mata_pelajarans,kode_mapel'; // Bisa null untuk jadwal umum
+            $rules['identifier_penanggung_jawab'] = ['required', 'exists:users,identifier']; // Bisa admin, guru, tu, other
+        }
+        return $rules;
     }
 
     public function customValidationMessages()
     {
-        return [
+        $messages = [
             'kelas.exists' => 'Nama Kelas (:input) tidak ditemukan di database.',
             'kode_mapel.exists' => 'Kode Mata Pelajaran (:input) tidak ditemukan di database.',
-            'nip.exists' => 'NIP Guru (:input) tidak ditemukan, atau pengguna dengan NIP tersebut bukan seorang guru.',
+            'identifier_penanggung_jawab.exists' => 'Identifier Penanggung Jawab (:input) tidak ditemukan.',
         ];
+
+        if ($this->isSiswaSchedule) {
+            $messages['identifier_penanggung_jawab.exists'] = 'NIP Guru (:input) tidak ditemukan, atau pengguna dengan NIP tersebut bukan seorang guru.';
+        }
+        return $messages;
     }
 }

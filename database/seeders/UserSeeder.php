@@ -78,9 +78,11 @@ class UserSeeder extends Seeder
         $admin->adminProfile()->create([
             'telepon' => $faker->phoneNumber,
             'jabatan' => 'Administrator Sistem',
+            'tanggal_lahir' => $faker->date('Y-m-d', '1980-01-01'), // Tambahkan tanggal_lahir
             'tempat_lahir' => $faker->city,
             'jenis_kelamin' => $faker->randomElement(['laki-laki', 'perempuan']),
             'tanggal_bergabung' => $admin->created_at,
+            'foto' => null,
         ]);
 
         $this->command->info('Membuat akun Admin Kedua...');
@@ -95,12 +97,78 @@ class UserSeeder extends Seeder
         $admin2->adminProfile()->create([
             'telepon' => $faker->phoneNumber,
             'jabatan' => 'Administrator Cadangan',
+            'tanggal_lahir' => $faker->date('Y-m-d', '1982-01-01'), // Tambahkan tanggal_lahir
             'tempat_lahir' => $faker->city,
             'jenis_kelamin' => $faker->randomElement(['laki-laki', 'perempuan']),
             'tanggal_bergabung' => $admin2->created_at,
+            'foto' => null,
         ]);
 
-        // --- 4. MEMBUAT GURU ---
+        // --- 4. MEMBUAT TU ---
+        $this->command->info('Membuat 5 akun TU...');
+        for ($i = 1; $i <= 5; $i++) {
+            $gender = $faker->randomElement(['male', 'female']);
+            $firstName = $faker->firstName($gender);
+            $lastName = $faker->lastName();
+            $fullName = $firstName . ' ' . $lastName;
+            $username = strtolower(str_replace([' ', '.'], '', $firstName . $lastName)) . '_tu' . $i;
+
+            $tu = User::create([
+                'name' => $fullName,
+                'username' => $username,
+                'identifier' => 'tu' . $faker->unique()->numerify('###'),
+                'email' => $username . '@' . $schoolDomain,
+                'password' => Hash::make('password'),
+                'role' => 'tu',
+            ]);
+            $tu->tuProfile()->create([
+                'telepon' => $faker->phoneNumber,
+                'jabatan' => 'Staff Tata Usaha ' . $i,
+                'tanggal_lahir' => $faker->date('Y-m-d', '1990-01-01'), // Tambahkan tanggal_lahir
+                'tempat_lahir' => $faker->city,
+                'jenis_kelamin' => ($gender == 'male') ? 'laki-laki' : 'perempuan',
+                'tanggal_bergabung' => $tu->created_at,
+                'foto' => null,
+            ]);
+        }
+
+        // --- 5. MEMBUAT LAINNYA ---
+        $this->command->info('Membuat 10 akun Lainnya dengan custom role berbeda...');
+        $customRoles = [
+            'Bendahara', 'Pustakawan', 'Koordinator Ekstrakurikuler', 'Nurs',
+            'Staff IT', 'Petugas UKS', 'Petugas Kebersihan', 'Satpam Sekolah',
+            'Koordinator Kesiswaan', 'Staff Administrasi Umum'
+        ];
+        for ($i = 0; $i < 10; $i++) {
+            $gender = $faker->randomElement(['male', 'female']);
+            $firstName = $faker->firstName($gender);
+            $lastName = $faker->lastName();
+            $fullName = $firstName . ' ' . $lastName;
+            $username = strtolower(str_replace([' ', '.'], '', $firstName . $lastName)) . '_other' . $i;
+            $roleName = $customRoles[$i];
+
+            $other = User::create([
+                'name' => $fullName,
+                'username' => $username,
+                'identifier' => 'other' . $faker->unique()->numerify('###'),
+                'email' => $username . '@' . $schoolDomain,
+                'password' => Hash::make('password'),
+                'role' => 'other',
+                'custom_role' => $roleName,
+            ]);
+            $other->otherProfile()->create([
+                'custom_role_name' => $roleName,
+                'telepon' => $faker->phoneNumber,
+                'jabatan' => $roleName,
+                'tanggal_lahir' => $faker->date('Y-m-d', '1985-01-01'), // Tambahkan tanggal_lahir
+                'tempat_lahir' => $faker->city,
+                'jenis_kelamin' => ($gender == 'male') ? 'laki-laki' : 'perempuan',
+                'tanggal_bergabung' => $other->created_at,
+                'foto' => null,
+            ]);
+        }
+
+        // --- 6. MEMBUAT GURU ---
         $this->command->info('Membuat data guru...');
         $guruList = collect();
         for ($i = 0; $i < 10; $i++) {
@@ -132,7 +200,7 @@ class UserSeeder extends Seeder
             $guruList->push($guru);
         }
 
-        // --- 5. MENETAPKAN GURU PENGAMPU & WALI KELAS ---
+        // --- 7. MENETAPKAN GURU PENGAMPU & WALI KELAS ---
         $this->command->info('Menetapkan guru pengampu dan wali kelas...');
 
         // Menetapkan satu guru pengampu untuk setiap mata pelajaran
@@ -154,7 +222,7 @@ class UserSeeder extends Seeder
             }
         });
 
-        // --- 6. MEMBUAT SISWA ---
+        // --- 8. MEMBUAT SISWA ---
         $this->command->info('Membuat data siswa...');
         $nisCounter = (int) date('y') * 10000 + 1;
         foreach ($kelasList as $kelas) {

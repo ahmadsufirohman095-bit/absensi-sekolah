@@ -6,7 +6,62 @@
     <title>Kartu Absensi Siswa</title>
     @vite(['resources/css/app.css'])
     
-    
+    <style>
+        /* Define fixed card dimensions for consistent printing */
+        :root {
+            --card-portrait-width: 204.0px;  /* 54mm at 96dpi */
+            --card-portrait-height: 323.5px; /* 85.5mm at 96dpi */
+            --card-landscape-width: 323.5px;
+            --card-landscape-height: 204.0px;
+        }
+
+        /* Default card dimensions for screen (can be overridden by orientation) */
+        .card {
+            width: var(--card-landscape-width);
+            height: var(--card-landscape-height);
+        }
+
+        /* Portrait orientation for screen */
+        .card.portrait {
+            width: var(--card-portrait-width);
+            height: var(--card-portrait-height);
+        }
+
+        /* Landscape orientation for screen */
+        .card.landscape {
+            width: var(--card-landscape-width);
+            height: var(--card-landscape-height);
+        }
+
+        @media print {
+            /* For printing, ensure exact dimensions and no scaling issues */
+            .card {
+                width: var(--card-landscape-width) !important;
+                height: var(--card-landscape-height) !important;
+                page-break-inside: avoid;
+            }
+
+            .card.portrait {
+                width: var(--card-portrait-width) !important;
+                height: var(--card-portrait-height) !important;
+            }
+
+            .card.landscape {
+                width: var(--card-landscape-width) !important;
+                height: var(--card-landscape-height) !important;
+            }
+
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
 
     @php
         // --- THEME AND ASSET CONFIGURATION ---
@@ -51,12 +106,49 @@
         // Header Padding
         $headerPaddingX = data_get($config, 'config_json.header_padding_x', 8);
 
+        // QR Code Position
+        $qrPositionX = data_get($config, 'config_json.qr_position_x', 75);
+        $qrPositionY = data_get($config, 'config_json.qr_position_y', 75);
+
+        // Card Orientation
+        $cardOrientation = $config->card_orientation ?? 'portrait'; // Default to portrait
     @endphp
 
     <style>
         body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #f0f0f0; }
-        .card-container { display: grid; grid-template-columns: repeat(auto-fit, 323.5px); gap: 10px; justify-content: center; padding: 5px; }
-        .card { height: 204.0px; position: relative; overflow: hidden; break-inside: avoid; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; flex-direction: column; background-color: {{ $rgbaBgColor }}; }
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, var(--card-portrait-width));
+            gap: 10px; /* Jarak antar kartu */
+            justify-content: center;
+            padding: 5px;
+        }
+
+        /* Override for landscape orientation */
+        @if ($cardOrientation === 'landscape')
+            .card-container {
+                grid-template-columns: repeat(auto-fit, var(--card-landscape-width));
+            }
+        @endif
+        .card {
+            position: relative;
+            overflow: hidden;
+            break-inside: avoid;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            background-color: {{ $rgbaBgColor }};
+        }
+        .card.portrait {
+            width: var(--card-portrait-width);
+            height: var(--card-portrait-height);
+        }
+        .card.landscape {
+            width: var(--card-landscape-width);
+            height: var(--card-landscape-height);
+        }
+
         .card-header { padding: 5px 8px; display: flex; align-items: center; position: relative; z-index: 1; background-color: {{ $rgbaHeaderBgColor }}; color: {{ $header_text_color }}; }
         .card-header img { width: 35px; height: 35px; margin-right: 8px; }
         .card-header p { font-size: 10px; margin: 0; }
@@ -67,29 +159,30 @@
         .card-body .info { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .card-body .info table { font-size: 9px; width: 100%; color: inherit; }
         .card-body .info table td { padding-bottom: 1px; }
-        .card-body .info .qr-section { display: flex; justify-content: flex-end; align-self: flex-end; margin-top: 3px; }
+        
+        /* QR section positioning */
+        .qr-section {
+            position: absolute;
+            left: {{ $qrPositionX }}%;
+            top: {{ $qrPositionY }}%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
         
         .qr-code-container { border: 2px solid white; border-radius: 6px; box-shadow: 0 3px 5px rgba(0,0,0,0.1); padding: 2px; background-color: white; display: flex; justify-content: center; align-items: center; }
         .card-watermark { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-repeat: no-repeat; z-index: 0; }
 
+        /* Print-specific styles */
         @media print {
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .card-container { justify-content: flex-start; }
-            .card { page-break-inside: avoid; }
+            /* Card dimensions are now controlled by :root variables and .card classes */
 
             @page {
                 size: A4;
                 margin: 10mm;
-            }
-
-            @media (orientation: landscape) {
-                .card-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
-                .card { width: 100%; height: auto; aspect-ratio: 323.5 / 204; }
-            }
-
-            @media (orientation: portrait) {
-                .card-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
-                .card { width: 100%; height: auto; aspect-ratio: 323.5 / 204; }
             }
         }
     </style>
@@ -97,13 +190,13 @@
 <body>
     <div class="card-container">
         @forelse ($siswa as $s)
-            <div class="card rounded-lg">
-                                @if ($watermarkUrl)
-                <div class="card-watermark" style="background-image: url('{{ $watermarkUrl }}'); opacity: {{ $watermarkEnabled ? $watermarkOpacity : 0 }}; background-size: {{ $watermarkSize }}%; background-position: center {{ $watermarkPositionY }}%;"></div>
+            <div class="card rounded-lg {{ $cardOrientation }}">
+                @if ($watermarkUrl && data_get($config, 'config_json.watermark_enabled', true))
+                <div class="card-watermark" style="background-image: url('{{ $watermarkUrl }}'); opacity: {{ $watermarkOpacity }}; background-size: {{ $watermarkSize }}%; background-position: center {{ $watermarkPositionY }}%;"></div>
                 @endif
                 <!-- Header -->
                 <div class="card-header" style="padding-left: {{ $headerPaddingX }}px; padding-right: {{ $headerPaddingX }}px;">
-                                        @if ($logoUrl)
+                    @if ($logoUrl)
                     <img src="{{ $logoUrl }}" alt="Logo Sekolah">
                     @else
                     <div style="width: 35px; height: 35px; margin-right: 8px;"></div>

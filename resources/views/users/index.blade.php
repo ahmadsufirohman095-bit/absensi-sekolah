@@ -25,41 +25,54 @@
                     <div class="p-6 text-gray-900 dark:text-gray-100" x-data="userManagement()" x-init="init({{ json_encode($users->getCollection()->pluck('id')) }})">
                         
                         <!-- Form Filter & Pencarian -->
-                        <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                        <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg shadow-sm" x-data="tomSelectManager">
                             <form method="GET" action="{{ route('users.index') }}">
                                 {{-- Menyimpan parameter kelas_id jika ada --}}
                                 @if(request('kelas_id'))
                                     <input type="hidden" name="kelas_id" value="{{ request('kelas_id') }}">
-                                    <input type="hidden" name="role" value="siswa">
                                 @endif
 
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                                     {{-- Input Pencarian --}}
-                                    <div class="md:col-span-2">
+                                    <div class="lg:col-span-2">
                                         <label for="search" class="sr-only">Cari</label>
-                                        <input type="text" name="search" id="search" placeholder="Cari berdasarkan Nama, Email, atau ID..." value="{{ request('search') }}"
-                                               class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                <svg class="w-5 h-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                            </div>
+                                            <input type="text" name="search" id="search" placeholder="Cari berdasarkan Nama, Email, atau ID..." value="{{ request('search') }}"
+                                                   class="block w-full pl-10 pr-3 py-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        </div>
                                     </div>
                                     
                                     {{-- Filter Kelas --}}
-                                    <select name="kelas_id" id="kelas_id" class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                                        <option value="">Semua Kelas</option>
-                                        @foreach($allKelas as $kelas)
-                                            <option value="{{ $kelas->id }}" @selected(request('kelas_id') == $kelas->id)>{{ $kelas->nama_kelas }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div>
+                                        <label for="kelas_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pilih Kelas:</label>
+                                        <select name="kelas_id" id="kelas_id" class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                            <option value="">Semua Kelas</option>
+                                            @foreach($allKelas as $kelas)
+                                                <option value="{{ $kelas->id }}" @selected(request('kelas_id') == $kelas->id)>{{ $kelas->nama_kelas }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
-                                    {{-- Filter Role & Tombol --}}
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                        @if(!request('kelas_id'))
+                                    {{-- Filter Role --}}
+                                    <div>
+                                        <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pilih Role:</label>
                                         <select name="role" id="role" class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                                             <option value="">Semua Role</option>
                                             <option value="admin" @selected(request('role') == 'admin')>Admin</option>
                                             <option value="guru" @selected(request('role') == 'guru')>Guru</option>
                                             <option value="siswa" @selected(request('role') == 'siswa')>Siswa</option>
+                                            <option value="tu" @selected(request('role') == 'tu')>TU</option>
+                                            <option value="other" @selected(request('role') == 'other')>Lainnya</option>
                                         </select>
-                                        @endif
-                                        <button type="submit" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Filter</button>
+                                    </div>
+                                    
+                                    {{-- Tombol Filter dan Reset --}}
+                                    <div class="md:col-span-2 lg:col-span-4 flex justify-end gap-2">
+                                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Terapkan Filter</button>
+                                        <a href="{{ route('users.index', ['kelas_id' => request('kelas_id') ?: '', 'role' => request('kelas_id') ? 'siswa' : '']) }}" class="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-md hover:bg-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Reset Filter</a>
                                     </div>
                                 </div>
                             </form>

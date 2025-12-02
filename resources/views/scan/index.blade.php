@@ -30,18 +30,7 @@
                         </div>
                     </div>
 
-                    @if($user->isAdmin())
-                    <div class="p-6 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg text-yellow-800 dark:text-yellow-200 font-medium text-center">
-                        <div class="mb-3 flex justify-center">
-                            <svg class="w-10 h-10 text-yellow-700 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                        </div>
-                        <p class="text-lg">Anda masuk sebagai Admin. Anda dapat melihat jadwal dan riwayat absensi, namun fitur pemindaian QR Code hanya tersedia untuk Guru.</p>
-                    </div>
-                    @endif
-
-                    <div id="scanner-section" class="hidden" @if($user->isAdmin()) style="display: none;" @endif>
+                    <div id="scanner-section" class="hidden">
                         <!-- 1. Camera Viewport -->
                         <div id="camera-container" class="w-full h-[480px] bg-gray-900 rounded-lg overflow-hidden relative shadow-2xl border-8 border-gray-600 transition-all duration-300 ease-in-out">
                             <div class="absolute bottom-4 left-0 right-0 flex items-center justify-center pointer-events-none z-10">
@@ -72,7 +61,7 @@
                         </div>
                     </div>
 
-                    <div id="feedback-section" class="hidden" @if($user->isAdmin()) style="display: none;" @endif>
+                    <div id="feedback-section" class="hidden">
                         <!-- 2. Status & History -->
                         <div class="mt-6">
                             <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Status Pindai</h3>
@@ -144,7 +133,7 @@
     @endpush
 
     @push('scripts')
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
+    <script src="{{ asset('js/html5-qrcode.min.js') }}" type="text/javascript"></script>
     <script>
         // Declare global variables for elements and scanner instance
         // This prevents re-declaration errors when Turbo re-evaluates the script block.
@@ -165,6 +154,7 @@
         window.scannedStudentsList = window.scannedStudentsList || null;
         window.activeJadwalAbsensiId = window.activeJadwalAbsensiId || null; // Still used for API calls
         window.selectedScheduleId = window.selectedScheduleId || null; // New variable for selected ID
+        window.selectedScheduleType = window.selectedScheduleType || null; // New variable for selected schedule type
         window.isUserAdmin = {{ $user->isAdmin() ? 'true' : 'false' }}; // Pass user role to JS
         window.initialJadwalId = @json(request('jadwal_id')); // Get jadwal_id from URL
         window.initialJadwal = null; // To store the full schedule object if found
@@ -340,16 +330,34 @@
                 schedules.forEach(schedule => {
                     const scheduleItem = document.createElement('div');
                     scheduleItem.className = 'p-2 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-800 border-b border-gray-200 dark:border-gray-600 last:border-b-0';
-                    scheduleItem.dataset.scheduleId = schedule.id;
-                    scheduleItem.dataset.scheduleText = `${schedule.hari} - ${schedule.mata_pelajaran.nama_mapel} - ${schedule.kelas.nama_kelas} (${new Date(schedule.jam_mulai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})} - ${new Date(schedule.jam_selesai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})})`;
-                    scheduleItem.innerHTML = `
-                        <p class="font-semibold text-gray-800 dark:text-gray-200">${schedule.hari} - ${schedule.mata_pelajaran.nama_mapel}</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">${schedule.kelas.nama_kelas} (${new Date(schedule.jam_mulai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})} - ${new Date(schedule.jam_selesai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})})</p>
-                    `;
+                    scheduleItem.dataset.scheduleId = schedule.formatted_id; // Use formatted_id
+                    scheduleItem.dataset.scheduleType = schedule.type; // Store type
+                    
+                    let scheduleText = '';
+                    let displayHtml = '';
+
+                    if (schedule.type === 'siswa') {
+                        scheduleText = `${schedule.hari} - ${schedule.mata_pelajaran.nama_mapel} - ${schedule.kelas.nama_kelas} (${new Date(schedule.jam_mulai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})} - ${new Date(schedule.jam_selesai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})})`;
+                        displayHtml = `
+                            <p class="font-semibold text-gray-800 dark:text-gray-200">${schedule.hari} - ${schedule.mata_pelajaran.nama_mapel}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">${schedule.kelas.nama_kelas} (${new Date(schedule.jam_mulai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})} - ${new Date(schedule.jam_selesai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})})</p>
+                        `;
+                    } 
+                    // else if (schedule.type === 'pegawai') { // No need to render employee schedules here
+                    //     scheduleText = `${schedule.hari} - ${schedule.user.name} - Pegawai (${new Date(schedule.jam_mulai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})} - ${new Date(schedule.jam_selesai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})})`;
+                    //     displayHtml = `
+                    //         <p class="font-semibold text-gray-800 dark:text-gray-200">${schedule.hari} - ${schedule.user.name}</p>
+                    //         <p class="text-sm text-gray-600 dark:text-gray-400">Pegawai (${new Date(schedule.jam_mulai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})} - ${new Date(schedule.jam_selesai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})})</p>
+                    //     `;
+                    // }
+                    
+                    scheduleItem.dataset.scheduleText = scheduleText;
+                    scheduleItem.innerHTML = displayHtml;
                     scheduleItem.addEventListener('click', (event) => {
                         const selectedId = event.currentTarget.dataset.scheduleId;
+                        const selectedType = event.currentTarget.dataset.scheduleType;
                         const selectedText = event.currentTarget.dataset.scheduleText;
-                        handleScheduleSelection(selectedId, selectedText);
+                        handleScheduleSelection(selectedId, selectedType, selectedText);
                     });
                     window.scheduleResultsContainer.appendChild(scheduleItem);
                 });
@@ -359,18 +367,22 @@
             const filterAndRenderSchedules = function() {
                 const searchTerm = window.scheduleSearchInput.value.toLowerCase();
                 const filteredSchedules = window.allAvailableSchedules.filter(schedule => {
-                    const scheduleString = `${schedule.hari} ${schedule.mata_pelajaran.nama_mapel} ${schedule.kelas.nama_kelas} ${schedule.jam_mulai} ${schedule.jam_selesai}`.toLowerCase();
+                    let scheduleString = '';
+                    if (schedule.type === 'siswa') {
+                        scheduleString = `${schedule.hari} ${schedule.mata_pelajaran.nama_mapel} ${schedule.kelas.nama_kelas} ${new Date(schedule.jam_mulai).toLocaleTimeString('id-ID')} ${new Date(schedule.jam_selesai).toLocaleTimeString('id-ID')}`.toLowerCase();
+                    } 
+                    // else if (schedule.type === 'pegawai') { // No need to filter employee schedules here
+                    //     scheduleString = `${schedule.hari} ${schedule.user.name} Pegawai ${new Date(schedule.jam_mulai).toLocaleTimeString('id-ID')} ${new Date(schedule.jam_selesai).toLocaleTimeString('id-ID')}`.toLowerCase();
+                    // }
                     return scheduleString.includes(searchTerm);
                 });
                 renderSchedules(filteredSchedules);
             };
 
-            
-
             // Function to handle schedule selection from the search results
-            const handleScheduleSelection = function(jadwalId, jadwalText) {
-                window.activeJadwalAbsensiId = jadwalId;
-                window.selectedScheduleId = jadwalId; // Update new global variable
+            const handleScheduleSelection = function(jadwalFormattedId, jadwalType, jadwalText) {
+                window.selectedScheduleId = jadwalFormattedId; // Store formatted ID
+                window.selectedScheduleType = jadwalType; // Store type
                 window.activeScheduleText.textContent = jadwalText;
 
                 // Hide search area, show selected schedule info and scanner
@@ -380,27 +392,38 @@
                 window.feedbackSection.classList.remove('hidden');
 
                 startScanner();
-                
             };
 
-            // Function to reset schedule selection and show search area
+            // Function to reset schedule selection and manage UI visibility based on user role
             const resetScheduleSelection = function() {
                 window.activeJadwalAbsensiId = null;
                 window.selectedScheduleId = null;
+                window.selectedScheduleType = null; // Clear selected schedule type
                 window.activeScheduleText.textContent = '';
 
-                // Hide scanner and selected schedule info, show search area
-                window.selectedScheduleInfo.classList.add('hidden');
-                window.scannerSection.classList.add('hidden');
-                window.feedbackSection.classList.add('hidden');
-                document.getElementById('schedule-selection-area').classList.remove('hidden');
+                if (window.isUserAdmin) {
+                    // For admin, keep schedule selection and info hidden, just ensure scanner is manageable
+                    document.getElementById('schedule-selection-area').classList.add('hidden');
+                    window.selectedScheduleInfo.classList.add('hidden');
+                    window.scannerSection.classList.remove('hidden');
+                    window.feedbackSection.classList.remove('hidden');
+                    // Ensure camera is stopped and buttons are in correct state
+                    stopScanner(); // Will set cameraOffOverlay and button states
+                    updateStatus('Kamera tidak aktif. Klik Aktifkan untuk memulai pemindaian.', 'info');
+                } else {
+                    // For non-admin (guru), revert to schedule selection state
+                    window.selectedScheduleInfo.classList.add('hidden');
+                    window.scannerSection.classList.add('hidden');
+                    window.feedbackSection.classList.add('hidden');
+                    document.getElementById('schedule-selection-area').classList.remove('hidden');
 
-                // Clear search input and re-render all schedules
-                if (window.scheduleSearchInput) {
-                    window.scheduleSearchInput.value = '';
-                    filterAndRenderSchedules(); // Render all schedules
+                    // Clear search input and re-render all schedules
+                    if (window.scheduleSearchInput) {
+                        window.scheduleSearchInput.value = '';
+                        filterAndRenderSchedules(); // Render all schedules
+                    }
+                    stopScanner(); // Stop camera
                 }
-                stopScanner(); // Stop camera
             };
 
             // Fungsi untuk menangani hasil scan yang berhasil
@@ -436,7 +459,12 @@
                         },
                         body: JSON.stringify({
                             identifier: decodedText,
-                            jadwal_absensi_id: window.activeJadwalAbsensiId // Send active schedule ID
+                            // For admin, jadwal_id and jadwal_type are determined on backend
+                            // For guru, these are set by schedule selection
+                            ...(window.isUserAdmin ? {} : {
+                                jadwal_id: window.selectedScheduleId,
+                                jadwal_type: window.selectedScheduleType
+                            })
                         })
                     });
 
@@ -526,23 +554,29 @@
                 // Initially render all schedules
                 renderSchedules(window.allAvailableSchedules);
 
-                // Check for initial jadwal_id from URL
-                if (window.initialJadwalId && !window.isUserAdmin) {
+                // If user is admin, hide schedule selection and start camera directly.
+                if (window.isUserAdmin) {
+                    document.getElementById('schedule-selection-area').classList.add('hidden');
+                    window.selectedScheduleInfo.classList.add('hidden'); // Ensure this is also hidden
+                    window.scannerSection.classList.remove('hidden');
+                    window.feedbackSection.classList.remove('hidden');
+                    startScanner();
+                } else if (window.initialJadwalId) { // For Guru, check initial_jadwal_id from URL
                     window.initialJadwal = window.allAvailableSchedules.find(
-                        schedule => schedule.id == window.initialJadwalId
+                        schedule => schedule.formatted_id === `siswa_${window.initialJadwalId}` // Match formatted_id for students
                     );
                     if (window.initialJadwal) {
                         const jadwalText = `${window.initialJadwal.hari} - ${window.initialJadwal.mata_pelajaran.nama_mapel} - ${window.initialJadwal.kelas.nama_kelas} (${new Date(window.initialJadwal.jam_mulai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})} - ${new Date(window.initialJadwal.jam_selesai).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})})`;
-                        handleScheduleSelection(window.initialJadwalId, jadwalText);
+                        handleScheduleSelection(window.initialJadwal.formatted_id, window.initialJadwal.type, jadwalText);
                     } else {
-                        console.warn(`Jadwal dengan ID ${window.initialJadwalId} tidak ditemukan.`);
+                        console.warn(`Jadwal siswa dengan ID ${window.initialJadwalId} tidak ditemukan.`);
                         // If not found, proceed with normal schedule selection
                         document.getElementById('schedule-selection-area').classList.remove('hidden');
                         window.scannerSection.classList.add('hidden');
                         window.feedbackSection.classList.add('hidden');
                     }
-                } else if (!window.isUserAdmin) {
-                    // If no initial jadwal_id and not admin, show schedule selection
+                } else {
+                    // For Guru, if no initial jadwal_id, show schedule selection
                     document.getElementById('schedule-selection-area').classList.remove('hidden');
                     window.scannerSection.classList.add('hidden');
                     window.feedbackSection.classList.add('hidden');

@@ -29,6 +29,8 @@ window.initializePasswordStrengthChecker = initializePasswordStrengthChecker;
 window.togglePasswordVisibility = togglePasswordVisibility; // Expose globally
 import './adminDashboardCharts.js';
 import './tableDragScroll.js';
+import './rekapAbsensiPegawai.js'; // Import the new store
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 // Global store for Rekap Absensi page
 document.addEventListener('alpine:init', () => {

@@ -18,9 +18,6 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" data-turbo-track="reload" />
 
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" data-turbo-track="reload" />
 
     
 
@@ -60,7 +57,7 @@
 
         <div @click="sidebarOpen = false" class="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" x-show="sidebarOpen" x-transition></div>
 
-        <aside class="fixed inset-y-0 left-0 z-30 transform transition-all duration-300 ease-in-out bg-white dark:bg-gray-800"
+        <aside class="fixed inset-y-0 left-0 z-30 transform transition-all duration-300 ease-in-out bg-white dark:bg-gray-800 shadow-lg lg:rounded-br-lg"
             :class="{
                 'translate-x-0 w-64': sidebarOpen,
                 '-translate-x-full w-20 lg:translate-x-0': !sidebarOpen

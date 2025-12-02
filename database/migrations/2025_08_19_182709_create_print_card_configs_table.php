@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->json('config_json');
             $table->boolean('is_default')->default(false);
+            $table->string('role_target')->nullable()->index(); // Tambahkan kolom role_target
+            $table->string('card_orientation')->default('portrait'); // Tambahkan kolom card_orientation
             $table->timestamps();
         });
     }

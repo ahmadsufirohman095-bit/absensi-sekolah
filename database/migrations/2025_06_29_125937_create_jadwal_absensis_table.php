@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('jadwal_absensis', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kelas_id')->constrained()->onDelete('cascade');
+            $table->foreignId('kelas_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('mata_pelajaran_id')->constrained()->onDelete('cascade')->index('jadwal_absensis_mata_pelajaran_id_foreign');
             $table->foreignId('guru_id')->nullable()->constrained('users')->onDelete('set null')->index('jadwal_absensis_guru_id_foreign');
             $table->string('hari');

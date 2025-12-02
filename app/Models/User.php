@@ -27,8 +27,9 @@ class User extends Authenticatable
         'identifier', // Re-added identifier to fillable array        
         'email',
         'password',
-        'role',    // Added role field to fillable array
-        'is_active', // Added is_active field to fillable array
+        'role',
+        'custom_role', // Added custom_role field to fillable array
+        'is_active',
     ];
 
     /**
@@ -60,6 +61,22 @@ class User extends Authenticatable
     public function adminProfile()
     {
         return $this->hasOne(AdminProfile::class);
+    }
+
+    /**
+     * Get the TU profile associated with the user.
+     */
+    public function tuProfile()
+    {
+        return $this->hasOne(TuProfile::class);
+    }
+
+    /**
+     * Get the other profile associated with the user.
+     */
+    public function otherProfile()
+    {
+        return $this->hasOne(OtherProfile::class);
     }
 
     /**
@@ -103,6 +120,10 @@ class User extends Authenticatable
             $fotoPath = $this->guruProfile->foto;
         } elseif ($this->role === 'siswa' && $this->siswaProfile) {
             $fotoPath = $this->siswaProfile->foto;
+        } elseif ($this->role === 'tu' && $this->tuProfile) { // Tambahkan TU
+            $fotoPath = $this->tuProfile->foto;
+        } elseif ($this->role === 'other' && $this->otherProfile) { // Tambahkan Other
+            $fotoPath = $this->otherProfile->foto;
         }
 
         // Jika path foto ada dan file-nya benar-benar ada di storage
@@ -135,9 +156,9 @@ class User extends Authenticatable
     public function hasRole($role): bool
     {
         if (is_array($role)) {
-            return in_array($this->role, $role);
+            return in_array($this->role, $role) || ($this->role === 'other' && in_array($this->custom_role, $role));
         }
-        return $this->role === $role;
+        return $this->role === $role || ($this->role === 'other' && $this->custom_role === $role);
     }
 
     /**
@@ -161,6 +182,26 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if the user has the 'tu' role.
+     *
+     * @return bool
+     */
+    public function isTu(): bool
+    {
+        return $this->hasRole('tu');
+    }
+
+    /**
+     * Check if the user has the 'other' role.
+     *
+     * @return bool
+     */
+    public function isOther(): bool
+    {
+        return $this->hasRole('other');
+    }
+
+    /**
      * Get the correct profile relationship based on the user's role.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
@@ -174,6 +215,10 @@ class User extends Authenticatable
                 return $this->guruProfile;
             case 'siswa':
                 return $this->siswaProfile;
+            case 'tu': // New role: TU
+                return $this->tuProfile; // Menggunakan TuProfile
+            case 'other': // New role: custom
+                return $this->otherProfile; // Menggunakan OtherProfile
             default:
                 return null;
         }

@@ -4,7 +4,7 @@
         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>
                 <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {{ __('Rekap Absensi') }}
+                    {{ __('Rekap Absensi Siswa') }}
                 </h2>
                 
             </div>

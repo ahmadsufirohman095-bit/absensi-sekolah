@@ -22,6 +22,7 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         JadwalAbsensi::class => JadwalAbsensiPolicy::class,
         Absensi::class => AbsensiPolicy::class,
+        \App\Models\AbsensiPegawai::class => \App\Policies\AbsensiPegawaiPolicy::class, // Register AbsensiPegawai Policy
     ];
 
     /**
@@ -33,12 +34,20 @@ class AuthServiceProvider extends ServiceProvider
             return $user->role === 'guru';
         });
 
+        Gate::define('isTu', function (User $user) {
+            return $user->role === 'tu';
+        });
+
+        Gate::define('isOther', function (User $user) {
+            return $user->role === 'other';
+        });
+
         Gate::define('isAdmin', function (User $user) {
             return $user->role === 'admin';
         });
 
         Gate::define('manage-absensi', function (User $user) {
-            return $user->role === 'admin' || $user->role === 'guru';
+            return $user->role === 'admin' || $user->role === 'guru' || $user->role === 'tu' || $user->role === 'other';
         });
 
         Blade::if('role', function ($role) {

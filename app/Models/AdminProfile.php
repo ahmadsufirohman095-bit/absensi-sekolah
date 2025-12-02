@@ -17,12 +17,16 @@ class AdminProfile extends Model
         'jabatan',
         'telepon',
         'tanggal_bergabung',
+        'tanggal_lahir', // Add tanggal_lahir to fillable
         'tempat_lahir',
         'jenis_kelamin',
         'foto', // Added this line
     ];
 
-    protected $casts = ['tanggal_bergabung' => 'date'];
+    protected $casts = [
+        'tanggal_bergabung' => 'date',
+        'tanggal_lahir' => 'date', // Add tanggal_lahir to casts
+    ];
 
     /**
      * Get the user that owns this admin profile.

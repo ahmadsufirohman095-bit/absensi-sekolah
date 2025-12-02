@@ -50,6 +50,9 @@ Dokumen ini adalah panduan komprehensif untuk menggunakan aplikasi absensi sekol
         *   Melihat dan Mengedit Jadwal
         *   Menghapus Jadwal (Individual & Massal)
         *   Mengimpor/Mengekspor Data Jadwal
+    *   Cetak Kartu Absensi Pegawai (Guru, TU, Lainnya)
+    *   Rekap Absensi Pegawai
+    *   Kelola Jadwal Absensi Pegawai
 
 4.  **Panduan untuk Guru**
     *   Dashboard Guru
@@ -69,18 +72,24 @@ Dokumen ini adalah panduan komprehensif untuk menggunakan aplikasi absensi sekol
         *   Memfilter Laporan Berdasarkan Tanggal
         *   Mengekspor Laporan Absensi
 
-6.  **Tips Pemecahan Masalah Umum**
+6.  **Panduan untuk TU dan Lainnya (Other)**
+    *   Dashboard TU/Other
+    *   Rekap Absensi Pegawai
+    *   Kelola Jadwal Absensi Pegawai
+    *   Cetak Kartu Absensi Pegawai
+
+7.  **Tips Pemecahan Masalah Umum**
     *   Masalah Login
     *   Data Tidak Muncul/Salah
     *   Kesulitan Scan QR Code
     *   Masalah Cetak Kartu/Laporan
 
-7.  **Praktik Terbaik**
+8.  **Praktik Terbaik**
     *   Keamanan Akun
     *   Manajemen Data Efisien
     *   Pemanfaatan Fitur Optimal
 
-8.  **Indeks**
+9.  **Indeks**
 
 ---
 
@@ -95,6 +104,8 @@ Panduan ini bertujuan untuk memberikan instruksi yang jelas dan mudah diikuti ba
 Dokumen ini ditujukan untuk tiga peran utama pengguna aplikasi:
 *   **Admin:** Pengguna dengan hak akses penuh untuk mengelola seluruh sistem, termasuk data pengguna, kelas, mata pelajaran, jadwal, dan pengaturan aplikasi.
 *   **Guru:** Pengguna yang bertanggung jawab untuk mencatat absensi siswa di kelas yang diajar, melihat jadwal mengajar, dan memantau rekap absensi siswa.
+*   **TU (Tata Usaha):** Pengguna dengan hak akses untuk mengelola data kepegawaian, jadwal absensi pegawai, dan rekap absensi pegawai.
+*   **Lainnya (Other):** Pengguna dengan hak akses terbatas yang disesuaikan, mungkin termasuk melihat rekap absensi pegawai atau fitur spesifik lainnya.
 *   **Siswa:** Pengguna yang dapat melihat informasi absensi pribadi, jadwal pelajaran, dan notifikasi.
 
 ### Cara Menggunakan Panduan Ini
@@ -320,14 +331,14 @@ Halaman ini digunakan untuk mengelola semua akun pengguna (Admin, Guru, Siswa) d
 
 1.  Navigasi ke menu **Manajemen Pengguna**.
 2.  Gunakan kolom pencarian untuk mencari pengguna berdasarkan Nama, Email, atau ID (NIS/NIP).
-3.  Gunakan filter dropdown untuk menyaring berdasarkan **Kelas** (khusus siswa) atau **Role** (Admin, Guru, Siswa).
+3.  Gunakan filter dropdown untuk menyaring berdasarkan **Kelas** (khusus siswa) atau **Role** (Admin, Guru, Siswa, TU, Lainnya).
 4.  Klik tombol **Filter** untuk menerapkan filter.
 
 #### Menambah Pengguna Baru
 
 1.  Pada halaman Manajemen Pengguna, klik tombol **Tambah User**.
-2.  Isi detail pengguna seperti Nama, Email, Kata Sandi, dan pilih **Peran** (Admin, Guru, atau Siswa).
-3.  Jika peran Siswa, tambahkan detail profil siswa (misalnya, NISN, Kelas).
+2.  Isi detail pengguna seperti Nama, Email, Kata Sandi, dan pilih **Peran** (Admin, Guru, Siswa, TU, atau Lainnya).
+3.  Jika peran Siswa, tambahkan detail profil siswa (misalnya, NISN, Kelas). Jika peran Guru, TU, atau Lainnya, tambahkan detail profil yang relevan (misalnya, NIP, Jabatan).
 4.  Klik tombol **Simpan**.
 
 #### Melihat dan Mengedit Detail Pengguna
@@ -488,6 +499,103 @@ Halaman ini khusus untuk Admin mengelola jadwal pelajaran yang menjadi dasar abs
 1.  Pada halaman Manajemen Jadwal Absensi, klik tombol **Ekspor Jadwal**.
 2.  File Excel berisi data semua jadwal akan diunduh.
 
+### Cetak Kartu Absensi Pegawai (Guru, TU, Lainnya)
+
+Halaman ini memungkinkan Admin untuk mencetak kartu absensi untuk pegawai (Guru, TU, dan Lainnya).
+
+**Cara Menggunakan:**
+1.  Navigasi ke menu **Cetak Kartu Absensi Pegawai**.
+2.  Gunakan filter untuk memilih role (Guru, TU, atau Lainnya) atau cari pegawai berdasarkan nama.
+3.  Pilih pegawai yang ingin dicetak kartunya.
+4.  Klik tombol **Cetak Kartu Terpilih**.
+5.  Kartu identitas pegawai akan dibuka di tab baru, siap untuk dicetak.
+6.  Pilih opsi cetak dan sesuaikan pengaturan printer jika diperlukan.
+
+### Rekap Absensi Pegawai
+
+Halaman ini memungkinkan Admin untuk melihat dan mengelola rekapitulasi data absensi pegawai.
+
+#### Melihat dan Memfilter Data Absensi Pegawai
+
+1.  Navigasi ke menu **Rekap Absensi Pegawai**.
+2.  Gunakan opsi **Filter Data** (berdasarkan tanggal, role, pegawai, status absensi, dll.) untuk menemukan data absensi spesifik.
+3.  Klik tombol **Terapkan Filter** untuk menampilkan hasil.
+
+#### Menambah Absensi Pegawai Manual
+
+1.  Pada halaman Rekap Absensi Pegawai, klik tombol **Tambah Absensi Manual**.
+2.  Isi detail absensi pegawai seperti Pegawai, Tanggal, Status Kehadiran, Waktu Absensi (Opsional), dan Keterangan (Opsional).
+3.  Klik tombol **Simpan**.
+
+#### Mengedit Data Absensi Pegawai
+
+1.  Pada daftar Rekap Absensi Pegawai, temukan data yang ingin diedit.
+2.  Klik ikon **Edit** (biasanya ikon pensil) di samping data tersebut.
+3.  Pada halaman edit, Anda dapat memperbarui informasi seperti Status Kehadiran, Waktu Absensi, dan Keterangan.
+4.  Klik tombol **Update Data Absensi**.
+
+#### Menghapus Data Absensi Pegawai (Individual & Massal)
+
+**Menghapus Individual:**
+1.  Pada daftar Rekap Absensi Pegawai, temukan data yang ingin dihapus.
+2.  Klik ikon **Hapus** (biasanya ikon tempat sampah) di samping data tersebut.
+3.  Konfirmasi penghapusan.
+
+**Menghapus Massal:**
+1.  Pilih beberapa data absensi pegawai dengan mencentang kotak di sampingnya.
+2.  Klik tombol **Aksi Massal** atau **Hapus Terpilih**.
+3.  Konfirmasi penghapusan.
+
+#### Mengekspor Data Absensi Pegawai
+
+1.  Klik tombol **Ekspor Excel**. Sebuah modal akan muncul.
+2.  Dalam modal ekspor, Anda dapat memilih kriteria ekspor berdasarkan tanggal, role, atau nama pegawai.
+3.  Setelah memilih kriteria, klik tombol **Ekspor Sekarang**.
+4.  File Excel berisi data absensi pegawai yang sesuai dengan filter akan diunduh.
+
+### Kelola Jadwal Absensi Pegawai
+
+Halaman ini khusus untuk Admin mengelola jadwal absensi untuk pegawai (Guru, TU, Lainnya).
+
+#### Menambah Jadwal Absensi Pegawai Baru
+
+1.  Navigasi ke menu **Kelola Jadwal Absensi Pegawai**.
+2.  Klik tombol **Tambah Jadwal Baru**.
+3.  Pilih **Pegawai**, **Hari**, **Waktu Mulai**, dan **Waktu Selesai**.
+4.  Klik tombol **Simpan**.
+
+#### Melihat dan Mengedit Jadwal Absensi Pegawai
+
+1.  Pada daftar Kelola Jadwal Absensi Pegawai, temukan jadwal yang ingin dilihat/diedit.
+2.  Klik detail jadwal atau ikon **Edit** di sampingnya.
+3.  Perbarui informasi yang diperlukan.
+4.  Klik tombol **Simpan Perubahan**.
+
+#### Menghapus Jadwal Absensi Pegawai (Individual & Massal)
+
+**Menghapus Individual:**
+11. Pada daftar Kelola Jadwal Absensi Pegawai, temukan jadwal yang ingin dihapus.
+12. Klik ikon **Hapus** di samping data tersebut.
+13. Konfirmasi penghapusan.
+
+**Menghapus Massal:**
+1.  Pilih beberapa jadwal dengan mencentang kotak di sampingnya.
+2.  Klik tombol **Aksi Massal** atau **Hapus Terpilih**.
+3.  Konfirmasi penghapusan.
+
+#### Mengimpor/Mengekspor Data Jadwal Absensi Pegawai
+
+**Mengimpor Jadwal:**
+1.  Pada halaman Kelola Jadwal Absensi Pegawai, klik tombol **Impor Jadwal**.
+2.  Unduh template Excel yang disediakan.
+3.  Isi data jadwal ke dalam template.
+4.  Unggah file Excel yang sudah diisi.
+5.  Ikuti instruksi untuk memproses impor.
+
+**Mengekspor Jadwal:**
+1.  Pada halaman Kelola Jadwal Absensi Pegawai, klik tombol **Ekspor Jadwal**.
+2.  File Excel berisi data semua jadwal absensi pegawai akan diunduh.
+
 
 ---
 
@@ -629,7 +737,50 @@ Halaman ini khusus untuk Siswa melihat laporan absensi pribadinya.
 
 ---
 
-## 6. Tips Pemecahan Masalah Umum
+## 6. Panduan untuk TU dan Lainnya (Other)
+
+Bagian ini menjelaskan fitur-fitur yang dapat diakses dan dikelola oleh peran Tata Usaha (TU) dan peran Lainnya (Other).
+
+### Dashboard TU/Other
+
+Dashboard TU/Other adalah halaman utama yang memberikan ringkasan informasi relevan untuk peran Tata Usaha dan Lainnya.
+
+**Fitur:**
+*   **Statistik Absensi Pegawai:** Menampilkan ringkasan data absensi pegawai, seperti jumlah Hadir, Terlambat, Sakit, Izin, Alpha.
+*   **Tren Absensi Pegawai:** Grafik yang menunjukkan tren absensi pegawai dari waktu ke waktu.
+*   **Jadwal Absensi Mendatang:** Menampilkan jadwal absensi pegawai yang akan datang.
+
+**Cara Menggunakan:**
+1.  Setelah login sebagai TU atau Lainnya, Anda akan langsung diarahkan ke Dashboard.
+2.  Tinjau statistik dan tren absensi pegawai untuk memantau kehadiran.
+
+### Rekap Absensi Pegawai
+
+Halaman ini memungkinkan TU dan Lainnya untuk melihat dan mengelola rekapitulasi data absensi pegawai. Detail penggunaan sama dengan yang dijelaskan di bagian Admin untuk Rekap Absensi Pegawai.
+
+**Cara Menggunakan:**
+1.  Navigasi ke menu **Rekap Absensi Pegawai**.
+2.  Ikuti langkah-langkah yang sama seperti pada **Panduan untuk Admin > Rekap Absensi Pegawai**.
+
+### Kelola Jadwal Absensi Pegawai
+
+Halaman ini memungkinkan TU dan Lainnya untuk mengelola jadwal absensi pegawai. Detail penggunaan sama dengan yang dijelaskan di bagian Admin untuk Kelola Jadwal Absensi Pegawai.
+
+**Cara Menggunakan:**
+11. Navigasi ke menu **Kelola Jadwal Absensi Pegawai**.
+12. Ikuti langkah-langkah yang sama seperti pada **Panduan untuk Admin > Kelola Jadwal Absensi Pegawai**.
+
+### Cetak Kartu Absensi Pegawai
+
+Halaman ini memungkinkan TU dan Lainnya untuk mencetak kartu absensi pegawai. Detail penggunaan sama dengan yang dijelaskan di bagian Admin untuk Cetak Kartu Absensi Pegawai.
+
+**Cara Menggunakan:**
+1.  Navigasi ke menu **Cetak Kartu Absensi Pegawai**.
+2.  Ikuti langkah-langkah yang sama seperti pada **Panduan untuk Admin > Cetak Kartu Absensi Pegawai**.
+
+---
+
+## 7. Tips Pemecahan Masalah Umum
 
 Bagian ini menyediakan solusi untuk masalah umum yang mungkin dihadapi pengguna.
 
@@ -722,4 +873,9 @@ Bagian ini memberikan rekomendasi untuk penggunaan aplikasi yang efektif dan ama
 *   Reset Kata Sandi: [Lihat Reset Kata Sandi](#reset-kata-sandi)
 *   Scan Absensi Admin: [Lihat Scan Absensi](#scan-absensi)
 *   Scan Absensi Guru: [Lihat Scan Absensi](#scan-absensi-1)
-*   Tips Pemecahan Masalah: [Lihat Tips Pemecahan Masalah Umum](#6-tips-pemecahan-masalah-umum)
+*   Tips Pemecahan Masalah: [Lihat Tips Pemecahan Masalah Umum](#7-tips-pemecahan-masalah-umum)
+*   Cetak Kartu Absensi Pegawai: [Lihat Cetak Kartu Absensi Pegawai (Guru, TU, Lainnya)](#cetak-kartu-absensi-pegawai-guru-tu-lainnya)
+*   Rekap Absensi Pegawai: [Lihat Rekap Absensi Pegawai](#rekap-absensi-pegawai)
+*   Kelola Jadwal Absensi Pegawai: [Lihat Kelola Jadwal Absensi Pegawai](#kelola-jadwal-absensi-pegawai)
+*   Dashboard TU/Other: [Lihat Dashboard TU/Other](#dashboard-tuother)
+*   Panduan TU dan Lainnya: [Lihat Panduan untuk TU dan Lainnya (Other)](#panduan-untuk-tu-dan-lainnya-other)

@@ -31,90 +31,168 @@
             {{ __('Dashboard') }}
         </x-side-nav-link>
 
-        @if(auth()->user()->role == 'siswa')
-            <x-side-nav-link :href="route('siswa.laporan_absensi')" :active="request()->routeIs('siswa.laporan_absensi')" :sidebarOpen="$sidebarOpen">
-                <x-slot name="icon">
-                    <i class="fas fa-file-invoice w-6 h-6 flex items-center justify-center"></i>
-                </x-slot>
-                {{ __('Laporan Absensi') }}
-            </x-side-nav-link>
-        @endif
+        @php
+            $absensiActive = request()->routeIs('siswa.laporan_absensi') ||
+                             request()->routeIs('guru.jadwal-mengajar.index') ||
+                             request()->routeIs('scan.index') ||
+                             request()->routeIs('rekap_absensi.index') ||
+                             request()->routeIs('rekap_absensi_pegawai.index'); // Add new route here
+        @endphp
+        <x-side-nav-dropdown :sidebarOpen="$sidebarOpen" :hasActiveLink="$absensiActive" id="manajemen-absensi">
+            <x-slot name="trigger">
+                <p class="pt-4 text-xs font-semibold text-gray-400 uppercase whitespace-nowrap"
+                    :class="{ 'px-4': sidebarOpen, 'px-2': !sidebarOpen }" x-show="sidebarOpen"
+                    x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100">{{ __('Manajemen Absensi') }}</p>
+            </x-slot>
+            <x-slot name="content">
+                @if(auth()->user()->role == 'siswa')
+                    <x-side-nav-link :href="route('siswa.laporan_absensi')" :active="request()->routeIs('siswa.laporan_absensi')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <i class="fas fa-file-invoice w-6 h-6 flex items-center justify-center"></i>
+                        </x-slot>
+                        {{ __('Laporan Absensi') }}
+                    </x-side-nav-link>
+                @endif
 
-        @can('isGuru')
-            <x-side-nav-link :href="route('guru.jadwal-mengajar.index')" :active="request()->routeIs('guru.jadwal-mengajar.index')" :sidebarOpen="$sidebarOpen">
-                <x-slot name="icon">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                </x-slot>
-                {{ __('Jadwal Mengajar') }}
-            </x-side-nav-link>
-        @endcan
-        
-        @can('manage-absensi')
-            <x-side-nav-link :href="route('scan.index')" :active="request()->routeIs('scan.index')" :sidebarOpen="$sidebarOpen">
-                <x-slot name="icon">
-                    <i class="fas fa-qrcode w-6 h-6 flex items-center justify-center"></i>
-                </x-slot>
-                {{ __('Scan Absensi') }}
-            </x-side-nav-link>
-            
-            <x-side-nav-link :href="route('rekap_absensi.index')" :active="request()->routeIs('rekap_absensi.index')" :sidebarOpen="$sidebarOpen">
-                <x-slot name="icon">
-                    <i class="fas fa-file-alt w-6 h-6 flex items-center justify-center"></i>
-                </x-slot>
-                {{ __('Rekap Absensi') }}
-            </x-side-nav-link>
-            
-            
-            
-        @endcan
+                @can('isGuru')
+                    <x-side-nav-link :href="route('guru.jadwal-mengajar.index')" :active="request()->routeIs('guru.jadwal-mengajar.index')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </x-slot>
+                        {{ __('Jadwal Mengajar') }}
+                    </x-side-nav-link>
+                @endcan
+                
+                @can('manage-absensi')
+                    <x-side-nav-link :href="route('scan.index')" :active="request()->routeIs('scan.index')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <i class="fas fa-qrcode w-6 h-6 flex items-center justify-center"></i>
+                        </x-slot>
+                        {{ __('Scan Absensi') }}
+                    </x-side-nav-link>
+                    
+                    <x-side-nav-link :href="route('rekap_absensi.index')" :active="request()->routeIs('rekap_absensi.index')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <i class="fas fa-file-alt w-6 h-6 flex items-center justify-center"></i>
+                        </x-slot>
+                        {{ __('Rekap Absensi') }}
+                    </x-side-nav-link>
+
+                    <x-side-nav-link :href="route('rekap_absensi_pegawai.index')" :active="request()->routeIs('rekap_absensi_pegawai.index')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <i class="fas fa-user-tie w-6 h-6 flex items-center justify-center"></i> <!-- Icon for employee rekap -->
+                        </x-slot>
+                        {{ __('Rekap Absensi Pegawai') }}
+                    </x-side-nav-link>
+                @endcan
+            </x-slot>
+        </x-side-nav-dropdown>
 
         @can('isAdmin')
-            <p class="pt-4 text-xs font-semibold text-gray-400 uppercase whitespace-nowrap"
-                :class="{ 'px-4': sidebarOpen, 'px-2': !sidebarOpen }" x-show="sidebarOpen"
-                x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100">Manajemen Data</p>
-            <x-side-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')" :sidebarOpen="$sidebarOpen">
-                <x-slot name="icon">
-                    <i class="fas fa-users w-6 h-6 flex items-center justify-center"></i>
+            @php
+                $manajemenDataActive = request()->routeIs('users.*') ||
+                                       request()->routeIs('kelas.*') ||
+                                       request()->routeIs('mata-pelajaran.*');
+            @endphp
+            <x-side-nav-dropdown :sidebarOpen="$sidebarOpen" :hasActiveLink="$manajemenDataActive" id="manajemen-data">
+                <x-slot name="trigger">
+                    <p class="pt-4 text-xs font-semibold text-gray-400 uppercase whitespace-nowrap"
+                        :class="{ 'px-4': sidebarOpen, 'px-2': !sidebarOpen }" x-show="sidebarOpen"
+                        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100">{{ __('Manajemen Data') }}</p>
                 </x-slot>
-                {{ __('Manajemen User') }}
-            </x-side-nav-link>
-            <x-side-nav-link :href="route('kelas.index')" :active="request()->routeIs('kelas.*')" :sidebarOpen="$sidebarOpen">
-                <x-slot name="icon">
-                    <i class="fas fa-chalkboard-teacher w-6 h-6 flex items-center justify-center"></i>
+                <x-slot name="content">
+                    <x-side-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <i class="fas fa-users w-6 h-6 flex items-center justify-center"></i>
+                        </x-slot>
+                        {{ __('Manajemen User') }}
+                    </x-side-nav-link>
+                    <x-side-nav-link :href="route('kelas.index')" :active="request()->routeIs('kelas.*')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <i class="fas fa-chalkboard-teacher w-6 h-6 flex items-center justify-center"></i>
+                        </x-slot>
+                        {{ __('Kelola Kelas') }}
+                    </x-side-nav-link>
+                    <x-side-nav-link :href="route('mata-pelajaran.index')" :active="request()->routeIs('mata-pelajaran.*')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <i class="fas fa-book w-6 h-6 flex items-center justify-center"></i>
+                        </x-slot>
+                        {{ __('Kelola Mapel') }}
+                    </x-side-nav-link>
                 </x-slot>
-                {{ __('Kelola Kelas') }}
-            </x-side-nav-link>
-            <x-side-nav-link :href="route('mata-pelajaran.index')" :active="request()->routeIs('mata-pelajaran.*')" :sidebarOpen="$sidebarOpen">
-                <x-slot name="icon">
-                    <i class="fas fa-book w-6 h-6 flex items-center justify-center"></i>
+            </x-side-nav-dropdown>
+
+            @php
+                $manajemenJadwalActive = request()->routeIs('jadwal.*') ||
+                                         request()->routeIs('jadwal-absensi-pegawai.*');
+            @endphp
+            <x-side-nav-dropdown :sidebarOpen="$sidebarOpen" :hasActiveLink="$manajemenJadwalActive" id="manajemen-jadwal">
+                <x-slot name="trigger">
+                    <p class="pt-4 text-xs font-semibold text-gray-400 uppercase whitespace-nowrap"
+                        :class="{ 'px-4': sidebarOpen, 'px-2': !sidebarOpen }" x-show="sidebarOpen"
+                        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100">{{ __('Manajemen Jadwal') }}</p>
                 </x-slot>
-                {{ __('Kelola Mapel') }}
-            </x-side-nav-link>
-            <x-side-nav-link :href="route('jadwal.index')" :active="request()->routeIs('jadwal.*')" :sidebarOpen="$sidebarOpen">
-                <x-slot name="icon">
-                    <i class="fas fa-calendar-alt w-6 h-6 flex items-center justify-center"></i>
+                <x-slot name="content">
+                    <x-side-nav-link :href="route('jadwal.index')" :active="request()->routeIs('jadwal.*')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <i class="fas fa-calendar-alt w-6 h-6 flex items-center justify-center"></i>
+                        </x-slot>
+                        {{ __('Kelola Jadwal Pelajaran') }}
+                    </x-side-nav-link>
+                    <x-side-nav-link :href="route('jadwal-absensi-pegawai.index')" :active="request()->routeIs('jadwal-absensi-pegawai.*')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <i class="fas fa-calendar-check w-6 h-6 flex items-center justify-center"></i>
+                        </x-slot>
+                        {{ __('Kelola Jadwal Absensi Pegawai') }}
+                    </x-side-nav-link>
                 </x-slot>
-                {{ __('Kelola Jadwal') }}
-            </x-side-nav-link>
-            <x-side-nav-link :href="route('pengaturan.index')" :active="request()->routeIs('pengaturan.index')" :sidebarOpen="$sidebarOpen">
-                <x-slot name="icon">
-                    <i class="fas fa-cog w-6 h-6 flex items-center justify-center"></i>
+            </x-side-nav-dropdown>
+
+            @php
+                $pengaturanUtilitasActive = request()->routeIs('pengaturan.index') ||
+                                            request()->routeIs('print-cards.index') ||
+                                            request()->routeIs('pengaturan.faq');
+            @endphp
+            <x-side-nav-dropdown :sidebarOpen="$sidebarOpen" :hasActiveLink="$pengaturanUtilitasActive" id="pengaturan-utilitas">
+                <x-slot name="trigger">
+                    <p class="pt-4 text-xs font-semibold text-gray-400 uppercase whitespace-nowrap"
+                        :class="{ 'px-4': sidebarOpen, 'px-2': !sidebarOpen }" x-show="sidebarOpen"
+                        x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100">{{ __('Pengaturan & Utilitas') }}</p>
                 </x-slot>
-                {{ __('Pengaturan') }}
-            </x-side-nav-link>
+                <x-slot name="content">
+                    <x-side-nav-link :href="route('pengaturan.index')" :active="request()->routeIs('pengaturan.index')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <i class="fas fa-cog w-6 h-6 flex items-center justify-center"></i>
+                        </x-slot>
+                        {{ __('Pengaturan') }}
+                    </x-side-nav-link>
+
+                    <x-side-nav-link :href="route('print-cards.index')" :active="request()->routeIs('print-cards.index')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                        <x-slot name="icon">
+                            <i class="fas fa-id-card w-6 h-6 flex items-center justify-center"></i>
+                        </x-slot>
+                        {{ __('Cetak Kartu Absensi') }}
+                    </x-side-nav-link>
+                    {{-- Tautan FAQ untuk semua peran terotentikasi, di bagian paling bawah --}}
+                    @if(in_array(auth()->user()->role, ['admin', 'guru', 'siswa']))
+                        <x-side-nav-link :href="route('pengaturan.faq')" :active="request()->routeIs('pengaturan.faq')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                            <x-slot name="icon">
+                                <i class="fas fa-question-circle w-6 h-6 flex items-center justify-center"></i>
+                            </x-slot>
+                            {{ __('FAQ') }}
+                        </x-side-nav-link>
+                    @endif
+                </x-slot>
+            </x-side-nav-dropdown>
         @endcan
 
-        {{-- Tautan FAQ untuk semua peran terotentikasi, di bagian paling bawah --}}
-        @if(in_array(auth()->user()->role, ['admin', 'guru', 'siswa']))
-            <x-side-nav-link :href="route('pengaturan.faq')" :active="request()->routeIs('pengaturan.faq')" :sidebarOpen="$sidebarOpen">
-                <x-slot name="icon">
-                    <i class="fas fa-question-circle w-6 h-6 flex items-center justify-center"></i>
-                </x-slot>
-                {{ __('FAQ') }}
-            </x-side-nav-link>
-        @endif
+        {{-- Tautan FAQ untuk semua peran terotentikasi, di bagian paling bawah (akan dipindahkan ke dropdown) --}}
+        
     </nav>
 </div>

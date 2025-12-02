@@ -83,7 +83,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/rekap_absensi/bulk-destroy', [App\Http\Controllers\RekapAbsensiController::class, 'bulkDestroy'])->name('rekap_absensi.bulkDestroy');
     Route::get('/rekap_absensi/export', [App\Http\Controllers\RekapAbsensiController::class, 'export'])->name('rekap_absensi.export');
         
-        
+    // Rekap Absensi Pegawai
+    Route::controller(App\Http\Controllers\RekapAbsensiPegawaiController::class)->name('rekap_absensi_pegawai.')->group(function () {
+        Route::get('/rekap-absensi-pegawai', 'index')->name('index');
+        Route::get('/rekap-absensi-pegawai/create', 'create')->name('create');
+        Route::post('/rekap-absensi-pegawai', 'store')->name('store');
+        Route::get('/rekap-absensi-pegawai/{absensiPegawai}/edit', 'edit')->name('edit');
+        Route::put('/rekap-absensi-pegawai/{absensiPegawai}', 'update')->name('update');
+        Route::delete('/rekap-absensi-pegawai/{absensiPegawai}', 'destroy')->name('destroy');
+        Route::post('/rekap-absensi-pegawai/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
+        Route::get('/rekap-absensi-pegawai/export', 'export')->name('export');
+    });
 
     });
 
@@ -116,11 +126,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // API Routes for Print Card Configurations
         Route::apiResource('print-card-configs', PrintCardConfigController::class);
+        Route::post('print-card-configs/{printCardConfig}/duplicate', [PrintCardConfigController::class, 'duplicate'])->name('print-card-configs.duplicate');
 
         // Custom Print Card Absensi View
         Route::get('/absensi/cards/customize', function () {
             return view('admin.print_cards.customize');
         })->name('absensi.cards.customize');
+
+        // Rute untuk pencetakan kartu absensi umum (Guru, TU, Lainnya, Siswa)
+        Route::get('/print-cards', [App\Http\Controllers\PrintCardsController::class, 'index'])->name('print-cards.index');
+        Route::post('/print-cards/generate', [App\Http\Controllers\PrintCardsController::class, 'generateCards'])->name('print-cards.generate');
 
         // Manajemen Kelas dan Mata Pelajaran (resourceful routes)
         Route::get('/kelas/print-cards', [KelasController::class, 'printCards'])->name('kelas.printCards');
@@ -130,19 +145,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/kelas/{kela}/remove-siswa/{siswaId}', [KelasController::class, 'removeSiswa'])->name('kelas.removeSiswa');
         Route::resource('mata-pelajaran', MataPelajaranController::class);
 
-        // Manajemen Jadwal Absensi (rute yang relevan untuk kelola kelas)
-        Route::get('/jadwal', [JadwalAbsensiController::class, 'index'])->name('jadwal.index');
-        Route::get('/jadwal/{jadwal}/absensi', [JadwalAbsensiController::class, 'showAttendanceSheet'])->name('jadwal.absensi.create');
-        Route::post('/jadwal/{jadwal}/absensi', [JadwalAbsensiController::class, 'storeAttendanceSheet'])->name('jadwal.absensi.store');
-        Route::get('/jadwal/create', [JadwalAbsensiController::class, 'create'])->name('jadwal.create');
-        Route::post('/jadwal', [JadwalAbsensiController::class, 'store'])->name('jadwal.store');
-        Route::get('/jadwal/{jadwal}/edit', [JadwalAbsensiController::class, 'edit'])->name('jadwal.edit');
-        Route::put('/jadwal/{jadwal}', [JadwalAbsensiController::class, 'update'])->name('jadwal.update');
-        Route::delete('/jadwal/{jadwal}', [JadwalAbsensiController::class, 'destroy'])->name('jadwal.destroy');
-        Route::post('/jadwal/bulk-destroy', [JadwalAbsensiController::class, 'bulkDestroy'])->name('jadwal.bulkDestroy');
-        Route::get('/jadwal/export', [JadwalAbsensiController::class, 'exportExcel'])->name('jadwal.export');
-Route::post('/jadwal/import', [JadwalAbsensiController::class, 'importExcel'])->name('jadwal.import');
-Route::get('/jadwal/import-template', [JadwalAbsensiController::class, 'downloadTemplate'])->name('jadwal.importTemplate');
+        // Manajemen Jadwal Absensi Siswa (terkait kelas)
+        Route::controller(JadwalAbsensiController::class)->name('jadwal.')->group(function () {
+            Route::get('/jadwal', 'index')->name('index'); // Jadwal Siswa
+            Route::get('/jadwal/{jadwal}/absensi', 'showAttendanceSheet')->name('absensi.create');
+            Route::post('/jadwal/{jadwal}/absensi', 'storeAttendanceSheet')->name('absensi.store');
+            Route::get('/jadwal/create', 'create')->name('create');
+            Route::post('/jadwal', 'store')->name('store');
+            Route::get('/jadwal/{jadwal}/edit', 'edit')->name('edit');
+            Route::put('/jadwal/{jadwal}', 'update')->name('update');
+            Route::delete('/jadwal/{jadwal}', 'destroy')->name('destroy');
+            Route::post('/jadwal/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
+            Route::get('/jadwal/export', 'exportExcel')->name('export');
+            Route::post('/jadwal/import', 'importExcel')->name('import');
+            Route::get('/jadwal/import-template', 'downloadTemplate')->name('importTemplate');
+
+        });
+
+        // Manajemen Jadwal Absensi Pegawai (Guru, TU, Lainnya)
+        Route::controller(App\Http\Controllers\JadwalAbsensiPegawaiController::class)->name('jadwal-absensi-pegawai.')->group(function () {
+            Route::get('/jadwal-absensi-pegawai', 'index')->name('index');
+            Route::get('/jadwal-absensi-pegawai/create', 'create')->name('create');
+            Route::post('/jadwal-absensi-pegawai', 'store')->name('store');
+            Route::get('/jadwal-absensi-pegawai/{jadwalAbsensiPegawai}/edit', 'edit')->name('edit');
+            Route::put('/jadwal-absensi-pegawai/{jadwalAbsensiPegawai}', 'update')->name('update');
+            Route::delete('/jadwal-absensi-pegawai/{jadwalAbsensiPegawai}', 'destroy')->name('destroy');
+            Route::post('/jadwal-absensi-pegawai/bulk-destroy', 'bulkDestroy')->name('bulkDestroy');
+            Route::get('/jadwal-absensi-pegawai/export', 'exportExcel')->name('export');
+            Route::post('/jadwal-absensi-pegawai/import', 'importExcel')->name('import');
+            Route::get('/jadwal-absensi-pegawai/import-template', 'downloadTemplate')->name('importTemplate');
+        });
 
         Route::get('/admin/dashboard/chart-data', [App\Http\Controllers\DashboardController::class, 'chartData'])->name('admin.dashboard.chart-data');
     });

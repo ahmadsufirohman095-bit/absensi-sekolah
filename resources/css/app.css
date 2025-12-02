@@ -125,15 +125,7 @@
     color: #ffffff; /* white */
 }
 
-/* Hide scrollbar for elements with overflow-y-auto */
-.overflow-y-auto::-webkit-scrollbar {
-    display: none; /* For Chrome, Safari, and Opera */
-}
 
-.overflow-y-auto {
-    -ms-overflow-style: none;  /* For Internet Explorer and Edge */
-    scrollbar-width: none;  /* For Firefox */
-}
 
 /* Menyembunyikan ikon mata bawaan browser untuk input password */
 input[type="password"]::-ms-reveal,
@@ -161,4 +153,15 @@ input[type="password"] {
 
 .dark input[type="date"]::-moz-calendar-picker-indicator {
     filter: invert(1) brightness(0.8); /* Adjust as needed for visibility */
+}
+
+/* Custom styles for sidebar to ensure modern look and feel */
+aside[data-turbo-permanent="sidebar-navigation"] {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+    border-bottom-right-radius: 0.5rem; /* rounded-br-lg */
+}
+
+.dark aside[data-turbo-permanent="sidebar-navigation"] {
+    /* Menyesuaikan shadow untuk dark mode jika perlu, atau biarkan default */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
 }

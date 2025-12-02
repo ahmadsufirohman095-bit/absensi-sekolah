@@ -52,7 +52,10 @@
                 <option value="admin" @if (old('role', $user->role) == 'admin') selected @endif>Admin</option>
                 <option value="guru" @if (old('role', $user->role) == 'guru') selected @endif>Guru</option>
                 <option value="siswa" @if (old('role', $user->role) == 'siswa') selected @endif>Siswa</option>
+                <option value="tu" @if (old('role', $user->role) == 'tu') selected @endif>TU (Tata Usaha)</option>
+                <option value="other" @if (old('role', $user->role) == 'other') selected @endif>Lainnya</option>
             </select>
+            <x-input-error :messages="$errors->get('role')" class="mt-2" />
         </div>
         <div x-data x-init="initializePasswordStrengthChecker('password', 'password-strength-user-form')">
             <div>
@@ -132,26 +135,150 @@
                         class="block mt-1 w-full bg-gray-100 dark:bg-gray-700" type="text" disabled />
                 </div>
                 <div>
+                    <x-input-label for="admin_tanggal_lahir" value="Tanggal Lahir" />
+                    <x-text-input id="admin_tanggal_lahir" name="tanggal_lahir"
+                        value="{{ old('tanggal_lahir', optional($user->adminProfile)->tanggal_lahir ? $user->adminProfile->tanggal_lahir->format('Y-m-d') : '') }}"
+                        class="block mt-1 w-full flatpickr-dmy" type="text" placeholder="yyyy-mm-dd" />
+                    <x-input-error :messages="$errors->get('tanggal_lahir')" class="mt-2" />
+                </div>
+                <div>
                     <x-input-label for="admin_tempat_lahir" value="Tempat Lahir" />
-                    <x-text-input id="admin_tempat_lahir" name="tempat_lahir" :value="old('tempat_lahir', optional($user->adminProfile)->tempat_lahir)"
+                    <x-text-input id="admin_tempat_lahir" name="admin_tempat_lahir" :value="old('admin_tempat_lahir', optional($user->adminProfile)->tempat_lahir)"
                         class="block mt-1 w-full" type="text" />
-                    <x-input-error :messages="$errors->get('tempat_lahir')" class="mt-2" />
+                    <x-input-error :messages="$errors->get('admin_tempat_lahir')" class="mt-2" />
                 </div>
                 <div>
                     <x-input-label for="admin_jenis_kelamin" value="Jenis Kelamin" />
-                    <select name="jenis_kelamin" id="admin_jenis_kelamin"
+                    <select name="admin_jenis_kelamin" id="admin_jenis_kelamin"
                         class="block mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm">
                         <option value="">Pilih Jenis Kelamin</option>
-                        <option value="laki-laki" @if (old('jenis_kelamin', optional($user->adminProfile)->jenis_kelamin) == 'laki-laki') selected @endif>Laki-laki</option>
-                        <option value="perempuan" @if (old('jenis_kelamin', optional($user->adminProfile)->jenis_kelamin) == 'perempuan') selected @endif>Perempuan</option>
+                        <option value="laki-laki" @if (old('admin_jenis_kelamin', optional($user->adminProfile)->jenis_kelamin) == 'laki-laki') selected @endif>Laki-laki</option>
+                        <option value="perempuan" @if (old('admin_jenis_kelamin', optional($user->adminProfile)->jenis_kelamin) == 'perempuan') selected @endif>Perempuan</option>
                     </select>
-                    <x-input-error :messages="$errors->get('jenis_kelamin')" class="mt-2" />
+                    <x-input-error :messages="$errors->get('admin_jenis_kelamin')" class="mt-2" />
                 </div>
                 <div>
                     <x-input-label for="admin_foto" value="Foto Profil" />
                     <input type="file" id="admin_foto" name="admin_foto"
                         class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-200 file:text-gray-700 file:hover:bg-gray-300 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm" />
                     <x-input-error :messages="$errors->get('admin_foto')" class="mt-2" />
+                </div>
+            </div>
+        </template>
+
+        <!-- Field Profil TU -->
+        <template x-if="role === 'tu'">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <x-input-label for="tu_jabatan" value="Jabatan" />
+                    <x-text-input id="tu_jabatan" name="tu_jabatan" :value="old('tu_jabatan', optional($user->tuProfile)->jabatan)" class="block mt-1 w-full"
+                        type="text" />
+                    <x-input-error :messages="$errors->get('tu_jabatan')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="tu_telepon" value="Telepon" />
+                    <x-text-input id="tu_telepon" name="tu_telepon" :value="old('tu_telepon', optional($user->tuProfile)->telepon)" class="block mt-1 w-full"
+                        type="text" />
+                    <x-input-error :messages="$errors->get('tu_telepon')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="tu_tanggal_bergabung" value="Tanggal Bergabung" />
+                    <x-text-input id="tu_tanggal_bergabung"
+                        :value="optional($user->tuProfile)->tanggal_bergabung ? \Carbon\Carbon::parse($user->tuProfile->tanggal_bergabung)->translatedFormat('d F Y') : 'Otomatis terisi saat dibuat'"
+                        class="block mt-1 w-full bg-gray-100 dark:bg-gray-700" type="text" disabled />
+                </div>
+                <div>
+                    <x-input-label for="tu_tanggal_lahir" value="Tanggal Lahir" />
+                    <x-text-input id="tu_tanggal_lahir" name="tu_tanggal_lahir"
+                        value="{{ old('tu_tanggal_lahir', optional($user->tuProfile)->tanggal_lahir ? $user->tuProfile->tanggal_lahir->format('Y-m-d') : '') }}"
+                        class="block mt-1 w-full flatpickr-dmy" type="text" placeholder="yyyy-mm-dd" />
+                    <x-input-error :messages="$errors->get('tu_tanggal_lahir')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="tu_tempat_lahir" value="Tempat Lahir" />
+                    <x-text-input id="tu_tempat_lahir" name="tu_tempat_lahir" :value="old('tu_tempat_lahir', optional($user->tuProfile)->tempat_lahir)"
+                        class="block mt-1 w-full" type="text" />
+                    <x-input-error :messages="$errors->get('tu_tempat_lahir')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="tu_jenis_kelamin" value="Jenis Kelamin" />
+                    <select name="tu_jenis_kelamin" id="tu_jenis_kelamin"
+                        class="block mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm">
+                        <option value="">Pilih Jenis Kelamin</option>
+                        <option value="laki-laki" @if (old('tu_jenis_kelamin', optional($user->tuProfile)->jenis_kelamin) == 'laki-laki') selected @endif>Laki-laki</option>
+                        <option value="perempuan" @if (old('tu_jenis_kelamin', optional($user->tuProfile)->jenis_kelamin) == 'perempuan') selected @endif>Perempuan</option>
+                    </select>
+                    <x-input-error :messages="$errors->get('tu_jenis_kelamin')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="tu_foto" value="Foto Profil" />
+                    <input type="file" id="tu_foto" name="tu_foto"
+                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-200 file:text-gray-700 file:hover:bg-gray-300 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm" />
+                    <x-input-error :messages="$errors->get('tu_foto')" class="mt-2" />
+                </div>
+            </div>
+        </template>
+
+        <!-- Bidang profil untuk peran 'Lainnya' -->
+        <template x-if="role === 'other'">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                    <x-input-label for="custom_role_name" :value="__('Nama Role Kustom')" />
+                    <x-text-input id="custom_role_name" class="block mt-1 w-full" type="text" name="custom_role_name" :value="old('custom_role_name', $user->custom_role ?? '')" required placeholder="Misal: Bendahara, Kurikulum" />
+                    <x-input-error :messages="$errors->get('custom_role_name')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="other_profile_jabatan" value="Jabatan" />
+                    <x-text-input id="other_profile_jabatan" name="other_jabatan" :value="old('other_jabatan', optional($user->otherProfile)->jabatan)" class="block mt-1 w-full"
+                        type="text" />
+                    <x-input-error :messages="$errors->get('other_jabatan')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="other_profile_telepon" value="Telepon" />
+                    <x-text-input id="other_profile_telepon" name="other_telepon" :value="old('other_telepon', optional($user->otherProfile)->telepon)" class="block mt-1 w-full"
+                        type="text" />
+                    <x-input-error :messages="$errors->get('other_telepon')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="other_profile_tanggal_bergabung" value="Tanggal Bergabung" />
+                    <x-text-input id="other_profile_tanggal_bergabung"
+                        :value="optional($user->otherProfile)->tanggal_bergabung ? \Carbon\Carbon::parse($user->otherProfile->tanggal_bergabung)->translatedFormat('d F Y') : 'Otomatis terisi saat dibuat'"
+                        class="block mt-1 w-full bg-gray-100 dark:bg-gray-700" type="text" disabled />
+                </div>
+                <div>
+                    <x-input-label for="other_profile_tanggal_lahir" value="Tanggal Lahir" />
+                    <x-text-input id="other_profile_tanggal_lahir" name="other_tanggal_lahir"
+                        value="{{ old('other_tanggal_lahir', optional($user->otherProfile)->tanggal_lahir ? $user->otherProfile->tanggal_lahir->format('Y-m-d') : '') }}"
+                        class="block mt-1 w-full flatpickr-dmy" type="text" placeholder="yyyy-mm-dd" />
+                    <x-input-error :messages="$errors->get('other_tanggal_lahir')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="other_profile_tempat_lahir" value="Tempat Lahir" />
+                    <x-text-input id="other_profile_tempat_lahir" name="other_tempat_lahir" :value="old('other_tempat_lahir', optional($user->otherProfile)->tempat_lahir)"
+                        class="block mt-1 w-full" type="text" />
+                    <x-input-error :messages="$errors->get('other_tempat_lahir')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="other_profile_jenis_kelamin" value="Jenis Kelamin" />
+                    <select name="other_jenis_kelamin" id="other_profile_jenis_kelamin"
+                        class="block mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm">
+                        <option value="">Pilih Jenis Kelamin</option>
+                        <option value="laki-laki" @if (old('other_jenis_kelamin', optional($user->otherProfile)->jenis_kelamin) == 'laki-laki') selected @endif>Laki-laki</option>
+                        <option value="perempuan" @if (old('other_jenis_kelamin', optional($user->otherProfile)->jenis_kelamin) == 'perempuan') selected @endif>Perempuan</option>
+                    </select>
+                    <x-input-error :messages="$errors->get('other_jenis_kelamin')" class="mt-2" />
+                </div>
+                <div class="md:col-span-2">
+                    <x-input-label for="other_profile_alamat" value="Alamat" />
+                    <textarea id="other_profile_alamat" name="alamat"
+                        class="block mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm">{{ old('alamat', optional($user->otherProfile)->alamat) }}</textarea>
+                    <x-input-error :messages="$errors->get('alamat')" class="mt-2" />
+                </div>
+                <div>
+                    <x-input-label for="other_profile_foto" value="Foto Profil" />
+                    <input type="file" id="other_profile_foto" name="other_foto"
+                        class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm" />
+                    <x-input-error :messages="$errors->get('other_foto')" class="mt-2" />
                 </div>
             </div>
         </template>
@@ -179,20 +306,20 @@
                     <x-input-error :messages="$errors->get('guru_tanggal_lahir')" class="mt-2" />
                 </div>
                 <div>
-                    <x-input-label for="tempat_lahir" value="Tempat Lahir" />
-                    <x-text-input id="tempat_lahir" name="tempat_lahir" :value="old('tempat_lahir', optional($user->guruProfile)->tempat_lahir)"
+                    <x-input-label for="guru_tempat_lahir" value="Tempat Lahir" />
+                    <x-text-input id="guru_tempat_lahir" name="guru_tempat_lahir" :value="old('guru_tempat_lahir', optional($user->guruProfile)->tempat_lahir)"
                         class="block mt-1 w-full" type="text" />
-                    <x-input-error :messages="$errors->get('tempat_lahir')" class="mt-2" />
+                    <x-input-error :messages="$errors->get('guru_tempat_lahir')" class="mt-2" />
                 </div>
                 <div>
-                    <x-input-label for="jenis_kelamin" value="Jenis Kelamin" />
-                    <select name="jenis_kelamin" id="jenis_kelamin"
+                    <x-input-label for="guru_jenis_kelamin" value="Jenis Kelamin" />
+                    <select name="guru_jenis_kelamin" id="guru_jenis_kelamin"
                         class="block mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm">
                         <option value="">Pilih Jenis Kelamin</option>
-                        <option value="laki-laki" @if (old('jenis_kelamin', optional($user->guruProfile)->jenis_kelamin) == 'laki-laki') selected @endif>Laki-laki</option>
-                        <option value="perempuan" @if (old('jenis_kelamin', optional($user->guruProfile)->jenis_kelamin) == 'perempuan') selected @endif>Perempuan</option>
+                        <option value="laki-laki" @if (old('guru_jenis_kelamin', optional($user->guruProfile)->jenis_kelamin) == 'laki-laki') selected @endif>Laki-laki</option>
+                        <option value="perempuan" @if (old('guru_jenis_kelamin', optional($user->guruProfile)->jenis_kelamin) == 'perempuan') selected @endif>Perempuan</option>
                     </select>
-                    <x-input-error :messages="$errors->get('jenis_kelamin')" class="mt-2" />
+                    <x-input-error :messages="$errors->get('guru_jenis_kelamin')" class="mt-2" />
                 </div>
                 <div class="md:col-span-2">
                     <x-input-label for="alamat" value="Alamat" />
@@ -227,28 +354,28 @@
                     <x-input-error :messages="$errors->get('kelas_id')" class="mt-2" />
                 </div>
                 <div>
-                    <x-input-label for="tanggal_lahir" value="Tanggal Lahir" />
-                    <x-text-input id="tanggal_lahir" name="tanggal_lahir"
-                        value="{{ old('tanggal_lahir', optional($user->siswaProfile)->tanggal_lahir ? $user->siswaProfile->tanggal_lahir->format('Y-m-d') : '') }}"
+                    <x-input-label for="siswa_tanggal_lahir" value="Tanggal Lahir" />
+                    <x-text-input id="siswa_tanggal_lahir" name="siswa_tanggal_lahir"
+                        value="{{ old('siswa_tanggal_lahir', optional($user->siswaProfile)->tanggal_lahir ? $user->siswaProfile->tanggal_lahir->format('Y-m-d') : '') }}"
                         class="block mt-1 w-full flatpickr-dmy" type="text" placeholder="yyyy-mm-dd" />
-                    <x-input-error :messages="$errors->get('tanggal_lahir')" class="mt-2" />
+                    <x-input-error :messages="$errors->get('siswa_tanggal_lahir')" class="mt-2" />
                 </div>
                 <div>
-                    <x-input-label for="tempat_lahir" value="Tempat Lahir" />
-                    <x-text-input id="tempat_lahir" name="tempat_lahir" :value="old('tempat_lahir', optional($user->siswaProfile)->tempat_lahir)"
+                    <x-input-label for="siswa_tempat_lahir" value="Tempat Lahir" />
+                    <x-text-input id="siswa_tempat_lahir" name="siswa_tempat_lahir" :value="old('siswa_tempat_lahir', optional($user->siswaProfile)->tempat_lahir)"
                         class="block mt-1 w-full" type="text" />
-                    <x-input-error :messages="$errors->get('tempat_lahir')" class="mt-2" />
+                    <x-input-error :messages="$errors->get('siswa_tempat_lahir')" class="mt-2" />
                 </div>
                 <div>
-                    <x-input-label for="jenis_kelamin" value="Jenis Kelamin" />
-                    <select name="jenis_kelamin" id="jenis_kelamin"
+                    <x-input-label for="siswa_jenis_kelamin" value="Jenis Kelamin" />
+                    <select name="siswa_jenis_kelamin" id="siswa_jenis_kelamin"
                         class="block mt-1 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm">
                         <option value="">Pilih Jenis Kelamin</option>
-                        <option value="laki-laki" @if (old('jenis_kelamin', optional($user->siswaProfile)->jenis_kelamin) == 'laki-laki') selected @endif>Laki-laki</option>
-                        <option value="perempuan" @if (old('jenis_kelamin', optional($user->siswaProfile)->jenis_kelamin) == 'perempuan') selected @endif>Perempuan
+                        <option value="laki-laki" @if (old('siswa_jenis_kelamin', optional($user->siswaProfile)->jenis_kelamin) == 'laki-laki') selected @endif>Laki-laki</option>
+                        <option value="perempuan" @if (old('siswa_jenis_kelamin', optional($user->siswaProfile)->jenis_kelamin) == 'perempuan') selected @endif>Perempuan
                         </option>
                     </select>
-                    <x-input-error :messages="$errors->get('jenis_kelamin')" class="mt-2" />
+                    <x-input-error :messages="$errors->get('siswa_jenis_kelamin')" class="mt-2" />
                 </div>
                 <div>
                     <x-input-label for="nama_ayah" value="Nama Ayah" />

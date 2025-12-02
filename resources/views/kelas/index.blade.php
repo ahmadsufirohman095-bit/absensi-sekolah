@@ -32,31 +32,39 @@
                     @endif
 
                     {{-- Search and Filter Form --}}
-                    <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
-                        <form action="{{ route('kelas.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
-                            <div class="flex-grow w-full md:w-auto">
-                                <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cari Nama Kelas:</label>
-                                <input type="text" name="search" id="search"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-                                    placeholder="Cari kelas..." value="{{ request('search') }}">
-                            </div>
-                            <div class="flex-grow w-full md:w-auto">
-                                <label for="wali_kelas_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter Wali Kelas:</label>
-                                <select name="wali_kelas_id" id="wali_kelas_id"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-white">
-                                    <option value="">Semua Wali Kelas</option>
-                                    @foreach ($gurus as $guru)
-                                        <option value="{{ $guru->id }}" {{ request('wali_kelas_id') == $guru->id ? 'selected' : '' }}>
-                                            {{ $guru->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="w-full md:w-auto">
-                                <button type="submit"
-                                    class="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white text-sm font-semibold uppercase rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                                    Terapkan Filter
-                                </button>
+                    <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg shadow-sm" x-data="tomSelectManager">
+                        <form action="{{ route('kelas.index') }}" method="GET">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+                                <div class="lg:col-span-1">
+                                    <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cari Nama Kelas:</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <svg class="w-5 h-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                        </div>
+                                        <input type="text" name="search" id="search"
+                                            class="block w-full pl-10 pr-3 py-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                            placeholder="Cari kelas..." value="{{ request('search') }}">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="wali_kelas_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter Wali Kelas:</label>
+                                    <select name="wali_kelas_id" id="wali_kelas_id"
+                                        class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <option value="">Semua Wali Kelas</option>
+                                        @foreach ($gurus as $guru)
+                                            <option value="{{ $guru->id }}" {{ request('wali_kelas_id') == $guru->id ? 'selected' : '' }}>
+                                                {{ $guru->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="flex justify-end gap-2">
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        Terapkan Filter
+                                    </button>
+                                    <a href="{{ route('kelas.index') }}" class="px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-md hover:bg-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Reset Filter</a>
+                                </div>
                             </div>
                         </form>
                     </div>

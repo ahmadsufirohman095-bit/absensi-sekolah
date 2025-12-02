@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('keterangan')->nullable();
             $table->string('attendance_type')->default('manual'); // Tipe absensi: manual, qr_code, dll.
             $table->foreignId('jadwal_absensi_id')->nullable()->constrained('jadwal_absensis')->onDelete('set null')->index('absensis_jadwal_absensi_id_foreign'); // Tambahkan ini
+            $table->string('jadwal_absensi_type')->default('siswa'); // Removed ->after('jadwal_absensi_id')
             $table->timestamps();
         });
     }
@@ -30,6 +31,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('absensis', function (Blueprint $table) {
+            $table->dropColumn('jadwal_absensi_type');
+        });
         Schema::dropIfExists('absensis');
     }
 };

@@ -14,10 +14,9 @@ class AbsensiPolicy
     public function before(User $user, string $ability): bool|null
     {
         if ($user->isAdmin()) {
-            if (in_array($ability, ['create', 'store', 'edit', 'update', 'delete', 'restore', 'forceDelete', 'bulkDelete'])) {
-                return false; // Admin tidak dapat melakukan tindakan ini
-            }
-            return null; // Admin dapat melihat
+            // Admin dapat melakukan semua tindakan untuk keperluan absensi manual atau scan,
+            // tetapi otorisasi lebih lanjut akan ditangani di controller berdasarkan target user.
+            return null;
         }
 
         if ($user->isGuru()) {
