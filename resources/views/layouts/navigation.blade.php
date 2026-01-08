@@ -19,7 +19,7 @@
     </div>
     <!-- Daftar Menu -->
     <!-- Semua atribut 'data-turbo-frame' dihapus dari link di bawah ini -->
-    <nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto" :class="{ 'px-4': sidebarOpen, 'px-2': !sidebarOpen }">
+    <nav id="sidebar-nav" class="flex-1 px-4 py-4 space-y-2 overflow-y-auto" :class="{ 'px-4': sidebarOpen, 'px-2': !sidebarOpen }">
         <x-side-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" :sidebarOpen="$sidebarOpen">
             <x-slot name="icon">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

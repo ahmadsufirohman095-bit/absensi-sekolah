@@ -47,7 +47,7 @@ unset($__defined_vars, $__key, $__value); ?>
     </div>
     <!-- Daftar Menu -->
     <!-- Semua atribut 'data-turbo-frame' dihapus dari link di bawah ini -->
-    <nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto" :class="{ 'px-4': sidebarOpen, 'px-2': !sidebarOpen }">
+    <nav id="sidebar-nav" class="flex-1 px-4 py-4 space-y-2 overflow-y-auto" :class="{ 'px-4': sidebarOpen, 'px-2': !sidebarOpen }">
         <?php if (isset($component)) { $__componentOriginal2e340925a8bf40d3894bf118093fdd54 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal2e340925a8bf40d3894bf118093fdd54 = $attributes; } ?>
 <?php $component = App\View\Components\SideNavLink::resolve(['active' => request()->routeIs('dashboard'),'sidebarOpen' => $sidebarOpen] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>

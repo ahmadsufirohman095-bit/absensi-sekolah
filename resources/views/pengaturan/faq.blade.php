@@ -228,7 +228,7 @@
                                         <li>Masuk sebagai admin.</li>
                                         <li>Navigasikan ke menu <strong>"Pengaturan"</strong>.</li>
                                         <li>Pada bagian <strong>"Pertanyaan yang Sering Diajukan (FAQ)"</strong>, klik tombol <strong>"Lihat FAQ"</strong>.</li>
-                                        <li>Saat ini, pengelolaan konten FAQ dilakukan secara manual melalui perubahan kode sumber aplikasi. Untuk pembaruan atau penambahan, Anda mungkin perlu bantuan pengembang.</li>
+                                        <li>Saat ini, pengelolaan konten FAQ (Pertanyaan yang Sering Diajukan) dilakukan secara manual dengan mengedit langsung file sumber aplikasi, yaitu `resources/views/pengaturan/faq.blade.php`. Setiap penambahan, perubahan, atau penghapusan pertanyaan dan jawaban memerlukan modifikasi kode secara langsung. Oleh karena itu, untuk pembaruan atau penambahan, disarankan untuk melibatkan pengembang atau seseorang yang memiliki pemahaman tentang struktur kode aplikasi.</li>
                                     </ol>
                                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><strong>Fungsi:</strong> Menyediakan panduan dan jawaban atas pertanyaan umum untuk mengurangi beban dukungan teknis.</p>',
                                 'roles' => ['admin'],

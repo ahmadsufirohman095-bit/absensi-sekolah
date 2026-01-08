@@ -325,5 +325,36 @@ document.addEventListener("turbo:load", () => {
     initializePasswordStrengthChecker('password_confirmation', 'password-strength-confirm');
 });
 
+// Simpan posisi scroll sidebar sebelum Turbo memuat halaman baru
+document.addEventListener("turbo:before-render", () => {
+    const sidebarNav = document.getElementById("sidebar-nav");
+    if (sidebarNav) {
+        sessionStorage.setItem("sidebarScrollPos", sidebarNav.scrollTop);
+    }
+});
+
+document.addEventListener("turbo:load", () => {
+    restoreSidebarState();
+    initializeFlatpickrTime();
+    initializeFlatpickrDMY();
+    window.initTableDragScroll(); // Panggil ulang inisialisasi geser tabel
+
+    initializePasswordStrengthChecker('update_password_password', 'password-strength');
+    initializePasswordStrengthChecker('password', 'password-strength-login');
+    initializePasswordStrengthChecker('password', 'password-strength-register');
+    initializePasswordStrengthChecker('password_confirmation', 'password-strength-confirm');
+});
+
+// Kembalikan posisi scroll sidebar setelah Turbo selesai me-render halaman baru
+document.addEventListener("turbo:render", () => {
+    const sidebarNav = document.getElementById("sidebar-nav");
+    if (sidebarNav) {
+        const storedScrollPos = sessionStorage.getItem("sidebarScrollPos");
+        if (storedScrollPos !== null) {
+            sidebarNav.scrollTop = parseInt(storedScrollPos, 10);
+        }
+    }
+});
+
 document.addEventListener("turbo:frame-load", restoreSidebarState);
 document.addEventListener("turbo:frame-render", restoreSidebarState);
