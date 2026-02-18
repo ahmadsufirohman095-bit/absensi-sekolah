@@ -21,6 +21,7 @@ class OtherProfile extends Model
         'tanggal_lahir', // Add tanggal_lahir to fillable
         'tempat_lahir',
         'jenis_kelamin',
+        'alamat',
         'foto',
     ];
 

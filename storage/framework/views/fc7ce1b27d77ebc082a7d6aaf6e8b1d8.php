@@ -150,7 +150,7 @@
                                     <?php $__empty_1 = true; $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                     <tr class="bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 block sm:table-row mb-4 sm:mb-0 rounded-lg shadow-md sm:shadow-none transition duration-150 ease-in-out">
                                         <td class="w-4 p-4">
-                                            <?php if(in_array($user->role, ['guru', 'siswa'])): ?>
+                                            <?php if(auth()->id() !== $user->id): ?>
                                             <div class="flex items-center">
                                                 <input type="checkbox" :value="<?php echo e($user->id); ?>" x-model="selectedUsers" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                                             </div>

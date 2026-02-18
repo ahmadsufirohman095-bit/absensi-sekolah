@@ -157,7 +157,7 @@ unset($__defined_vars, $__key, $__value); ?>
 <?php if (isset($__componentOriginal2e340925a8bf40d3894bf118093fdd54)): ?>
 <?php $component = $__componentOriginal2e340925a8bf40d3894bf118093fdd54; ?>
 <?php unset($__componentOriginal2e340925a8bf40d3894bf118093fdd54); ?>
-<?php endif; ?>
+<?php endif; ?>php 
                 <?php endif; ?>
                 
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage-absensi')): ?>
@@ -562,4 +562,4 @@ unset($__defined_vars, $__key, $__value); ?>
         
     </nav>
 </div>
-<?php /**PATH C:\xampp\htdocs\absensi-sekolah\resources\views/layouts/navigation.blade.php ENDPATH**/ ?>
+ <?php /**PATH C:\xampp\htdocs\absensi-sekolah\resources\views/layouts/navigation.blade.php ENDPATH**/ ?>

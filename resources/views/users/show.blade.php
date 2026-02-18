@@ -38,8 +38,34 @@
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Jabatan:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->adminProfile->jabatan ?? '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Telepon:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->adminProfile->telepon ?? '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Tanggal Bergabung:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->adminProfile->tanggal_bergabung ? \Carbon\Carbon::parse($user->adminProfile->tanggal_bergabung)->translatedFormat('d F Y') : '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Tanggal Lahir:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->adminProfile->tanggal_lahir ? \Carbon\Carbon::parse($user->adminProfile->tanggal_lahir)->translatedFormat('d F Y') : '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Tempat Lahir:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->adminProfile->tempat_lahir ?? '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Jenis Kelamin:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->adminProfile->jenis_kelamin ? ucfirst($user->adminProfile->jenis_kelamin) : '-' }}</span></div>
+                            </div>
+                        </div>
+                    @elseif ($user->role === 'tu' && $user->tuProfile)
+                        <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <h4 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-5">Detail Profil Tata Usaha (TU)</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-base">
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Jabatan:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->tuProfile->jabatan ?? '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Telepon:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->tuProfile->telepon ?? '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Tanggal Bergabung:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->tuProfile->tanggal_bergabung ? \Carbon\Carbon::parse($user->tuProfile->tanggal_bergabung)->translatedFormat('d F Y') : '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Tanggal Lahir:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->tuProfile->tanggal_lahir ? \Carbon\Carbon::parse($user->tuProfile->tanggal_lahir)->translatedFormat('d F Y') : '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Tempat Lahir:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->tuProfile->tempat_lahir ?? '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Jenis Kelamin:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->tuProfile->jenis_kelamin ? ucfirst($user->tuProfile->jenis_kelamin) : '-' }}</span></div>
+                            </div>
+                        </div>
+                    @elseif ($user->role === 'other' && $user->otherProfile)
+                        <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <h4 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-5">Detail Profil Lainnya ({{ $user->custom_role }})</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-base">
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Jabatan:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->otherProfile->jabatan ?? '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Telepon:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->otherProfile->telepon ?? '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Tanggal Bergabung:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->otherProfile->tanggal_bergabung ? \Carbon\Carbon::parse($user->otherProfile->tanggal_bergabung)->translatedFormat('d F Y') : '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Tanggal Lahir:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->otherProfile->tanggal_lahir ? \Carbon\Carbon::parse($user->otherProfile->tanggal_lahir)->translatedFormat('d F Y') : '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Tempat Lahir:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->otherProfile->tempat_lahir ?? '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Jenis Kelamin:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->otherProfile->jenis_kelamin ? ucfirst($user->otherProfile->jenis_kelamin) : '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm md:col-span-2"><strong>Alamat:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->otherProfile->alamat ?? '-' }}</span></div>
                             </div>
                         </div>
                     @elseif ($user->role === 'guru' && $user->guruProfile)
@@ -75,7 +101,7 @@
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Tempat Lahir:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->tempat_lahir ?? '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Alamat:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->alamat ?? '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Nama Ayah:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->nama_ayah ?? '-' }}</span></div>
-                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Telepon Ayah:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->telepon_ayah ?? '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Telepon Ayah:</strong> <span class="text-gray-700 dark:text-ray-300">{{ $user->siswaProfile->telepon_ayah ?? '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Nama Ibu:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->nama_ibu ?? '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Telepon Ibu:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->telepon_ibu ?? '-' }}</span></div>
                             </div>

@@ -63,7 +63,7 @@
                             </svg>
                         </x-slot>
                         {{ __('Jadwal Mengajar') }}
-                    </x-side-nav-link>
+                    </x-side-nav-link>php 
                 @endcan
                 
                 @can('manage-absensi')
@@ -196,3 +196,4 @@
         
     </nav>
 </div>
+ 

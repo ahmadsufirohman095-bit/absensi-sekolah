@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('tanggal_bergabung')->nullable();
             $table->string('jabatan')->nullable();
             $table->date('tanggal_lahir')->nullable();
+            $table->text('alamat')->nullable();
             $table->timestamps();
             $table->string('tempat_lahir')->nullable();
             $table->enum('jenis_kelamin', ['laki-laki', 'perempuan'])->nullable();

@@ -75,10 +75,10 @@ class UserController extends Controller
                 $user->load(['siswaProfile', 'siswaProfile.kelas']);
                 break;
             case 'tu':
-                $user->load('adminProfile');
+                $user->load('tuProfile');
                 break;
             case 'other':
-                // Peran kustom mungkin tidak memiliki profil khusus secara default
+                $user->load('otherProfile');
                 break;
         }
         return view('users.show', compact('user'));
@@ -101,7 +101,7 @@ class UserController extends Controller
     {
         \Log::info('UserController@store: Memulai proses penambahan user.');
 
-        $validatedData = $request->validate([
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'username' => [
                 'required', 'string', 'max:255',
@@ -122,32 +122,56 @@ class UserController extends Controller
                 }),
             ],
             'role' => ['required', Rule::in(['admin', 'guru', 'siswa', 'tu', 'other'])],
-            'custom_role_name' => ['nullable', 'string', 'max:255', 'required_if:role,other'], // Validasi untuk peran kustom
+            'custom_role_name' => ['nullable', 'string', 'max:255', 'required_if:role,other'],
             'password' => ['required', 'confirmed', ValidationRules\Password::min(8)],
+            'is_active' => ['boolean'],
+        ];
 
-            // Validasi untuk field profil spesifik (dibuat nullable semua agar lebih fleksibel)
-            'admin_jabatan' => ['nullable', 'string', 'max:255'],
-            'admin_telepon' => ['nullable', 'string', 'max:255'],
-            'admin_foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
-            'tempat_lahir' => ['nullable', 'string', 'max:255'], // Untuk peran 'other'
-            'jenis_kelamin' => ['nullable', Rule::in(['laki-laki', 'perempuan'])], // Untuk peran 'other'
-            'tanggal_lahir' => ['nullable', 'date'], // Untuk admin (TU dan Other juga)
-            'guru_jabatan' => ['nullable', 'string', 'max:255'],
-            'guru_telepon' => ['nullable', 'string', 'max:255'],
-            'guru_foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
-            'kelas_id' => ['nullable', 'exists:kelas,id'],
-            'siswa_tanggal_lahir' => ['nullable', 'date'], // Untuk siswa
-            'guru_tanggal_lahir' => ['nullable', 'date'], // Untuk guru
-            'nama_ayah' => ['nullable', 'string', 'max:255'],
-            'nama_ibu' => ['nullable', 'string', 'max:255'],
-            'telepon_ayah' => ['nullable', 'string', 'max:255'],
-            'telepon_ibu' => ['nullable', 'string', 'max:255'],
-            'siswa_foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
-            'alamat' => ['nullable', 'string'],
-            'jenis_kelamin' => ['nullable', Rule::in(['laki-laki', 'perempuan'])],
-            'tempat_lahir' => ['nullable', 'string', 'max:255'],
-            'is_active' => ['boolean'], // Tambahkan validasi untuk is_active
-        ]);
+        // Add role-specific validation rules
+        if ($request->role === 'admin') {
+            $rules['admin_jabatan'] = ['nullable', 'string', 'max:255'];
+            $rules['admin_telepon'] = ['nullable', 'string', 'max:255'];
+            $rules['admin_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
+            $rules['tanggal_lahir'] = ['nullable', 'date'];
+            $rules['admin_tempat_lahir'] = ['nullable', 'string', 'max:255'];
+            $rules['admin_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
+        } elseif ($request->role === 'tu') {
+            $rules['tu_jabatan'] = ['nullable', 'string', 'max:255'];
+            $rules['tu_telepon'] = ['nullable', 'string', 'max:255'];
+            $rules['tu_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
+            $rules['tu_tanggal_lahir'] = ['nullable', 'date'];
+            $rules['tu_tempat_lahir'] = ['nullable', 'string', 'max:255'];
+            $rules['tu_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
+        } elseif ($request->role === 'other') {
+            $rules['other_jabatan'] = ['nullable', 'string', 'max:255'];
+            $rules['other_telepon'] = ['nullable', 'string', 'max:255'];
+            $rules['other_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
+            $rules['other_tanggal_lahir'] = ['nullable', 'date'];
+            $rules['other_tempat_lahir'] = ['nullable', 'string', 'max:255'];
+            $rules['other_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
+            $rules['alamat'] = ['nullable', 'string'];
+        } elseif ($request->role === 'guru') {
+            $rules['guru_jabatan'] = ['nullable', 'string', 'max:255'];
+            $rules['guru_telepon'] = ['nullable', 'string', 'max:255'];
+            $rules['guru_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
+            $rules['guru_tanggal_lahir'] = ['nullable', 'date'];
+            $rules['alamat'] = ['nullable', 'string'];
+            $rules['guru_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
+            $rules['guru_tempat_lahir'] = ['nullable', 'string', 'max:255'];
+        } elseif ($request->role === 'siswa') {
+            $rules['kelas_id'] = ['nullable', 'exists:kelas,id'];
+            $rules['siswa_tanggal_lahir'] = ['nullable', 'date'];
+            $rules['alamat'] = ['nullable', 'string'];
+            $rules['nama_ayah'] = ['nullable', 'string', 'max:255'];
+            $rules['nama_ibu'] = ['nullable', 'string', 'max:255'];
+            $rules['telepon_ayah'] = ['nullable', 'string', 'max:255'];
+            $rules['telepon_ibu'] = ['nullable', 'string', 'max:255'];
+            $rules['siswa_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
+            $rules['siswa_tempat_lahir'] = ['nullable', 'string', 'max:255'];
+            $rules['siswa_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
+        }
+
+        $validatedData = $request->validate($rules);
 
         \Log::info('UserController@store: Data tervalidasi.', ['validatedData' => $validatedData]);
 
@@ -173,27 +197,39 @@ class UserController extends Controller
 
                 switch ($user->role) {
                     case 'admin':
-                    case 'tu': // TU juga menggunakan profil admin
                         $profileData = [
                             'jabatan' => $validatedData['admin_jabatan'] ?? null,
                             'telepon' => $validatedData['admin_telepon'] ?? null,
-                            'tanggal_bergabung' => $user->created_at, // Otomatis diisi
-                            'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null, // Tambahkan tanggal_lahir
-                            'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,
-                            'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
+                            'tanggal_bergabung' => $user->created_at,
+                            'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null,
+                            'tempat_lahir' => $validatedData['admin_tempat_lahir'] ?? null,
+                            'jenis_kelamin' => $validatedData['admin_jenis_kelamin'] ?? null,
                         ];
                         if ($request->hasFile('admin_foto')) {
                             $fotoPath = $request->file('admin_foto')->store('fotos', 'public');
+                        }
+                        break;
+                    case 'tu':
+                         $profileData = [
+                            'jabatan' => $validatedData['tu_jabatan'] ?? null,
+                            'telepon' => $validatedData['tu_telepon'] ?? null,
+                            'tanggal_bergabung' => $user->created_at,
+                            'tanggal_lahir' => $validatedData['tu_tanggal_lahir'] ?? null,
+                            'tempat_lahir' => $validatedData['tu_tempat_lahir'] ?? null,
+                            'jenis_kelamin' => $validatedData['tu_jenis_kelamin'] ?? null,
+                        ];
+                        if ($request->hasFile('tu_foto')) {
+                            $fotoPath = $request->file('tu_foto')->store('fotos', 'public');
                         }
                         break;
                     case 'guru':
                         $profileData = [
                             'jabatan' => $validatedData['guru_jabatan'] ?? null,
                             'telepon' => $validatedData['guru_telepon'] ?? null,
-                            'tanggal_lahir' => $validatedData['guru_tanggal_lahir'] ?? null, // Mengambil dari guru_tanggal_lahir
+                            'tanggal_lahir' => $validatedData['guru_tanggal_lahir'] ?? null,
                             'alamat' => $validatedData['alamat'] ?? null,
-                            'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
-                            'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,
+                            'jenis_kelamin' => $validatedData['guru_jenis_kelamin'] ?? null,
+                            'tempat_lahir' => $validatedData['guru_tempat_lahir'] ?? null,
                         ];
                         if ($request->hasFile('guru_foto')) {
                             $fotoPath = $request->file('guru_foto')->store('fotos', 'public');
@@ -204,32 +240,33 @@ class UserController extends Controller
                         $profileData = [
                             'kelas_id' => $validatedData['kelas_id'] ?? null,
                             'nis' => $validatedData['identifier'],
-                            'nama_lengkap' => $validatedData['name'], // Menggunakan nama dari user
+                            'nama_lengkap' => $validatedData['name'],
                             'tanggal_lahir' => $validatedData['siswa_tanggal_lahir'] ?? null,
                             'alamat' => $validatedData['alamat'] ?? null,
                             'nama_ayah' => $validatedData['nama_ayah'] ?? null,
                             'nama_ibu' => $validatedData['nama_ibu'] ?? null,
                             'telepon_ayah' => $validatedData['telepon_ayah'] ?? null,
                             'telepon_ibu' => $validatedData['telepon_ibu'] ?? null,
-                            'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
-                            'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,
+                            'jenis_kelamin' => $validatedData['siswa_jenis_kelamin'] ?? null,
+                            'tempat_lahir' => $validatedData['siswa_tempat_lahir'] ?? null,
                         ];
                         if ($request->hasFile('siswa_foto')) {
                             $fotoPath = $request->file('siswa_foto')->store('fotos', 'public');
                             \Log::info('UserController@store: Foto siswa diupload dalam transaksi.', ['path' => $fotoPath]);
                         }
                         break;
-                    case 'other': // Peran kustom menggunakan profil admin untuk input data generik
+                    case 'other':
                         $profileData = [
-                            'jabatan' => $validatedData['admin_jabatan'] ?? null,
-                            'telepon' => $validatedData['admin_telepon'] ?? null,
-                            'tanggal_bergabung' => $user->created_at, // Otomatis diisi
-                            'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null, // Tambahkan tanggal_lahir
-                            'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,
-                            'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
+                            'jabatan' => $validatedData['other_jabatan'] ?? null,
+                            'telepon' => $validatedData['other_telepon'] ?? null,
+                            'tanggal_bergabung' => $user->created_at,
+                            'tanggal_lahir' => $validatedData['other_tanggal_lahir'] ?? null,
+                            'tempat_lahir' => $validatedData['other_tempat_lahir'] ?? null,
+                            'jenis_kelamin' => $validatedData['other_jenis_kelamin'] ?? null,
+                            'alamat' => $validatedData['alamat'] ?? null,
                         ];
-                        if ($request->hasFile('admin_foto')) {
-                            $fotoPath = $request->file('admin_foto')->store('fotos', 'public');
+                        if ($request->hasFile('other_foto')) {
+                            $fotoPath = $request->file('other_foto')->store('fotos', 'public');
                         }
                         break;
                 }
@@ -242,9 +279,12 @@ class UserController extends Controller
                 if (!empty($profileData)) {
                     switch ($user->role) {
                         case 'admin':
-                        case 'tu': // TU juga menggunakan profil admin
                             $user->adminProfile()->create($profileData);
-                            \Log::info('UserController@store: Profil admin/TU dibuat dalam transaksi.');
+                            \Log::info('UserController@store: Profil admin dibuat dalam transaksi.');
+                            break;
+                        case 'tu':
+                            $user->tuProfile()->create($profileData);
+                            \Log::info('UserController@store: Profil TU dibuat dalam transaksi.');
                             break;
                         case 'guru':
                             $user->guruProfile()->create($profileData);
@@ -256,9 +296,8 @@ class UserController extends Controller
                             \Log::info('UserController@store: Profil siswa dibuat dalam transaksi.');
                             break;
                         case 'other':
-                            // Untuk peran 'other', menggunakan profil admin untuk penyimpanan
-                            $user->adminProfile()->create($profileData);
-                            \Log::info('UserController@store: Profil kustom (other) dibuat menggunakan profil admin dalam transaksi.');
+                            $user->otherProfile()->create($profileData);
+                            \Log::info('UserController@store: Profil kustom (other) dibuat dalam transaksi.');
                             break;
                     }
                 }
@@ -290,7 +329,7 @@ class UserController extends Controller
         } elseif ($user->role === 'siswa') {
             $user->load(['siswaProfile', 'siswaProfile.kelas']);
         } elseif ($user->role === 'other') {
-            $user->load('adminProfile'); // Muat profil admin jika peran adalah 'other'
+            $user->load('otherProfile'); // Muat otherProfile jika peran adalah 'other'
         }
 
         $kelas = Kelas::orderBy('nama_kelas')->get();
@@ -331,33 +370,48 @@ class UserController extends Controller
         ];
 
         // Add role-specific validation rules
-        if ($request->role === 'admin' || $request->role === 'tu') { // Admin dan TU berbagi aturan validasi profil yang sama
+        if ($request->role === 'admin') {
             $rules['admin_jabatan'] = ['nullable', 'string', 'max:255'];
             $rules['admin_telepon'] = ['nullable', 'string', 'max:255'];
             $rules['admin_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
-            $rules['tempat_lahir'] = ['nullable', 'string', 'max:255']; // Explicitly added
-            $rules['jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])]; // Explicitly added
-            $rules['tanggal_lahir'] = ['nullable', 'date']; // Untuk Admin, TU, Other
+            $rules['tanggal_lahir'] = ['nullable', 'date'];
+            $rules['admin_tempat_lahir'] = ['nullable', 'string', 'max:255'];
+            $rules['admin_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
+        } elseif ($request->role === 'tu') {
+            $rules['tu_jabatan'] = ['nullable', 'string', 'max:255'];
+            $rules['tu_telepon'] = ['nullable', 'string', 'max:255'];
+            $rules['tu_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
+            $rules['tu_tanggal_lahir'] = ['nullable', 'date'];
+            $rules['tu_tempat_lahir'] = ['nullable', 'string', 'max:255'];
+            $rules['tu_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
+        } elseif ($request->role === 'other') {
+            $rules['other_jabatan'] = ['nullable', 'string', 'max:255'];
+            $rules['other_telepon'] = ['nullable', 'string', 'max:255'];
+            $rules['other_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
+            $rules['other_tanggal_lahir'] = ['nullable', 'date'];
+            $rules['other_tempat_lahir'] = ['nullable', 'string', 'max:255'];
+            $rules['other_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
+            $rules['alamat'] = ['nullable', 'string'];
         } elseif ($request->role === 'guru') {
             $rules['guru_jabatan'] = ['nullable', 'string', 'max:255'];
             $rules['guru_telepon'] = ['nullable', 'string', 'max:255'];
             $rules['guru_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
             $rules['guru_tanggal_lahir'] = ['nullable', 'date'];
-            $rules['guru_alamat'] = ['nullable', 'string'];
+            $rules['alamat'] = ['nullable', 'string'];
             $rules['guru_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
             $rules['guru_tempat_lahir'] = ['nullable', 'string', 'max:255'];
         } elseif ($request->role === 'siswa') {
             $rules['kelas_id'] = ['nullable', 'exists:kelas,id'];
-            $rules['tanggal_lahir'] = ['nullable', 'date'];
+            $rules['siswa_tanggal_lahir'] = ['nullable', 'date'];
             $rules['alamat'] = ['nullable', 'string'];
             $rules['nama_ayah'] = ['nullable', 'string', 'max:255'];
             $rules['nama_ibu'] = ['nullable', 'string', 'max:255'];
             $rules['telepon_ayah'] = ['nullable', 'string', 'max:255'];
             $rules['telepon_ibu'] = ['nullable', 'string', 'max:255'];
             $rules['siswa_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
-            $rules['nama_lengkap'] = ['nullable', 'string', 'max:255'];
-            $rules['tempat_lahir'] = ['nullable', 'string', 'max:255']; // TAMBAHKAN INI
-            $rules['is_active'] = ['boolean']; // Tambahkan validasi untuk is_active
+            $rules['siswa_tempat_lahir'] = ['nullable', 'string', 'max:255'];
+            $rules['siswa_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
+            $rules['is_active'] = ['boolean'];
         }
         // Tidak ada aturan validasi khusus untuk peran 'other' secara default, tetapi custom_role_name divalidasi di atas
 
@@ -388,17 +442,29 @@ class UserController extends Controller
 
         switch ($user->role) {
             case 'admin':
-            case 'tu': // TU juga menggunakan profil admin
                 $profileData = [
                     'jabatan' => $validatedData['admin_jabatan'] ?? null,
                     'telepon' => $validatedData['admin_telepon'] ?? null,
-                    'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
-                    'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null, // Tambahkan tanggal_lahir
-                    'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,
+                    'jenis_kelamin' => $validatedData['admin_jenis_kelamin'] ?? null,
+                    'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null,
+                    'tempat_lahir' => $validatedData['admin_tempat_lahir'] ?? null,
                 ];
                 $currentProfile = $user->adminProfile;
                 if ($request->hasFile('admin_foto')) {
                     $fotoPath = $request->file('admin_foto')->store('fotos', 'public');
+                }
+                break;
+            case 'tu':
+                $profileData = [
+                    'jabatan' => $validatedData['tu_jabatan'] ?? null,
+                    'telepon' => $validatedData['tu_telepon'] ?? null,
+                    'jenis_kelamin' => $validatedData['tu_jenis_kelamin'] ?? null,
+                    'tanggal_lahir' => $validatedData['tu_tanggal_lahir'] ?? null,
+                    'tempat_lahir' => $validatedData['tu_tempat_lahir'] ?? null,
+                ];
+                $currentProfile = $user->tuProfile;
+                if ($request->hasFile('tu_foto')) {
+                    $fotoPath = $request->file('tu_foto')->store('fotos', 'public');
                 }
                 break;
             case 'guru':
@@ -406,7 +472,7 @@ class UserController extends Controller
                     'jabatan' => $validatedData['guru_jabatan'] ?? null,
                     'telepon' => $validatedData['guru_telepon'] ?? null,
                     'tanggal_lahir' => $validatedData['guru_tanggal_lahir'] ?? null,
-                    'alamat' => $validatedData['guru_alamat'] ?? null,
+                    'alamat' => $validatedData['alamat'] ?? null,
                     'jenis_kelamin' => $validatedData['guru_jenis_kelamin'] ?? null,
                     'tempat_lahir' => $validatedData['guru_tempat_lahir'] ?? null,
                 ];
@@ -420,31 +486,32 @@ class UserController extends Controller
                     'kelas_id' => $validatedData['kelas_id'] ?? null,
                     'nis' => $validatedData['identifier'], // NIS diambil dari identifier
                     'nama_lengkap' => $validatedData['name'], // Menggunakan nama dari user
-                    'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null,
+                    'tanggal_lahir' => $validatedData['siswa_tanggal_lahir'] ?? null,
                     'alamat' => $validatedData['alamat'] ?? null,
                     'nama_ayah' => $validatedData['nama_ayah'] ?? null,
                     'nama_ibu' => $validatedData['nama_ibu'] ?? null,
                     'telepon_ayah' => $validatedData['telepon_ayah'] ?? null,
                     'telepon_ibu' => $validatedData['telepon_ibu'] ?? null,
-                    'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
-                    'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,
+                    'jenis_kelamin' => $validatedData['siswa_jenis_kelamin'] ?? null,
+                    'tempat_lahir' => $validatedData['siswa_tempat_lahir'] ?? null,
                 ];
                 $currentProfile = $user->siswaProfile;
                 if ($request->hasFile('siswa_foto')) {
                     $fotoPath = $request->file('siswa_foto')->store('fotos', 'public');
                 }
                 break;
-            case 'other': // Peran kustom menggunakan profil admin
+            case 'other':
                 $profileData = [
-                    'jabatan' => $validatedData['admin_jabatan'] ?? null,
-                    'telepon' => $validatedData['admin_telepon'] ?? null,
-                    'jenis_kelamin' => $validatedData['jenis_kelamin'] ?? null,
-                    'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null, // Tambahkan tanggal_lahir
-                    'tempat_lahir' => $validatedData['tempat_lahir'] ?? null,
+                    'jabatan' => $validatedData['other_jabatan'] ?? null,
+                    'telepon' => $validatedData['other_telepon'] ?? null,
+                    'jenis_kelamin' => $validatedData['other_jenis_kelamin'] ?? null,
+                    'tanggal_lahir' => $validatedData['other_tanggal_lahir'] ?? null,
+                    'tempat_lahir' => $validatedData['other_tempat_lahir'] ?? null,
+                    'alamat' => $validatedData['alamat'] ?? null,
                 ];
-                $currentProfile = $user->adminProfile;
-                if ($request->hasFile('admin_foto')) {
-                    $fotoPath = $request->file('admin_foto')->store('fotos', 'public');
+                $currentProfile = $user->otherProfile;
+                if ($request->hasFile('other_foto')) {
+                    $fotoPath = $request->file('other_foto')->store('fotos', 'public');
                 }
                 break;
         }
@@ -471,8 +538,10 @@ class UserController extends Controller
         if (!empty($profileData)) {
             switch ($user->role) {
                 case 'admin':
-                case 'tu': // TU juga menggunakan profil admin
                     $user->adminProfile()->updateOrCreate([], $profileData);
+                    break;
+                case 'tu':
+                    $user->tuProfile()->updateOrCreate([], $profileData);
                     break;
                 case 'guru':
                     \Log::info('UserController@update: Memperbarui profil guru.', [
@@ -487,8 +556,7 @@ class UserController extends Controller
                     $user->siswaProfile()->updateOrCreate([], $profileData);
                     break;
                 case 'other':
-                    // Untuk peran 'other', menggunakan profil admin untuk penyimpanan
-                    $user->adminProfile()->updateOrCreate([], $profileData);
+                    $user->otherProfile()->updateOrCreate([], $profileData);
                     break;
             }
         }
