@@ -50,9 +50,7 @@
 
     <link rel="stylesheet" href="{{ asset('css/print.css') }}" media="print" data-turbo-track="reload" />
 
-    {{-- Chart.js --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" data-turbo-track="reload"></script>
-</head>
+            {{-- Chart.js --}}</head>
 
 <body class="font-sans antialiased">
     <div x-data="{ sidebarOpen: localStorage.getItem('sidebarOpen') === 'true' || (localStorage.getItem('sidebarOpen') === null && window.innerWidth >= 1024) }"

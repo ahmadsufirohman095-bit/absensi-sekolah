@@ -3,183 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kartu Absensi Siswa</title>
-    @vite(['resources/css/app.css'])
+    <title>Cetak Kartu Absensi</title>
+    @vite(['resources/css/app.css', 'resources/css/print.css'])
     
+    {{-- Include the same styles used in the preview --}}
+    @include('admin.print_cards.partials.card-styles')
+
     <style>
-        /* Define fixed card dimensions for consistent printing */
-        :root {
-            --card-portrait-width: 204.0px;  /* 54mm at 96dpi */
-            --card-portrait-height: 323.5px; /* 85.5mm at 96dpi */
-            --card-landscape-width: 323.5px;
-            --card-landscape-height: 204.0px;
+        /* Additional styles for printing layout */
+        body {
+            background-color: #f3f4f6; /* gray-100 */
         }
-
-        /* Default card dimensions for screen (can be overridden by orientation) */
-        .card {
-            width: var(--card-landscape-width);
-            height: var(--card-landscape-height);
+        .page-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            justify-content: center;
         }
-
-        /* Portrait orientation for screen */
-        .card.portrait {
-            width: var(--card-portrait-width);
-            height: var(--card-portrait-height);
+        .card-wrapper {
+            display: flex;
+            gap: 10px;
+            break-inside: avoid; /* Avoid breaking a card across pages */
         }
-
-        /* Landscape orientation for screen */
-        .card.landscape {
-            width: var(--card-landscape-width);
-            height: var(--card-landscape-height);
-        }
-
         @media print {
-            /* For printing, ensure exact dimensions and no scaling issues */
-            .card {
-                width: var(--card-landscape-width) !important;
-                height: var(--card-landscape-height) !important;
-                page-break-inside: avoid;
-            }
-
-            .card.portrait {
-                width: var(--card-portrait-width) !important;
-                height: var(--card-portrait-height) !important;
-            }
-
-            .card.landscape {
-                width: var(--card-landscape-width) !important;
-                height: var(--card-landscape-height) !important;
-            }
-
-            @page {
-                size: A4;
-                margin: 10mm;
-            }
-
             body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+                background-color: #ffffff;
             }
-        }
-    </style>
-
-    @php
-        // --- THEME AND ASSET CONFIGURATION ---
-        $theme = data_get($config, 'config_json.theme', []);
-        $assets = data_get($config, 'config_json.assets', []);
-
-        // Helper function for RGBA conversion
-        if (!function_exists('hexToRgba')) {
-            function hexToRgba($hex, $alpha = 1) {
-                $hex = ltrim($hex, '#');
-                if (strlen($hex) == 3) {
-                    $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
-                }
-                $rgb = sscanf($hex, "%02x%02x%02x");
-                $r = $rgb[0] ?? 255; $g = $rgb[1] ?? 255; $b = $rgb[2] ?? 255;
-                return "rgba($r, $g, $b, $alpha)";
+            .page-container {
+                padding: 0;
+                gap: 10px;
+                justify-content: flex-start;
             }
-        }
-
-        // Card Background
-        $rgbaBgColor = hexToRgba($theme['background_color'] ?? '#ffffff', $theme['background_opacity'] ?? 1);
-
-        // Header Background
-        $rgbaHeaderBgColor = hexToRgba($theme['header_background_color'] ?? '#1e3a8a', $theme['header_background_opacity'] ?? 1);
-
-        // Text Colors
-        $header_text_color = $theme['text_color_header'] ?? '#ffffff';
-        $body_text_color = $theme['text_color_body'] ?? '#333333';
-
-        // Assets
-        $logoUrl = $assets['logo_url'] ?? null;
-        $watermarkUrl = $assets['watermark_url'] ?? null;
-        $watermarkOpacity = $assets['watermark_opacity'] ?? 0.1;
-        $watermarkEnabled = data_get($config, 'config_json.watermark_enabled', true);
-        $watermarkSize = data_get($config, 'config_json.assets.watermark_size', 70);
-        $watermarkPositionY = data_get($config, 'config_json.assets.watermark_position_y', 50);
-
-        // Photo Size
-        $photoWidth = data_get($config, 'config_json.photo_width', 70);
-        $photoHeight = data_get($config, 'config_json.photo_height', 90);
-
-        // Header Padding
-        $headerPaddingX = data_get($config, 'config_json.header_padding_x', 8);
-
-        // QR Code Position
-        $qrPositionX = data_get($config, 'config_json.qr_position_x', 75);
-        $qrPositionY = data_get($config, 'config_json.qr_position_y', 75);
-
-        // Card Orientation
-        $cardOrientation = $config->card_orientation ?? 'portrait'; // Default to portrait
-    @endphp
-
-    <style>
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #f0f0f0; }
-        .card-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, var(--card-portrait-width));
-            gap: 10px; /* Jarak antar kartu */
-            justify-content: center;
-            padding: 5px;
-        }
-
-        /* Override for landscape orientation */
-        @if ($cardOrientation === 'landscape')
-            .card-container {
-                grid-template-columns: repeat(auto-fit, var(--card-landscape-width));
-            }
-        @endif
-        .card {
-            position: relative;
-            overflow: hidden;
-            break-inside: avoid;
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            background-color: {{ $rgbaBgColor }};
-        }
-        .card.portrait {
-            width: var(--card-portrait-width);
-            height: var(--card-portrait-height);
-        }
-        .card.landscape {
-            width: var(--card-landscape-width);
-            height: var(--card-landscape-height);
-        }
-
-        .card-header { padding: 5px 8px; display: flex; align-items: center; position: relative; z-index: 1; background-color: {{ $rgbaHeaderBgColor }}; color: {{ $header_text_color }}; }
-        .card-header img { width: 35px; height: 35px; margin-right: 8px; }
-        .card-header p { font-size: 10px; margin: 0; }
-        .card-header .title { font-size: 12px; font-weight: bold; text-transform: uppercase; }
-        .card-body { flex-grow: 1; display: flex; padding: 8px; position: relative; z-index: 1; color: {{ $body_text_color }}; }
-        .card-body .photo { flex-shrink: 0; margin-right: 8px; }
-        .card-body .photo img { object-fit: cover; border: 1px solid white; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .card-body .info { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .card-body .info table { font-size: 9px; width: 100%; color: inherit; }
-        .card-body .info table td { padding-bottom: 1px; }
-        
-        /* QR section positioning */
-        .qr-section {
-            position: absolute;
-            left: {{ $qrPositionX }}%;
-            top: {{ $qrPositionY }}%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .qr-code-container { border: 2px solid white; border-radius: 6px; box-shadow: 0 3px 5px rgba(0,0,0,0.1); padding: 2px; background-color: white; display: flex; justify-content: center; align-items: center; }
-        .card-watermark { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-repeat: no-repeat; z-index: 0; }
-
-        /* Print-specific styles */
-        @media print {
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .card-container { justify-content: flex-start; }
-            /* Card dimensions are now controlled by :root variables and .card classes */
-
             @page {
                 size: A4;
                 margin: 10mm;
@@ -188,84 +43,133 @@
     </style>
 </head>
 <body>
-    <div class="card-container">
-        @forelse ($siswa as $s)
-            <div class="card rounded-lg {{ $cardOrientation }}">
-                @if ($watermarkUrl && data_get($config, 'config_json.watermark_enabled', true))
-                <div class="card-watermark" style="background-image: url('{{ $watermarkUrl }}'); opacity: {{ $watermarkOpacity }}; background-size: {{ $watermarkSize }}%; background-position: center {{ $watermarkPositionY }}%;"></div>
-                @endif
-                <!-- Header -->
-                <div class="card-header" style="padding-left: {{ $headerPaddingX }}px; padding-right: {{ $headerPaddingX }}px;">
-                    @if ($logoUrl)
-                    <img src="{{ $logoUrl }}" alt="Logo Sekolah">
-                    @else
-                    <div style="width: 35px; height: 35px; margin-right: 8px;"></div>
-                    @endif
-                    <div>
-                        <p class="title">{{ data_get($config, 'config_json.header_title', 'Kartu Absensi Siswa') }}</p>
-                        <p style="font-size: 10px;">{{ data_get($config, 'config_json.school_name', setting('nama_sekolah', 'Nama Sekolah')) }}</p>
-                    </div>
-                </div>
+    <div class="page-container">
+        @forelse ($siswa as $user)
+            @php
+                // --- CONFIGURATION SETUP ---
+                $card_orientation = data_get($config, 'card_orientation', 'portrait');
+                $front_config = data_get($config, 'config_json.front', []);
+                $back_config = data_get($config, 'config_json.back', []);
+                
+                $qr_on_back = data_get($config, 'config_json.qr_on_back', false);
+                $qrSize = data_get($config, 'config_json.qr_size', 70);
+                $qrPosX = data_get($config, 'config_json.qr_position_x', 50);
+                $qrPosY = data_get($config, 'config_json.qr_position_y', 50);
 
-                <!-- Body -->
-                <div class="card-body">
-                    <!-- Foto -->
-                    @if (in_array('foto', data_get($config, 'config_json.selected_fields', [])))
-                        <div class="photo">
-                            <img src="{{ $s->foto_url }}" alt="Foto Siswa" style="width: {{ $photoWidth }}px; height: {{ $photoHeight }}px;">
-                        </div>
+                // --- ROLE-SPECIFIC DATA MAPPING ---
+                $profile = $user->profile; // Generic profile access
+                $userData = [
+                    'name' => $user->name,
+                    'nis' => $profile->nis ?? $user->identifier,
+                    'kelas' => optional($profile->kelas)->nama_kelas ?? ($profile->jabatan ?? $user->custom_role ?? '-'),
+                    'tanggal_lahir' => optional($profile)->tanggal_lahir ? \Carbon\Carbon::parse($profile->tanggal_lahir)->format('d M Y') : '-',
+                    'jabatan' => $profile->jabatan ?? ($user->role === 'siswa' ? 'Siswa' : 'Staff'),
+                    'nip' => $profile->nip ?? ($user->role !== 'siswa' ? $user->identifier : '-'),
+                ];
+
+                $qrCodeUrl = 'data:image/svg+xml;base64,' . base64_encode(QrCode::size($qrSize)->generate($user->identifier));
+
+                $allFields = [
+                    ['key' => 'foto', 'label' => 'Foto'],
+                    ['key' => 'name', 'label' => 'Nama', 'icon' => 'fa-solid fa-user'],
+                    ['key' => 'nis', 'label' => 'NIS/ID Pengguna', 'icon' => 'fa-solid fa-id-badge'],
+                    ['key' => 'kelas', 'label' => 'Kelas/Jabatan', 'icon' => 'fa-solid fa-school'],
+                    ['key' => 'tanggal_lahir', 'label' => 'Tanggal Lahir', 'icon' => 'fa-solid fa-cake-candles'],
+                    ['key' => 'jabatan', 'label' => 'Jabatan (Staf)', 'icon' => 'fa-solid fa-user-tie'],
+                    ['key' => 'nip', 'label' => 'NIP/ID Pegawai', 'icon' => 'fa-solid fa-id-card'],
+                ];
+                $selected_fields = data_get($front_config, 'selected_fields', []);
+            @endphp
+
+            <div class="card-wrapper">
+                {{-- FRONT CARD --}}
+                <div class="card-preview relative rounded-lg flex flex-col overflow-hidden {{ $card_orientation }}" 
+                     style="background-color: {{ data_get($front_config, 'theme.background_color', '#ffffff') }};">
+
+                    @if(data_get($front_config, 'assets.watermark_url'))
+                    <div class="absolute inset-0 z-0 flex items-center justify-center"
+                         style="justify-content: center; align-items: center; top: {{ data_get($front_config, 'assets.watermark_position_y', 50) - 50 }}%;">
+                        <img src="{{ data_get($front_config, 'assets.watermark_url') }}" 
+                             alt="Watermark" 
+                             class="pointer-events-none"
+                             style="opacity: {{ data_get($front_config, 'assets.watermark_opacity', 0.1) }}; width: {{ data_get($front_config, 'assets.watermark_size', 70) }}%;"
+                        />
+                    </div>
                     @endif
-                    <!-- Info & QR -->
-                    <div class="info">
-                        <table>
-                            <tbody>
-                                @if (in_array('name', data_get($config, 'config_json.selected_fields', [])))
-                                    <tr>
-                                        <td class="font-semibold pr-1 align-top">Nama</td>
-                                        <td class="align-top">:</td>
-                                        <td class="align-top font-bold">{{ strtoupper($s->name) }}</td>
-                                    </tr>
-                                @endif
-                                @if (in_array('nis', data_get($config, 'config_json.selected_fields', [])))
-                                    <tr>
-                                        <td class="font-semibold pr-1 align-top">NIS</td>
-                                        <td class="align-top">:</td>
-                                        <td class="align-top">{{ $s->identifier }}</td>
-                                    </tr>
-                                @endif
-                                @if (in_array('kelas', data_get($config, 'config_json.selected_fields', [])))
-                                    <tr>
-                                        <td class="font-semibold pr-1 align-top">Kelas</td>
-                                        <td class="align-top">:</td>
-                                        <td class="align-top">{{ $s->siswaProfile->kelas->nama_kelas ?? '-' }}</td>
-                                    </tr>
-                                @endif
-                                <tr>
-                                    <td class="font-semibold pr-1 align-top">Masa Berlaku</td>
-                                    <td class="align-top">:</td>
-                                    <td class="align-top">Selama menjadi siswa</td>
-                                </tr>
-                                @if (in_array('tanggal_lahir', data_get($config, 'config_json.selected_fields', [])))
-                                    <tr>
-                                        <td class="font-semibold pr-1 align-top">Tempat/Tgl Lahir</td>
-                                        <td class="align-top">:</td>
-                                        <td class="align-top">{{ $s->siswaProfile->tempat_lahir ?? '-' }}, {{ $s->siswaProfile->tanggal_lahir ? \Carbon\Carbon::parse($s->siswaProfile->tanggal_lahir)->format('d M Y') : '-' }}</td>
-                                    </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                        <div class="qr-section">
-                            <div class="qr-code-container">
-                                {!! QrCode::size(data_get($config, 'config_json.qr_size', 70))->generate($s->identifier) !!}
+
+                    <div class="card-header-preview flex-shrink-0 flex items-center z-10 p-2" 
+                         style="background-color: {{ data_get($front_config, 'theme.header_background_color', '#1e3a8a') }}; color: {{ data_get($front_config, 'theme.text_color_header', '#ffffff') }}; padding-left: {{ data_get($front_config, 'header_padding_x', 8) }}px; padding-right: {{ data_get($front_config, 'header_padding_x', 8) }}px;">
+                        <img src="{{ data_get($front_config, 'assets.logo_url', asset('images/default-avatar.svg')) }}" 
+                             alt="Logo Sekolah" class="w-10 h-10 object-contain mr-3">
+                        <div class="flex-grow">
+                            <p class="font-bold text-sm uppercase leading-tight">{{ data_get($front_config, 'header_title', 'Kartu Absensi') }}</p>
+                            <p class="text-xs leading-tight">{{ data_get($front_config, 'school_name', 'Nama Sekolah Anda') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="card-body-preview flex-grow p-4 flex z-10" 
+                         style="color: {{ data_get($front_config, 'theme.text_color_body', '#333333') }};">
+                        @if(in_array('foto', $selected_fields))
+                        <div class="flex-shrink-0 pr-4">
+                             <div class="bg-gray-200 border-2 border-white shadow-md flex items-center justify-center overflow-hidden" 
+                                  style="width: {{ data_get($front_config, 'photo_width', 70) }}px; height: {{ data_get($front_config, 'photo_height', 90) }}px;">
+                                <img src="{{ $user->foto_url }}" alt="Foto Pengguna" class="w-full h-full object-cover">
                             </div>
                         </div>
+                        @endif
+                        
+                        <div class="info flex-grow flex flex-col justify-center text-xs space-y-1">
+                             @foreach ($allFields as $field)
+                                @if (in_array($field['key'], $selected_fields) && $field['key'] !== 'foto' && !empty($userData[$field['key']]))
+                                    <div class="flex items-start">
+                                        <i class="{{ $field['icon'] }} w-4 text-center mr-2 mt-0.5 text-gray-500"></i>
+                                        <div class="flex-grow">
+                                            <div class="text-gray-500 text-[10px] uppercase font-semibold">{{ $field['label'] }}</div>
+                                            <div class="font-bold">{{ $userData[$field['key']] }}</div>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
                     </div>
+
+                    @if(!$qr_on_back)
+                    <div class="absolute z-20 bg-white p-1 rounded-md shadow"
+                         style="width: {{ $qrSize }}px; height: {{ $qrSize }}px; top: calc({{ $qrPosY }}% - {{ $qrSize / 2 }}px); left: calc({{ $qrPosX }}% - {{ $qrSize / 2 }}px);">
+                        <img src="{{ $qrCodeUrl }}" alt="QR Code" class="w-full h-full">
+                    </div>
+                    @endif
                 </div>
 
-                
+                {{-- BACK CARD --}}
+                <div class="card-preview rounded-lg flex flex-col relative overflow-hidden {{ $card_orientation }}" 
+                     style="background-color: {{ data_get($back_config, 'theme.background_color', '#ffffff') }}; color: {{ data_get($back_config, 'theme.text_color', '#000000') }};">
+                    
+                    <div class="flex-grow flex flex-col justify-center items-center p-4 text-center">
+                        @php
+                            $backText = data_get($back_config, 'custom_text', 'Kartu ini adalah milik {nama} dan merupakan properti dari {sekolah}.');
+                            $backText = str_replace('{nama}', "<b>{$user->name}</b>", $backText);
+                            $backText = str_replace('{sekolah}', "<b>" . data_get($front_config, 'school_name', 'Nama Sekolah Anda') . "</b>", $backText);
+                        @endphp
+                        <div class="text-xs leading-relaxed">{!! $backText !!}</div>
+                    </div>
+                    
+                    @if($qr_on_back)
+                    <div class="absolute z-20"
+                         style="width: {{ $qrSize }}px; height: {{ $qrSize }}px; top: calc({{ $qrPosY }}% - {{ $qrSize / 2 }}px); left: calc({{ $qrPosX }}% - {{ $qrSize / 2 }}px);">
+                        <div class="w-full h-full bg-white p-1 rounded-md shadow-lg flex items-center justify-center">
+                            <img src="{{ $qrCodeUrl }}" alt="QR Code" class="w-full h-full">
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="flex-shrink-0 text-center text-xs p-2 border-t" style="border-color: rgba(0, 0, 0, 0.1);">
+                        <p>{{ data_get($front_config, 'school_name', 'Nama Sekolah Anda') }}</p>
+                    </div>
+                </div>
             </div>
         @empty
-            <p class="text-center text-gray-500 col-span-full">Tidak ada siswa untuk ditampilkan.</p>
+            <p class="text-center text-gray-500 col-span-full">Tidak ada pengguna untuk ditampilkan.</p>
         @endforelse
     </div>
 </body>

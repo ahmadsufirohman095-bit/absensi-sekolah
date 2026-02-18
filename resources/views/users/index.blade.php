@@ -191,9 +191,7 @@
                                                             <svg class="mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg> Edit
                                                         </x-dropdown-link>
                                                         @if($user->role === 'siswa')
-                                                            <x-dropdown-link :href="route('users.cetak-satu-kartu', $user->id)" target="_blank" class="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">
-                                                            <svg class="mr-3 h-5 w-5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l-3-3m0 0l3-3m-3 3h6" /></svg> Cetak Kartu
-                                                        </x-dropdown-link>
+
                                                         @endif
                                                         
                                                         {{-- Tombol Toggle Status --}}
@@ -315,7 +313,6 @@
                                         } else {
                                             form.action = '{{ route("users.bulkToggleStatus") }}';
                                             form.method = 'POST';
-                                            // Remove _method field if it exists
                                             let methodField = form.querySelector('input[name="_method"]');
                                             if (methodField) {
                                                 form.removeChild(methodField);

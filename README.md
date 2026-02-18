@@ -100,7 +100,7 @@ Pastikan kedua modul berjalan (status berwarna hijau) sebelum melanjutkan instal
     Buka file `.env` dan konfigurasikan pengaturan lingkungan Anda. Berikut adalah beberapa variabel penting yang perlu Anda perhatikan untuk konteks lokal Indonesia:
 
     *   `APP_NAME`: Nama aplikasi Anda (misalnya, "Absensi Sekolah").
-    *   `APP_URL`: URL dasar aplikasi Anda. Jika Anda menjalankan di lingkungan lokal, ini bisa `http://localhost:8000` (jika menggunakan `php artisan serve`) atau `http://127.0.0.1:8000`.
+    *   `APP_URL`: URL dasar aplikasi Anda. Jika Anda menjalankan di lingkungan lokal, ini bisa `http://localhost:8000` (jika menggunakan `php artisan serve`   atau `http://127.0.0.1:8000`.
     *   `APP_DEBUG`: Setel ke `true` selama pengembangan untuk melihat pesan kesalahan yang detail. Setel ke `false` saat aplikasi sudah siap untuk produksi.
     *   `APP_LOCALE`: Atur ke `id` untuk bahasa Indonesia.
     *   `APP_FALLBACK_LOCALE`: Atur ke `id` sebagai bahasa cadangan.
@@ -171,12 +171,119 @@ Pastikan kedua modul berjalan (status berwarna hijau) sebelum melanjutkan instal
     atau
     `npm run build` # untuk produksi
 
+
 10. Jalankan Server Pengembangan:
 
     bash
     `php artisan serve`
 
     Aplikasi akan tersedia di `http://127.0.0.1:8000`.
+
+### Menjalankan Server Web di Linux
+
+Untuk pengguna Linux, ada beberapa cara untuk menjalankan server web:
+
+#### 1. Server Pengembangan Laravel (Disarankan untuk Pengembangan)
+
+Cara termudah untuk menjalankan aplikasi Laravel untuk pengembangan adalah menggunakan server bawaan PHP:
+
+bash
+`php artisan serve`
+
+Ini akan memulai server pengembangan lokal di `http://127.0.0.1:8000`. Anda bisa mengakses aplikasi melalui browser web Anda.
+
+#### 2. Menggunakan XAMPP (Jika Terinstal)
+
+Jika Anda telah menginstal XAMPP di Linux, Anda bisa memulai layanan Apache dan MySQL melalui terminal:
+
+bash
+`sudo /opt/lampp/lampp start`
+
+Kemudian, pastikan proyek Anda ditempatkan di direktori `htdocs` XAMPP (misalnya, `/opt/lampp/htdocs/absensi-sekolah`). Anda bisa mengaksesnya melalui `http://localhost/absensi-sekolah`.
+
+#### 3. Menggunakan Apache atau Nginx (Untuk Produksi atau Lingkungan Mirip Produksi)
+
+Untuk lingkungan produksi atau jika Anda ingin menggunakan server web yang lebih lengkap seperti Apache atau Nginx, Anda perlu mengkonfigurasinya secara manual.
+
+**Contoh untuk Apache:**
+
+1.  Pastikan Apache dan PHP-FPM terinstal.
+2.  Buat file konfigurasi virtual host baru (misalnya, `/etc/apache2/sites-available/absensi-sekolah.conf`):
+
+    apacheconf
+    `<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /home/ruanmei/Dokumen/xampp/htdocs/absensi-sekolah/public
+        <Directory /home/ruanmei/Dokumen/xampp/htdocs/absensi-sekolah/public>
+            Options Indexes FollowSymLinks
+            AllowOverride All
+            Require all granted
+        </Directory>
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>`
+
+    Sesuaikan `DocumentRoot` dan path direktori dengan lokasi proyek Anda.
+
+3.  Aktifkan virtual host dan restart Apache:
+
+    bash
+    `sudo a2ensite absensi-sekolah.conf`
+    `sudo a2enmod rewrite`
+    `sudo systemctl restart apache2`
+
+**Contoh untuk Nginx:**
+
+1.  Pastikan Nginx dan PHP-FPM terinstal.
+2.  Buat file konfigurasi server baru (misalnya, `/etc/nginx/sites-available/absensi-sekolah`):
+
+    nginx
+    `server {
+        listen 80;
+        server_name your_domain.com www.your_domain.com; # Ganti dengan domain atau IP Anda
+        root /home/ruanmei/Dokumen/xampp/htdocs/absensi-sekolah/public;
+
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-XSS-Protection "1; mode=block";
+        add_header X-Content-Type-Options "nosniff";
+        add_header Referrer-Policy "origin-when-cross-origin";
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";
+
+        index index.html index.htm index.php;
+
+        charset utf-8;
+
+        location / {
+            try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        location = /favicon.ico { access_log off; log_not_found off; }
+        location = /robots.txt  { access_log off; log_not_found off; }
+
+        error_page 404 /index.php;
+
+        location ~ \.php$ {
+            fastcgi_pass unix:/var/run/php/php8.2-fpm.sock; # Sesuaikan dengan versi PHP-FPM Anda
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+            include fastcgi_params;
+        }
+
+        location ~ /\.(?!well-known).* {
+            deny all;
+        }
+    }`
+
+    Sesuaikan `root`, `server_name`, dan `fastcgi_pass` dengan konfigurasi Anda.
+
+3.  Aktifkan konfigurasi dan restart Nginx:
+
+    bash
+    `sudo ln -s /etc/nginx/sites-available/absensi-sekolah /etc/nginx/sites-enabled/`
+    `sudo systemctl restart nginx`
+
+Pilih metode yang paling sesuai dengan kebutuhan Anda. Untuk pengembangan cepat, `php artisan serve` adalah yang paling direkomendasikan.
 
 ## Learning Laravel
 

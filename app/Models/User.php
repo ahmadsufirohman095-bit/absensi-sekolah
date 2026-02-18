@@ -182,6 +182,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if the user has the 'siswa' role.
+     *
+     * @return bool
+     */
+    public function isSiswa(): bool
+    {
+        return $this->hasRole('siswa');
+    }
+
+    /**
      * Check if the user has the 'tu' role.
      *
      * @return bool

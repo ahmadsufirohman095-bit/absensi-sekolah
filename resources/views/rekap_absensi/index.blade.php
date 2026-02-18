@@ -398,6 +398,6 @@
     </div>
 
     @push('scripts')
-        @vite('resources/js/tableDragScroll.js')
+        
     @endpush
 </x-app-layout>

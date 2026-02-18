@@ -73,7 +73,7 @@ class RekapAbsensiPegawaiController extends Controller
 
         // Calculate summary statistics
         $summaryQuery = clone $query; // Clone the query to avoid interfering with pagination
-        $summary = $summaryQuery->select('status', DB::raw('count(*) as total'))
+        $summary = $summaryQuery->reorder()->select('status', DB::raw('count(*) as total'))
                                 ->groupBy('status')
                                 ->pluck('total', 'status')
                                 ->toArray();

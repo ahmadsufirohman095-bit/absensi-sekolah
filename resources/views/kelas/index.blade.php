@@ -125,12 +125,7 @@
                                                             </svg>
                                                             <span>Edit</span>
                                                         </a>
-                                                        <a href="{{ route('kelas.printCards', ['kelas_id' => $item->id]) }}" target="_blank" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" role="menuitem">
-                                                            <svg class="mr-3 h-5 w-5 text-purple-500" xmlns="http://www.w3.org/20.svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l-3-3m0 0l3-3m-3 3h6" />
-                                                            </svg>
-                                                            <span>Cetak Kartu</span>
-                                                        </a>
+
                                                         <button type="button" @click="confirmDelete = true; open = false"
                                                             class="w-full text-left flex items-center px-4 py-2 text-sm text-red-700 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600"
                                                             :class="{'opacity-50 cursor-not-allowed': {{ $item->siswa_profiles_count }} > 0}"

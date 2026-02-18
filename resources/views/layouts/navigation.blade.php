@@ -155,7 +155,7 @@
 
             @php
                 $pengaturanUtilitasActive = request()->routeIs('pengaturan.index') ||
-                                            request()->routeIs('print-cards.index') ||
+                                            request()->routeIs('users.qr-generator') ||
                                             request()->routeIs('pengaturan.faq');
             @endphp
             <x-side-nav-dropdown :sidebarOpen="$sidebarOpen" :hasActiveLink="$pengaturanUtilitasActive" id="pengaturan-utilitas">
@@ -172,12 +172,11 @@
                         </x-slot>
                         {{ __('Pengaturan') }}
                     </x-side-nav-link>
-
-                    <x-side-nav-link :href="route('print-cards.index')" :active="request()->routeIs('print-cards.index')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                    <x-side-nav-link :href="route('users.qr-generator')" :active="request()->routeIs('users.qr-generator')" :sidebarOpen="$sidebarOpen" class="pl-4">
                         <x-slot name="icon">
-                            <i class="fas fa-id-card w-6 h-6 flex items-center justify-center"></i>
+                            <i class="fas fa-qrcode w-6 h-6 flex items-center justify-center"></i>
                         </x-slot>
-                        {{ __('Cetak Kartu Absensi') }}
+                        {{ __('Generate QR Codes') }}
                     </x-side-nav-link>
                     {{-- Tautan FAQ untuk semua peran terotentikasi, di bagian paling bawah --}}
                     @if(in_array(auth()->user()->role, ['admin', 'guru', 'siswa']))

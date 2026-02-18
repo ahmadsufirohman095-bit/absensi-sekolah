@@ -107,7 +107,7 @@ class RekapAbsensiController extends Controller
 
         // Calculate summary statistics
         $summaryQuery = clone $query; // Clone the query to avoid interfering with pagination
-        $summary = $summaryQuery->select('status', DB::raw('count(*) as total'))
+        $summary = $summaryQuery->reorder()->select('status', DB::raw('count(*) as total'))
                                 ->groupBy('status')
                                 ->pluck('total', 'status')
                                 ->toArray();
@@ -316,7 +316,7 @@ class RekapAbsensiController extends Controller
 
         // Hitung rekapitulasi status absensi dari seluruh data yang difilter (sebelum pagination)
         $summaryQuery = clone $query;
-        $summary = $summaryQuery->select('status', DB::raw('count(*) as total'))
+        $summary = $summaryQuery->reorder()->select('status', DB::raw('count(*) as total'))
                                 ->groupBy('status')
                                 ->pluck('total', 'status');
 

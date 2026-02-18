@@ -15,19 +15,17 @@ use App\Exports\UsersTemplateExport;
 use App\Imports\UsersImport;
 use App\Models\MataPelajaran;
 use Illuminate\Support\Facades\DB;
-use App\Notifications\AccountStatusChangedNotification; // Import notifikasi
-use App\Models\PrintCardConfig; // Add this import
+use App\Notifications\AccountStatusChangedNotification;
 use Carbon\Carbon;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        // Mulai query dan langsung muat relasi yang dibutuhkan
         $query = User::where('id', '!=', auth()->id())
                      ->with(['adminProfile', 'guruProfile', 'siswaProfile.kelas']);
 
-        // Filter berdasarkan pencarian nama, email, atau ID
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -37,31 +35,24 @@ class UserController extends Controller
             });
         }
 
-        // Filter berdasarkan role
         if ($request->filled('role')) {
             $query->where('role', $request->role);
         }
 
-        // --- LOGIKA BARU: Filter berdasarkan kelas_id ---
         $kelasFilter = null;
         if ($request->filled('kelas_id')) {
             $query->whereHas('siswaProfile', function ($q) use ($request) {
                 $q->where('kelas_id', $request->kelas_id);
             });
-            // Ambil data kelas untuk ditampilkan di view
             $kelasFilter = Kelas::find($request->kelas_id);
         }
         
         $users = $query->latest('created_at')->paginate(50);
         $allKelas = Kelas::orderBy('nama_kelas')->get();
         
-        // Kirim data ke view
         return view('users.index', compact('users', 'kelasFilter', 'allKelas'));
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(User $user)
     {
         switch ($user->role) {
@@ -84,252 +75,24 @@ class UserController extends Controller
         return view('users.show', compact('user'));
     }
 
-    public function create()
-    {
-        // PERBAIKAN: Mengambil data kelas untuk dropdown di form
-        $kelas = Kelas::orderBy('nama_kelas')->get();
-
-        // TAMBAHKAN: Mengambil daftar semua mata pelajaran untuk form
-        $mataPelajaranList = \App\Models\MataPelajaran::orderBy('nama_mapel')->get();
-
-        $user = new User(); // Inisialisasi $user sebagai instance baru User untuk mencegah error null
-
-        return view('users.create', compact('kelas', 'mataPelajaranList', 'user'));
-    }
-
-    public function store(Request $request)
-    {
-        \Log::info('UserController@store: Memulai proses penambahan user.');
-
-        $rules = [
-            'name' => ['required', 'string', 'max:255'],
-            'username' => [
-                'required', 'string', 'max:255',
-                \Illuminate\Validation\Rule::unique('users', 'username')->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                }),
-            ],
-            'identifier' => [
-                'required', 'string', 'max:255',
-                \Illuminate\Validation\Rule::unique('users', 'identifier')->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                }),
-            ],
-            'email' => [
-                'required', 'string', 'email', 'max:255',
-                \Illuminate\Validation\Rule::unique('users', 'email')->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                }),
-            ],
-            'role' => ['required', Rule::in(['admin', 'guru', 'siswa', 'tu', 'other'])],
-            'custom_role_name' => ['nullable', 'string', 'max:255', 'required_if:role,other'],
-            'password' => ['required', 'confirmed', ValidationRules\Password::min(8)],
-            'is_active' => ['boolean'],
-        ];
-
-        // Add role-specific validation rules
-        if ($request->role === 'admin') {
-            $rules['admin_jabatan'] = ['nullable', 'string', 'max:255'];
-            $rules['admin_telepon'] = ['nullable', 'string', 'max:255'];
-            $rules['admin_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
-            $rules['tanggal_lahir'] = ['nullable', 'date'];
-            $rules['admin_tempat_lahir'] = ['nullable', 'string', 'max:255'];
-            $rules['admin_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
-        } elseif ($request->role === 'tu') {
-            $rules['tu_jabatan'] = ['nullable', 'string', 'max:255'];
-            $rules['tu_telepon'] = ['nullable', 'string', 'max:255'];
-            $rules['tu_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
-            $rules['tu_tanggal_lahir'] = ['nullable', 'date'];
-            $rules['tu_tempat_lahir'] = ['nullable', 'string', 'max:255'];
-            $rules['tu_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
-        } elseif ($request->role === 'other') {
-            $rules['other_jabatan'] = ['nullable', 'string', 'max:255'];
-            $rules['other_telepon'] = ['nullable', 'string', 'max:255'];
-            $rules['other_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
-            $rules['other_tanggal_lahir'] = ['nullable', 'date'];
-            $rules['other_tempat_lahir'] = ['nullable', 'string', 'max:255'];
-            $rules['other_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
-            $rules['alamat'] = ['nullable', 'string'];
-        } elseif ($request->role === 'guru') {
-            $rules['guru_jabatan'] = ['nullable', 'string', 'max:255'];
-            $rules['guru_telepon'] = ['nullable', 'string', 'max:255'];
-            $rules['guru_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
-            $rules['guru_tanggal_lahir'] = ['nullable', 'date'];
-            $rules['alamat'] = ['nullable', 'string'];
-            $rules['guru_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
-            $rules['guru_tempat_lahir'] = ['nullable', 'string', 'max:255'];
-        } elseif ($request->role === 'siswa') {
-            $rules['kelas_id'] = ['nullable', 'exists:kelas,id'];
-            $rules['siswa_tanggal_lahir'] = ['nullable', 'date'];
-            $rules['alamat'] = ['nullable', 'string'];
-            $rules['nama_ayah'] = ['nullable', 'string', 'max:255'];
-            $rules['nama_ibu'] = ['nullable', 'string', 'max:255'];
-            $rules['telepon_ayah'] = ['nullable', 'string', 'max:255'];
-            $rules['telepon_ibu'] = ['nullable', 'string', 'max:255'];
-            $rules['siswa_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
-            $rules['siswa_tempat_lahir'] = ['nullable', 'string', 'max:255'];
-            $rules['siswa_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
-        }
-
-        $validatedData = $request->validate($rules);
-
-        \Log::info('UserController@store: Data tervalidasi.', ['validatedData' => $validatedData]);
-
-        try {
-            DB::transaction(function () use ($validatedData, $request) {
-                \Log::info('UserController@store: Memulai transaksi database.');
-
-                $user = User::create([
-                    'name' => $validatedData['name'],
-                    'username' => $validatedData['username'],
-                    'identifier' => $validatedData['identifier'],
-                    'email' => $validatedData['email'],
-                    'role' => $validatedData['role'],
-                    'custom_role' => $validatedData['role'] === 'other' ? $validatedData['custom_role_name'] : null, // Simpan peran kustom jika role 'other'
-                    'password' => Hash::make($validatedData['password']),
-                    'is_active' => $validatedData['is_active'] ?? true, // Set default true jika tidak ada
-                ]);
-
-                \Log::info('UserController@store: User utama berhasil dibuat dalam transaksi.', ['user_id' => $user->id, 'role' => $user->role]);
-
-                $profileData = [];
-                $fotoPath = null;
-
-                switch ($user->role) {
-                    case 'admin':
-                        $profileData = [
-                            'jabatan' => $validatedData['admin_jabatan'] ?? null,
-                            'telepon' => $validatedData['admin_telepon'] ?? null,
-                            'tanggal_bergabung' => $user->created_at,
-                            'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null,
-                            'tempat_lahir' => $validatedData['admin_tempat_lahir'] ?? null,
-                            'jenis_kelamin' => $validatedData['admin_jenis_kelamin'] ?? null,
-                        ];
-                        if ($request->hasFile('admin_foto')) {
-                            $fotoPath = $request->file('admin_foto')->store('fotos', 'public');
-                        }
-                        break;
-                    case 'tu':
-                         $profileData = [
-                            'jabatan' => $validatedData['tu_jabatan'] ?? null,
-                            'telepon' => $validatedData['tu_telepon'] ?? null,
-                            'tanggal_bergabung' => $user->created_at,
-                            'tanggal_lahir' => $validatedData['tu_tanggal_lahir'] ?? null,
-                            'tempat_lahir' => $validatedData['tu_tempat_lahir'] ?? null,
-                            'jenis_kelamin' => $validatedData['tu_jenis_kelamin'] ?? null,
-                        ];
-                        if ($request->hasFile('tu_foto')) {
-                            $fotoPath = $request->file('tu_foto')->store('fotos', 'public');
-                        }
-                        break;
-                    case 'guru':
-                        $profileData = [
-                            'jabatan' => $validatedData['guru_jabatan'] ?? null,
-                            'telepon' => $validatedData['guru_telepon'] ?? null,
-                            'tanggal_lahir' => $validatedData['guru_tanggal_lahir'] ?? null,
-                            'alamat' => $validatedData['alamat'] ?? null,
-                            'jenis_kelamin' => $validatedData['guru_jenis_kelamin'] ?? null,
-                            'tempat_lahir' => $validatedData['guru_tempat_lahir'] ?? null,
-                        ];
-                        if ($request->hasFile('guru_foto')) {
-                            $fotoPath = $request->file('guru_foto')->store('fotos', 'public');
-                            \Log::info('UserController@store: Foto guru diupload dalam transaksi.', ['path' => $fotoPath]);
-                        }
-                        break;
-                    case 'siswa':
-                        $profileData = [
-                            'kelas_id' => $validatedData['kelas_id'] ?? null,
-                            'nis' => $validatedData['identifier'],
-                            'nama_lengkap' => $validatedData['name'],
-                            'tanggal_lahir' => $validatedData['siswa_tanggal_lahir'] ?? null,
-                            'alamat' => $validatedData['alamat'] ?? null,
-                            'nama_ayah' => $validatedData['nama_ayah'] ?? null,
-                            'nama_ibu' => $validatedData['nama_ibu'] ?? null,
-                            'telepon_ayah' => $validatedData['telepon_ayah'] ?? null,
-                            'telepon_ibu' => $validatedData['telepon_ibu'] ?? null,
-                            'jenis_kelamin' => $validatedData['siswa_jenis_kelamin'] ?? null,
-                            'tempat_lahir' => $validatedData['siswa_tempat_lahir'] ?? null,
-                        ];
-                        if ($request->hasFile('siswa_foto')) {
-                            $fotoPath = $request->file('siswa_foto')->store('fotos', 'public');
-                            \Log::info('UserController@store: Foto siswa diupload dalam transaksi.', ['path' => $fotoPath]);
-                        }
-                        break;
-                    case 'other':
-                        $profileData = [
-                            'jabatan' => $validatedData['other_jabatan'] ?? null,
-                            'telepon' => $validatedData['other_telepon'] ?? null,
-                            'tanggal_bergabung' => $user->created_at,
-                            'tanggal_lahir' => $validatedData['other_tanggal_lahir'] ?? null,
-                            'tempat_lahir' => $validatedData['other_tempat_lahir'] ?? null,
-                            'jenis_kelamin' => $validatedData['other_jenis_kelamin'] ?? null,
-                            'alamat' => $validatedData['alamat'] ?? null,
-                        ];
-                        if ($request->hasFile('other_foto')) {
-                            $fotoPath = $request->file('other_foto')->store('fotos', 'public');
-                        }
-                        break;
-                }
-
-                if ($fotoPath) {
-                    $profileData['foto'] = $fotoPath;
-                }
-                \Log::info('UserController@store: Data profil disiapkan dalam transaksi.', ['profileData' => $profileData]);
-
-                if (!empty($profileData)) {
-                    switch ($user->role) {
-                        case 'admin':
-                            $user->adminProfile()->create($profileData);
-                            \Log::info('UserController@store: Profil admin dibuat dalam transaksi.');
-                            break;
-                        case 'tu':
-                            $user->tuProfile()->create($profileData);
-                            \Log::info('UserController@store: Profil TU dibuat dalam transaksi.');
-                            break;
-                        case 'guru':
-                            $user->guruProfile()->create($profileData);
-                            $user->mataPelajarans()->sync($request->input('mata_pelajaran_ids', []));
-                            \Log::info('UserController@store: Profil guru dibuat dan mata pelajaran disinkronkan dalam transaksi.');
-                            break;
-                        case 'siswa':
-                            $user->siswaProfile()->create($profileData);
-                            \Log::info('UserController@store: Profil siswa dibuat dalam transaksi.');
-                            break;
-                        case 'other':
-                            $user->otherProfile()->create($profileData);
-                            \Log::info('UserController@store: Profil kustom (other) dibuat dalam transaksi.');
-                            break;
-                    }
-                }
-                \Log::info('UserController@store: Transaksi database selesai.');
-            });
-        } catch (\Exception $e) {
-            \Log::error('UserController@store: Error saat membuat user atau profil: ' . $e->getMessage(), ['exception' => $e]);
-            return back()->withInput()->with('error', 'Terjadi kesalahan saat menambahkan user: ' . $e->getMessage());
-        }
-
-        \Log::info('UserController@store: User berhasil ditambahkan, mengarahkan ke halaman index.');
-        return redirect()->route('users.index')->with('success', 'User baru berhasil ditambahkan.');
-    }
-
     public function edit(User $user)
     {
-        // Muat profil spesifik berdasarkan peran user
-        if ($user->role === 'admin' || $user->role === 'tu') {
-            $user->load('adminProfile');
-        } elseif ($user->role === 'guru') {
-            $user->load(['guruProfile', 'mataPelajarans']);
-            \Log::info('UserController@edit: User Guru dimuat.', [
-                'user_id' => $user->id,
-                'guruProfile_exists' => $user->guruProfile ? 'Yes' : 'No',
-                'guruProfile_data' => $user->guruProfile ? $user->guruProfile->toArray() : null,
-                'mataPelajarans_exists' => $user->mataPelajarans ? 'Yes' : 'No',
-                'mataPelajarans_ids' => $user->mataPelajarans ? $user->mataPelajarans->pluck('id')->toArray() : null
-            ]);
-        } elseif ($user->role === 'siswa') {
-            $user->load(['siswaProfile', 'siswaProfile.kelas']);
-        } elseif ($user->role === 'other') {
-            $user->load('otherProfile'); // Muat otherProfile jika peran adalah 'other'
+        switch ($user->role) {
+            case 'admin':
+                $user->load('adminProfile');
+                break;
+            case 'guru':
+                $user->load(['guruProfile', 'mataPelajarans']);
+                break;
+            case 'siswa':
+                $user->load(['siswaProfile', 'siswaProfile.kelas']);
+                break;
+            case 'tu':
+                $user->load('tuProfile');
+                break;
+            case 'other':
+                $user->load('otherProfile');
+                break;
         }
 
         $kelas = Kelas::orderBy('nama_kelas')->get();
@@ -338,69 +101,28 @@ class UserController extends Controller
         return view('users.edit', compact('user', 'kelas', 'mataPelajaranList'));
     }
 
-    public function update(Request $request, User $user)
+    public function create()
     {
-        \Log::info('UserController@update: Request has admin_foto: ' . $request->hasFile('admin_foto'));
-        
-        // 1. Validate all incoming data
+        $kelas = Kelas::orderBy('nama_kelas')->get();
+        $mataPelajaranList = \App\Models\MataPelajaran::orderBy('nama_mapel')->get();
+        $user = new User();
+        return view('users.create', compact('kelas', 'mataPelajaranList', 'user'));
+    }
+
+    public function store(Request $request)
+    {
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'username' => [
-                'required', 'string', 'max:255',
-                Rule::unique('users', 'username')->ignore($user->id)->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                }),
-            ],
-            'identifier' => [
-                'required', 'string', 'max:255',
-                Rule::unique('users', 'identifier')->ignore($user->id)->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                }),
-            ],
-            'email' => [
-                'required', 'string', 'email', 'max:255',
-                Rule::unique('users', 'email')->ignore($user->id)->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                }),
-            ],
+            'username' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('users', 'username')->whereNull('deleted_at')],
+            'identifier' => ['required', 'string', 'max:255', \Illuminate\Validation\Rule::unique('users', 'identifier')->whereNull('deleted_at')],
+            'email' => ['required', 'string', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->whereNull('deleted_at')],
             'role' => ['required', Rule::in(['admin', 'guru', 'siswa', 'tu', 'other'])],
-            'custom_role_name' => ['nullable', 'string', 'max:255', 'required_if:role,other'], // Validasi untuk peran kustom
-            'password' => ['nullable', 'confirmed', ValidationRules\Password::min(8)],
-            'jenis_kelamin' => ['nullable', Rule::in(['laki-laki', 'perempuan'])], // Ditambahkan di sini
+            'custom_role_name' => ['nullable', 'string', 'max:255', 'required_if:role,other'],
+            'password' => ['required', 'confirmed', ValidationRules\Password::min(8)],
+            'is_active' => ['boolean'],
         ];
 
-        // Add role-specific validation rules
-        if ($request->role === 'admin') {
-            $rules['admin_jabatan'] = ['nullable', 'string', 'max:255'];
-            $rules['admin_telepon'] = ['nullable', 'string', 'max:255'];
-            $rules['admin_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
-            $rules['tanggal_lahir'] = ['nullable', 'date'];
-            $rules['admin_tempat_lahir'] = ['nullable', 'string', 'max:255'];
-            $rules['admin_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
-        } elseif ($request->role === 'tu') {
-            $rules['tu_jabatan'] = ['nullable', 'string', 'max:255'];
-            $rules['tu_telepon'] = ['nullable', 'string', 'max:255'];
-            $rules['tu_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
-            $rules['tu_tanggal_lahir'] = ['nullable', 'date'];
-            $rules['tu_tempat_lahir'] = ['nullable', 'string', 'max:255'];
-            $rules['tu_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
-        } elseif ($request->role === 'other') {
-            $rules['other_jabatan'] = ['nullable', 'string', 'max:255'];
-            $rules['other_telepon'] = ['nullable', 'string', 'max:255'];
-            $rules['other_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
-            $rules['other_tanggal_lahir'] = ['nullable', 'date'];
-            $rules['other_tempat_lahir'] = ['nullable', 'string', 'max:255'];
-            $rules['other_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
-            $rules['alamat'] = ['nullable', 'string'];
-        } elseif ($request->role === 'guru') {
-            $rules['guru_jabatan'] = ['nullable', 'string', 'max:255'];
-            $rules['guru_telepon'] = ['nullable', 'string', 'max:255'];
-            $rules['guru_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
-            $rules['guru_tanggal_lahir'] = ['nullable', 'date'];
-            $rules['alamat'] = ['nullable', 'string'];
-            $rules['guru_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
-            $rules['guru_tempat_lahir'] = ['nullable', 'string', 'max:255'];
-        } elseif ($request->role === 'siswa') {
+        if ($request->role === 'siswa') {
             $rules['kelas_id'] = ['nullable', 'exists:kelas,id'];
             $rules['siswa_tanggal_lahir'] = ['nullable', 'date'];
             $rules['alamat'] = ['nullable', 'string'];
@@ -411,159 +133,238 @@ class UserController extends Controller
             $rules['siswa_foto'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'];
             $rules['siswa_tempat_lahir'] = ['nullable', 'string', 'max:255'];
             $rules['siswa_jenis_kelamin'] = ['nullable', Rule::in(['laki-laki', 'perempuan'])];
-            $rules['is_active'] = ['boolean'];
         }
-        // Tidak ada aturan validasi khusus untuk peran 'other' secara default, tetapi custom_role_name divalidasi di atas
 
         $validatedData = $request->validate($rules);
-        \Log::info('UserController@update: Data tervalidasi.', ['validatedData' => $validatedData]);
 
-        // 2. Update User model's core data
-        $user->update($request->only('name', 'username', 'identifier', 'email', 'role', 'is_active'));
+        try {
+            DB::transaction(function () use ($validatedData, $request) {
+                $user = User::create([
+                    'name' => $validatedData['name'],
+                    'username' => $validatedData['username'],
+                    'identifier' => $validatedData['identifier'],
+                    'email' => $validatedData['email'],
+                    'role' => $validatedData['role'],
+                    'custom_role' => $validatedData['role'] === 'other' ? $validatedData['custom_role_name'] : null,
+                    'password' => Hash::make($validatedData['password']),
+                    'is_active' => $validatedData['is_active'] ?? true,
+                ]);
 
-        // Update custom_role if the role is 'other'
-        if ($request->role === 'other') {
-            $user->custom_role = $validatedData['custom_role_name'];
-        } else {
-            $user->custom_role = null; // Clear custom_role if role is not 'other'
-        }
-        $user->save();
+                $profileData = [];
+                $fotoPath = null;
 
-        if ($request->filled('password')) {
-            \Log::info('UserController@update: Bidang password diisi, mencoba memperbarui password secara langsung di DB.');
-            DB::table('users')->where('id', $user->id)->update(['password' => Hash::make($request->password)]);
-            \Log::info('UserController@update: Password seharusnya sudah diperbarui melalui DB::table.');
-        }
+                if ($user->role === 'siswa') {
+                    $profileData = [
+                        'kelas_id' => $validatedData['kelas_id'] ?? null,
+                        'nis' => $validatedData['identifier'],
+                        'nama_lengkap' => $validatedData['name'],
+                        'tanggal_lahir' => $validatedData['siswa_tanggal_lahir'] ?? null,
+                        'alamat' => $validatedData['alamat'] ?? null,
+                        'nama_ayah' => $validatedData['nama_ayah'] ?? null,
+                        'nama_ibu' => $validatedData['nama_ibu'] ?? null,
+                        'telepon_ayah' => $validatedData['telepon_ayah'] ?? null,
+                        'telepon_ibu' => $validatedData['telepon_ibu'] ?? null,
+                        'jenis_kelamin' => $validatedData['siswa_jenis_kelamin'] ?? null,
+                        'tempat_lahir' => $validatedData['siswa_tempat_lahir'] ?? null,
+                    ];
+                    if ($request->hasFile('siswa_foto')) {
+                        $fotoPath = $request->file('siswa_foto')->store('fotos', 'public');
+                    }
+                }
 
-        // 3. Prepare profile data based on role
-        $profileData = [];
-        $currentProfile = null; // To store the current profile model (adminProfile, guruProfile, siswaProfile)
-        $fotoPath = null;
+                if ($fotoPath) {
+                    $profileData['foto'] = $fotoPath;
+                }
 
-        switch ($user->role) {
-            case 'admin':
-                $profileData = [
-                    'jabatan' => $validatedData['admin_jabatan'] ?? null,
-                    'telepon' => $validatedData['admin_telepon'] ?? null,
-                    'jenis_kelamin' => $validatedData['admin_jenis_kelamin'] ?? null,
-                    'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null,
-                    'tempat_lahir' => $validatedData['admin_tempat_lahir'] ?? null,
-                ];
-                $currentProfile = $user->adminProfile;
-                if ($request->hasFile('admin_foto')) {
-                    $fotoPath = $request->file('admin_foto')->store('fotos', 'public');
+                if (!empty($profileData)) {
+                    if ($user->role === 'siswa') {
+                        $user->siswaProfile()->create($profileData);
+                    }
                 }
-                break;
-            case 'tu':
-                $profileData = [
-                    'jabatan' => $validatedData['tu_jabatan'] ?? null,
-                    'telepon' => $validatedData['tu_telepon'] ?? null,
-                    'jenis_kelamin' => $validatedData['tu_jenis_kelamin'] ?? null,
-                    'tanggal_lahir' => $validatedData['tu_tanggal_lahir'] ?? null,
-                    'tempat_lahir' => $validatedData['tu_tempat_lahir'] ?? null,
-                ];
-                $currentProfile = $user->tuProfile;
-                if ($request->hasFile('tu_foto')) {
-                    $fotoPath = $request->file('tu_foto')->store('fotos', 'public');
-                }
-                break;
-            case 'guru':
-                $profileData = [
-                    'jabatan' => $validatedData['guru_jabatan'] ?? null,
-                    'telepon' => $validatedData['guru_telepon'] ?? null,
-                    'tanggal_lahir' => $validatedData['guru_tanggal_lahir'] ?? null,
-                    'alamat' => $validatedData['alamat'] ?? null,
-                    'jenis_kelamin' => $validatedData['guru_jenis_kelamin'] ?? null,
-                    'tempat_lahir' => $validatedData['guru_tempat_lahir'] ?? null,
-                ];
-                $currentProfile = $user->guruProfile;
-                if ($request->hasFile('guru_foto')) {
-                    $fotoPath = $request->file('guru_foto')->store('fotos', 'public');
-                }
-                break;
-            case 'siswa':
-                $profileData = [
-                    'kelas_id' => $validatedData['kelas_id'] ?? null,
-                    'nis' => $validatedData['identifier'], // NIS diambil dari identifier
-                    'nama_lengkap' => $validatedData['name'], // Menggunakan nama dari user
-                    'tanggal_lahir' => $validatedData['siswa_tanggal_lahir'] ?? null,
-                    'alamat' => $validatedData['alamat'] ?? null,
-                    'nama_ayah' => $validatedData['nama_ayah'] ?? null,
-                    'nama_ibu' => $validatedData['nama_ibu'] ?? null,
-                    'telepon_ayah' => $validatedData['telepon_ayah'] ?? null,
-                    'telepon_ibu' => $validatedData['telepon_ibu'] ?? null,
-                    'jenis_kelamin' => $validatedData['siswa_jenis_kelamin'] ?? null,
-                    'tempat_lahir' => $validatedData['siswa_tempat_lahir'] ?? null,
-                ];
-                $currentProfile = $user->siswaProfile;
-                if ($request->hasFile('siswa_foto')) {
-                    $fotoPath = $request->file('siswa_foto')->store('fotos', 'public');
-                }
-                break;
-            case 'other':
-                $profileData = [
-                    'jabatan' => $validatedData['other_jabatan'] ?? null,
-                    'telepon' => $validatedData['other_telepon'] ?? null,
-                    'jenis_kelamin' => $validatedData['other_jenis_kelamin'] ?? null,
-                    'tanggal_lahir' => $validatedData['other_tanggal_lahir'] ?? null,
-                    'tempat_lahir' => $validatedData['other_tempat_lahir'] ?? null,
-                    'alamat' => $validatedData['alamat'] ?? null,
-                ];
-                $currentProfile = $user->otherProfile;
-                if ($request->hasFile('other_foto')) {
-                    $fotoPath = $request->file('other_foto')->store('fotos', 'public');
-                }
-                break;
+            });
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menambahkan user: ' . $e->getMessage());
         }
 
-        // 4. Handle photo upload (delete old and set new path)
-        if ($fotoPath) {
-            if ($currentProfile && $currentProfile->foto) {
-                Storage::disk('public')->delete($currentProfile->foto);
-            }
-            $profileData['foto'] = $fotoPath;
-            \Log::info('Foto diupload: ' . $fotoPath);
-        } else {
-            // If no new photo uploaded, retain the existing photo path if any
-            if ($currentProfile && $currentProfile->foto) {
-                $profileData['foto'] = $currentProfile->foto;
-                \Log::info('Foto lama dipertahankan: ' . $currentProfile->foto);
-            } else {
-                // If no new photo and no old photo, ensure 'foto' is null in profileData
-                $profileData['foto'] = null;
-            }
+        return redirect()->route('users.index')->with('success', 'User baru berhasil ditambahkan.');
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $rules = [
+            'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)->whereNull('deleted_at')],
+            'identifier' => ['required', 'string', 'max:255', Rule::unique('users', 'identifier')->ignore($user->id)->whereNull('deleted_at')],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)->whereNull('deleted_at')],
+            'role' => ['required', Rule::in(['admin', 'guru', 'siswa', 'tu', 'other'])],
+            'password' => ['nullable', 'confirmed', ValidationRules\Password::min(8)],
+            'is_active' => ['boolean'],
+        ];
+
+        // Add validation for profile fields based on role
+        if ($request->role === 'admin') {
+            $rules += [
+                'admin_jabatan' => ['nullable', 'string', 'max:255'],
+                'admin_telepon' => ['nullable', 'string', 'max:255'],
+                'tanggal_lahir' => ['nullable', 'date'],
+                'admin_tempat_lahir' => ['nullable', 'string', 'max:255'],
+                'admin_jenis_kelamin' => ['nullable', Rule::in(['laki-laki', 'perempuan'])],
+                'admin_foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            ];
+        } elseif ($request->role === 'guru') {
+            $rules += [
+                'guru_jabatan' => ['nullable', 'string', 'max:255'],
+                'guru_telepon' => ['nullable', 'string', 'max:255'],
+                'guru_tanggal_lahir' => ['nullable', 'date'],
+                'guru_tempat_lahir' => ['nullable', 'string', 'max:255'],
+                'guru_jenis_kelamin' => ['nullable', Rule::in(['laki-laki', 'perempuan'])],
+                'alamat' => ['nullable', 'string'],
+                'guru_foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            ];
+        } elseif ($request->role === 'siswa') {
+            $rules += [
+                'kelas_id' => ['nullable', 'exists:kelas,id'],
+                'siswa_tanggal_lahir' => ['nullable', 'date'],
+                'siswa_tempat_lahir' => ['nullable', 'string', 'max:255'],
+                'siswa_jenis_kelamin' => ['nullable', Rule::in(['laki-laki', 'perempuan'])],
+                'nama_ayah' => ['nullable', 'string', 'max:255'],
+                'nama_ibu' => ['nullable', 'string', 'max:255'],
+                'telepon_ayah' => ['nullable', 'string', 'max:255'],
+                'telepon_ibu' => ['nullable', 'string', 'max:255'],
+                'alamat' => ['nullable', 'string'],
+                'siswa_foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            ];
+        } elseif ($request->role === 'tu') {
+            $rules += [
+                'tu_jabatan' => ['nullable', 'string', 'max:255'],
+                'tu_telepon' => ['nullable', 'string', 'max:255'],
+                'tu_tanggal_lahir' => ['nullable', 'date'],
+                'tu_tempat_lahir' => ['nullable', 'string', 'max:255'],
+                'tu_jenis_kelamin' => ['nullable', Rule::in(['laki-laki', 'perempuan'])],
+                'tu_foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            ];
+        } elseif ($request->role === 'other') {
+            $rules += [
+                'custom_role_name' => ['required', 'string', 'max:255'],
+                'other_jabatan' => ['nullable', 'string', 'max:255'],
+                'other_telepon' => ['nullable', 'string', 'max:255'],
+                'other_tanggal_lahir' => ['nullable', 'date'],
+                'other_tempat_lahir' => ['nullable', 'string', 'max:255'],
+                'other_jenis_kelamin' => ['nullable', Rule::in(['laki-laki', 'perempuan'])],
+                'alamat' => ['nullable', 'string'],
+                'other_foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            ];
         }
 
-        // 5. Update or Create the specific profile
-        if (!empty($profileData)) {
-            switch ($user->role) {
-                case 'admin':
-                    $user->adminProfile()->updateOrCreate([], $profileData);
-                    break;
-                case 'tu':
-                    $user->tuProfile()->updateOrCreate([], $profileData);
-                    break;
-                case 'guru':
-                    \Log::info('UserController@update: Memperbarui profil guru.', [
-                        'user_id' => $user->id,
-                        'profileData' => $profileData,
-                        'currentProfile_exists' => $currentProfile ? 'Yes' : 'No',
-                        'currentProfile_data' => $currentProfile ? $currentProfile->toArray() : null,
-                    ]);
-                    $user->guruProfile()->updateOrCreate([], $profileData);
-                    break;
-                case 'siswa':
-                    $user->siswaProfile()->updateOrCreate([], $profileData);
-                    break;
-                case 'other':
-                    $user->otherProfile()->updateOrCreate([], $profileData);
-                    break;
-            }
-        }
+        $validatedData = $request->validate($rules);
 
-        // LOGIKA BARU: Simpan relasi mata pelajaran untuk guru
-        if ($user->role === 'guru') {
-            $user->mataPelajarans()->sync($request->input('mata_pelajaran_ids', []));
+        try {
+            DB::transaction(function () use ($validatedData, $request, $user) {
+                $userData = [
+                    'name' => $validatedData['name'],
+                    'username' => $validatedData['username'],
+                    'identifier' => $validatedData['identifier'],
+                    'email' => $validatedData['email'],
+                    'role' => $validatedData['role'],
+                    'is_active' => $request->has('is_active') ? $validatedData['is_active'] : $user->is_active,
+                ];
+
+                if (!empty($validatedData['password'])) {
+                    $userData['password'] = Hash::make($validatedData['password']);
+                }
+
+                if ($validatedData['role'] === 'other') {
+                    $userData['custom_role'] = $validatedData['custom_role_name'];
+                }
+
+                $user->update($userData);
+
+                $profileData = [];
+                $profileRelation = null;
+                $photoField = null;
+
+                switch ($user->role) {
+                    case 'admin':
+                        $profileRelation = 'adminProfile';
+                        $photoField = 'admin_foto';
+                        $profileData = [
+                            'jabatan' => $validatedData['admin_jabatan'] ?? null,
+                            'telepon' => $validatedData['admin_telepon'] ?? null,
+                            'tanggal_lahir' => $validatedData['tanggal_lahir'] ?? null,
+                            'tempat_lahir' => $validatedData['admin_tempat_lahir'] ?? null,
+                            'jenis_kelamin' => $validatedData['admin_jenis_kelamin'] ?? null,
+                        ];
+                        break;
+                    case 'guru':
+                        $profileRelation = 'guruProfile';
+                        $photoField = 'guru_foto';
+                        $profileData = [
+                            'jabatan' => $validatedData['guru_jabatan'] ?? null,
+                            'telepon' => $validatedData['guru_telepon'] ?? null,
+                            'tanggal_lahir' => $validatedData['guru_tanggal_lahir'] ?? null,
+                            'tempat_lahir' => $validatedData['guru_tempat_lahir'] ?? null,
+                            'jenis_kelamin' => $validatedData['guru_jenis_kelamin'] ?? null,
+                            'alamat' => $validatedData['alamat'] ?? null,
+                        ];
+                        break;
+                    case 'siswa':
+                        $profileRelation = 'siswaProfile';
+                        $photoField = 'siswa_foto';
+                        $profileData = [
+                            'kelas_id' => $validatedData['kelas_id'] ?? null,
+                            'nis' => $validatedData['identifier'],
+                            'nama_lengkap' => $validatedData['name'],
+                            'tanggal_lahir' => $validatedData['siswa_tanggal_lahir'] ?? null,
+                            'tempat_lahir' => $validatedData['siswa_tempat_lahir'] ?? null,
+                            'jenis_kelamin' => $validatedData['siswa_jenis_kelamin'] ?? null,
+                            'nama_ayah' => $validatedData['nama_ayah'] ?? null,
+                            'nama_ibu' => $validatedData['nama_ibu'] ?? null,
+                            'telepon_ayah' => $validatedData['telepon_ayah'] ?? null,
+                            'telepon_ibu' => $validatedData['telepon_ibu'] ?? null,
+                            'alamat' => $validatedData['alamat'] ?? null,
+                        ];
+                        break;
+                    case 'tu':
+                        $profileRelation = 'tuProfile';
+                        $photoField = 'tu_foto';
+                        $profileData = [
+                            'jabatan' => $validatedData['tu_jabatan'] ?? null,
+                            'telepon' => $validatedData['tu_telepon'] ?? null,
+                            'tanggal_lahir' => $validatedData['tu_tanggal_lahir'] ?? null,
+                            'tempat_lahir' => $validatedData['tu_tempat_lahir'] ?? null,
+                            'jenis_kelamin' => $validatedData['tu_jenis_kelamin'] ?? null,
+                        ];
+                        break;
+                    case 'other':
+                        $profileRelation = 'otherProfile';
+                        $photoField = 'other_foto';
+                        $profileData = [
+                            'jabatan' => $validatedData['other_jabatan'] ?? null,
+                            'telepon' => $validatedData['other_telepon'] ?? null,
+                            'tanggal_lahir' => $validatedData['other_tanggal_lahir'] ?? null,
+                            'tempat_lahir' => $validatedData['other_tempat_lahir'] ?? null,
+                            'jenis_kelamin' => $validatedData['other_jenis_kelamin'] ?? null,
+                            'alamat' => $validatedData['alamat'] ?? null,
+                        ];
+                        break;
+                }
+
+                if ($profileRelation) {
+                    $profile = $user->$profileRelation ?: $user->$profileRelation()->create([]);
+                    
+                    if ($request->hasFile($photoField)) {
+                        // Delete old photo
+                        if ($profile->foto) {
+                            Storage::disk('public')->delete($profile->foto);
+                        }
+                        $profileData['foto'] = $request->file($photoField)->store('fotos', 'public');
+                    }
+
+                    $profile->update($profileData);
+                }
+            });
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat memperbarui user: ' . $e->getMessage());
         }
 
         return redirect()->route('users.index')->with('success', 'Data user berhasil diperbarui.');
@@ -579,7 +380,6 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
     
-    // ... (method import dan export tetap sama) ...
     public function importForm() { return view('users.import'); }
 
     public function importTemplate()
@@ -589,12 +389,8 @@ class UserController extends Controller
 
     public function import(Request $request)
     {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,csv',
-        ]);
-
+        $request->validate(['file' => 'required|file|mimes:xlsx,csv']);
         try {
-            // Temporarily disable User model events during import
             User::withoutEvents(function () use ($request) {
                 Excel::import(new \App\Imports\UsersImport, $request->file('file'));
             });
@@ -603,231 +399,62 @@ class UserController extends Controller
             return redirect()->route('users.index')->with('error', 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage());
         }
     }
+    
     public function export(Request $request)
     {
-        // Mulai query dan langsung muat relasi yang dibutuhkan
-        $query = User::where('id', '!=', auth()->id())
-                     ->with(['adminProfile', 'guruProfile', 'siswaProfile.kelas']);
-
-        // Filter berdasarkan pencarian nama, email, atau ID
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('identifier', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter berdasarkan role
-        if ($request->filled('role')) {
-            $query->where('role', $request->role);
-        }
-
-        // Ekspor data menggunakan UsersExport dan kirim file excel
+        $query = User::query();
         return Excel::download(new UsersExport($query), 'users_export_' . now()->format('Ymd_His') . '.xlsx');
     }
 
-    public function cetakSatuKartu(Request $request, User $user)
+    public function toggleStatus(User $user) {}
+
+    public function bulkToggleStatus(Request $request) {}
+
+    public function bulkDestroy(Request $request) {}
+    
+    public function showQrCodeGenerator()
     {
-        if ($user->role !== 'siswa') {
-            abort(404, 'User bukan siswa.');
-        }
-        $user->load('siswaProfile.kelas'); // Load kelas relationship for siswaProfile
+        $users = User::orderBy('name')->get();
+        $logoPath = public_path('images/icon_mts_al_muttaqin.png');
 
-        $configId = $request->input('config_id');
-        $config = null;
-        $targetRole = $user->role; // Get the role of the specific user being printed
-
-        if ($configId) {
-            $config = PrintCardConfig::find($configId);
-        }
-
-        // If no specific config is requested or found, try to find a default config
-        if (!$config) {
-            // First, try to find a default config specific to the target role
-            if ($targetRole) {
-                $config = PrintCardConfig::where('is_default', true)
-                                         ->where('role_target', $targetRole)
-                                         ->first();
+        $usersWithQr = $users->map(function ($user) use ($logoPath) {
+            try {
+                // Try to generate with the logo first
+                $qrCode = QrCode::format('svg')
+                                ->size(150)
+                                ->margin(1)
+                                ->merge($logoPath, 0.3, true)
+                                ->generate($user->identifier);
+            } catch (\Exception $e) {
+                // If merging fails, generate a basic QR code as a fallback
+                \Log::error('QR Code generation with logo failed for user ' . $user->id . ': ' . $e->getMessage());
+                $qrCode = QrCode::format('svg')
+                                ->size(150)
+                                ->margin(1)
+                                ->generate($user->identifier);
             }
-            // If no role-specific default or no target role, try to find a general default
-            if (!$config) {
-                $config = PrintCardConfig::where('is_default', true)
-                                         ->whereNull('role_target')
-                                         ->first();
-            }
-        }
-
-        $config = PrintCardConfig::getMergedConfig($config);
-
-        // Since we are printing a single card, we pass the user in an array
-        $siswa = collect([$user]); // Wrap the single user in a collection to match the view's expectation
-
-        // Pass $config to the view
-        return view('kelas.print_cards', compact('siswa', 'config'));
-    }
-
-    public function toggleStatus(User $user)
-    {
-        // Pembatasan: Administrator tidak dapat menonaktifkan akun mereka sendiri
-        if ($user->id === auth()->id()) {
-            return back()->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
-        }
-
-        // ATURAN BARU: Hanya guru, siswa, dan TU yang bisa diubah statusnya
-        if (!in_array($user->role, ['guru', 'siswa', 'tu'])) {
-            return back()->with('error', 'Status akun untuk peran ' . ($user->role === 'other' ? $user->custom_role : $user->role) . ' tidak dapat diubah.');
-        }
-
-        $oldStatus = $user->is_active;
-        $user->is_active = !$user->is_active;
-        $user->save();
-
-        // Catat aktivitas
-        \App\Models\ActivityLog::create([
-            'user_id' => auth()->id(), // Admin yang melakukan aksi
-            'target_user_id' => $user->id, // User yang diubah statusnya
-            'action' => $user->is_active ? 'activated_account' : 'deactivated_account',
-            'old_status' => $oldStatus,
-            'new_status' => $user->is_active,
-            'description' => 'Akun ' . $user->name . ' di' . ($user->is_active ? 'aktifkan' : 'nonaktifkan') . ' oleh ' . auth()->user()->name,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->header('User-Agent'),
-        ]);
-
-        // Kirim notifikasi ke user yang bersangkutan
-        $user->notify(new AccountStatusChangedNotification($user->is_active));
-
-        return back()->with('success', 'Status user berhasil diperbarui.');
-    }
-
-    public function bulkToggleStatus(Request $request)
-    {
-        $validated = $request->validate([
-            'user_ids' => ['required', 'array'],
-            'user_ids.*' => ['integer', 'exists:users,id'],
-            'action' => ['required', 'string', Rule::in(['activate', 'deactivate'])],
-        ]);
-
-        $userIds = $validated['user_ids'];
-        $action = $validated['action'];
-        $newStatus = ($action === 'activate');
-
-        // Filter user ID untuk memastikan admin yang sedang login tidak termasuk
-        $authId = auth()->id();
-        $filteredUserIds = collect($userIds)->reject(function ($id) use ($authId) {
-            return $id == $authId;
-        })->all();
-
-        // Ambil user yang akan diupdate (hanya guru, siswa, dan TU)
-        $usersToUpdate = User::whereIn('id', $filteredUserIds)
-                               ->whereIn('role', ['guru', 'siswa', 'tu'])
-                               ->get();
-
-        if ($usersToUpdate->isEmpty()) {
-            return back()->with('error', 'Tidak ada pengguna (guru/siswa) yang valid untuk diproses.');
-        }
-
-        $updatedCount = 0;
-        $logEntries = [];
-        $now = now();
-
-        foreach ($usersToUpdate as $user) {
-            if ($user->is_active != $newStatus) {
-                $oldStatus = $user->is_active;
-                
-                // Update status
-                $user->is_active = $newStatus;
-                $user->save();
-
-                $logEntries[] = [
-                    'user_id' => $authId,
-                    'target_user_id' => $user->id,
-                    'action' => $newStatus ? 'activated_account' : 'deactivated_account',
-                    'old_status' => $oldStatus,
-                    'new_status' => $newStatus,
-                    'description' => 'Aksi massal: Akun ' . $user->name . ' di' . ($newStatus ? 'aktifkan' : 'nonaktifkan') . ' oleh ' . auth()->user()->name,
-                    'ip_address' => $request->ip(),
-                    'user_agent' => request()->header('User-Agent'),
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-                $updatedCount++;
-            }
-        }
-
-        // Insert semua log dalam satu query
-        if (!empty($logEntries)) {
-            \App\Models\ActivityLog::insert($logEntries);
-        }
-
-        if ($updatedCount > 0) {
-            return back()->with('success', "Berhasil memperbarui status {$updatedCount} pengguna.");
-        } else {
-            return back()->with('info', 'Tidak ada status pengguna yang diubah.');
-        }
-    }
-
-    public function bulkDestroy(Request $request)
-    {
-        $validated = $request->validate([
-            'user_ids' => ['required', 'array'],
-            'user_ids.*' => ['integer', 'exists:users,id'],
-        ]);
-
-        $userIds = $validated['user_ids'];
-
-        // Prevent deleting the currently authenticated user
-        $authId = auth()->id();
-        $filteredUserIds = collect($userIds)->reject(function ($id) use ($authId) {
-            return $id == $authId;
-        })->all();
-
-        if (empty($filteredUserIds)) {
-            return back()->with('error', 'Tidak ada pengguna yang valid untuk dihapus.');
-        }
-
-        $deletedCount = 0;
-        $logEntries = [];
-        $now = now();
-
-        DB::transaction(function () use ($filteredUserIds, &$deletedCount, &$logEntries, $request, $now, $authId) {
-            $usersToDelete = User::whereIn('id', $filteredUserIds)->get();
-
-            foreach ($usersToDelete as $user) {
-                // Delete associated profiles and their photos
-                $profile = $user->adminProfile ?? $user->guruProfile ?? $user->siswaProfile;
-                if ($profile && $profile->foto) {
-                    Storage::disk('public')->delete($profile->foto);
-                }
-
-                // Delete the user
-                $user->delete();
-                $deletedCount++;
-
-                $logEntries[] = [
-                    'user_id' => $authId,
-                    'target_user_id' => null, // Set to null for deletion logs. Requires migration to make 'target_user_id' nullable in 'activity_logs' table.
-                    'action' => 'deleted_account',
-                    'description' => 'Aksi massal: Akun ' . $user->name . ' dihapus oleh ' . auth()->user()->name,
-                    'ip_address' => $request->ip(),
-                    'user_agent' => request()->header('User-Agent'),
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-            }
+            
+            $user->qr_code_svg = (string) $qrCode;
+            return $user;
         });
 
-        // Insert all logs in one query
-        if (!empty($logEntries)) {
-            \App\Models\ActivityLog::insert($logEntries);
-        }
+        return view('users.qr-generator', ['users' => $usersWithQr]);
+    }
 
-        if ($deletedCount > 0) {
-            return redirect()->route('users.index')->with('success', "Berhasil menghapus {$deletedCount} pengguna.");
-        } else {
-            return redirect()->route('users.index')->with('info', 'Tidak ada pengguna yang dihapus.');
-        }
+    public function downloadQrCode(User $user)
+    {
+        $logoPath = public_path('images/icon_mts_al_muttaqin.png');
+        
+        $qrCode = QrCode::size(300)
+                        ->margin(2)
+                        ->merge($logoPath, 0.3, true)
+                        ->generate($user->identifier);
+
+        $safeName = \Illuminate\Support\Str::slug($user->name);
+        $fileName = "QR_{$safeName}_{$user->identifier}.png";
+
+        return response($qrCode)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
     }
 }

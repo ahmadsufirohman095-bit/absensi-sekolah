@@ -101,7 +101,7 @@
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Tempat Lahir:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->tempat_lahir ?? '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Alamat:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->alamat ?? '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Nama Ayah:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->nama_ayah ?? '-' }}</span></div>
-                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Telepon Ayah:</strong> <span class="text-gray-700 dark:text-ray-300">{{ $user->siswaProfile->telepon_ayah ?? '-' }}</span></div>
+                                <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Telepon Ayah:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->telepon_ayah ?? '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Nama Ibu:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->nama_ibu ?? '-' }}</span></div>
                                 <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm"><strong>Telepon Ibu:</strong> <span class="text-gray-700 dark:text-gray-300">{{ $user->siswaProfile->telepon_ibu ?? '-' }}</span></div>
                             </div>

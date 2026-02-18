@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\MataPelajaran;
-use App\Models\PrintCardConfig;
+use App\Models\Setting;
 
 class KelasController extends Controller
 {
@@ -198,49 +198,5 @@ class KelasController extends Controller
         $kela->delete();
 
         return redirect()->route('kelas.index')->with('success', 'Kelas berhasil dihapus.');
-    }
-
-    public function printCards(Request $request)
-    {
-        $daftarKelas = Kelas::orderBy('nama_kelas')->get();
-        $kelasId = $request->query('kelas_id');
-        $configId = $request->query('config_id'); // Get config_id from request
-
-        $config = null;
-        $targetRole = 'siswa'; // In printCards for KelasController, the target role is always 'siswa'
-
-        // Try to find a specific config if config_id is provided
-        if ($configId) {
-            $config = PrintCardConfig::find($configId);
-        }
-
-        // If no specific config is requested or found, try to find a default config
-        if (!$config) {
-            // First, try to find a default config specific to 'siswa' role
-            $config = PrintCardConfig::where('is_default', true)
-                                     ->where('role_target', $targetRole)
-                                     ->first();
-            // If no role-specific default, try to find a general default
-            if (!$config) {
-                $config = PrintCardConfig::where('is_default', true)
-                                         ->whereNull('role_target')
-                                         ->first();
-            }
-        }
-
-        $config = PrintCardConfig::getMergedConfig($config);
-
-        $siswaQuery = User::where('role', 'siswa')->with('siswaProfile.kelas');
-
-        if ($kelasId) {
-            $siswaQuery->whereHas('siswaProfile', function ($query) use ($kelasId) {
-                $query->where('kelas_id', $kelasId);
-            });
-        }
-
-        $siswa = $siswaQuery->orderBy('name')->get();
-
-        // Pass $config to the view
-        return view('kelas.print_cards', compact('daftarKelas', 'siswa', 'config'));
     }
 }

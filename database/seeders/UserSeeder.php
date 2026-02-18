@@ -160,6 +160,7 @@ class UserSeeder extends Seeder
                 'custom_role_name' => $roleName,
                 'telepon' => $faker->phoneNumber,
                 'jabatan' => $roleName,
+                'alamat' => $faker->address,
                 'tanggal_lahir' => $faker->date('Y-m-d', '1985-01-01'), // Tambahkan tanggal_lahir
                 'tempat_lahir' => $faker->city,
                 'jenis_kelamin' => ($gender == 'male') ? 'laki-laki' : 'perempuan',

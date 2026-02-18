@@ -10,7 +10,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\JadwalAbsensiController;
 use App\Http\Controllers\CardAssetController;
-use App\Http\Controllers\Api\PrintCardConfigController;
+use App\Http\Controllers\UtilitiesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +31,9 @@ require __DIR__ . '/auth.php';
 
 // Grup utama untuk semua rute yang memerlukan otentikasi.
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Rute utilitas untuk generate QR Code
+    Route::get('/utilities/qrcode', [UtilitiesController::class, 'generateQrCode'])->name('utilities.qrcode');
 
     // Rute Dashboard Utama.
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
@@ -102,6 +105,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // --- FITUR KHUSUS ADMIN ---
     Route::middleware('can:isAdmin')->group(function () {
 
+        // QR Code Generator
+        Route::get('/users/generate-qr-codes', [UserController::class, 'showQrCodeGenerator'])->name('users.qr-generator');
+        Route::get('/users/{user}/qr-code/download', [UserController::class, 'downloadQrCode'])->name('users.qr-code.download');
+
         // Pengaturan Aplikasi
         Route::controller(SettingController::class)->name('pengaturan.')->group(function () {
             Route::get('/pengaturan', 'index')->name('index');
@@ -109,8 +116,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
         // Manajemen Pengguna (Users)
-        Route::post('/card-assets/upload', [CardAssetController::class, 'store'])->name('card-assets.store');
-        Route::delete('/card-assets/delete', [CardAssetController::class, 'destroy'])->name('card-assets.destroy');
         Route::controller(UserController::class)->name('users.')->group(function () {
             Route::get('/users/export', 'export')->name('export');
             Route::get('/users/import', 'importForm')->name('import.form');
@@ -124,22 +129,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/users/bulk-destroy', [UserController::class, 'bulkDestroy'])->name('users.bulkDestroy'); // Rute Aksi Massal Hapus
         Route::resource('users', UserController::class);
 
-        // API Routes for Print Card Configurations
-        Route::apiResource('print-card-configs', PrintCardConfigController::class);
-        Route::post('print-card-configs/{printCardConfig}/duplicate', [PrintCardConfigController::class, 'duplicate'])->name('print-card-configs.duplicate');
-
-        // Custom Print Card Absensi View
-        Route::get('/absensi/cards/customize', function () {
-            return view('admin.print_cards.customize');
-        })->name('absensi.cards.customize');
-
-        // Rute untuk pencetakan kartu absensi umum (Guru, TU, Lainnya, Siswa)
-        Route::get('/print-cards', [App\Http\Controllers\PrintCardsController::class, 'index'])->name('print-cards.index');
-        Route::post('/print-cards/generate', [App\Http\Controllers\PrintCardsController::class, 'generateCards'])->name('print-cards.generate');
-
         // Manajemen Kelas dan Mata Pelajaran (resourceful routes)
-        Route::get('/kelas/print-cards', [KelasController::class, 'printCards'])->name('kelas.printCards');
-        Route::get('/absensi/cards/pdf', [AbsensiController::class, 'generateAbsensiCardsPdf'])->name('absensi.cards.pdf');
         Route::resource('kelas', KelasController::class);
         Route::get('/kelas/{kela}/print-schedule', [KelasController::class, 'printSchedule'])->name('kelas.printSchedule');
         Route::delete('/kelas/{kela}/remove-siswa/{siswaId}', [KelasController::class, 'removeSiswa'])->name('kelas.removeSiswa');
@@ -159,7 +149,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/jadwal/export', 'exportExcel')->name('export');
             Route::post('/jadwal/import', 'importExcel')->name('import');
             Route::get('/jadwal/import-template', 'downloadTemplate')->name('importTemplate');
-
         });
 
         // Manajemen Jadwal Absensi Pegawai (Guru, TU, Lainnya)

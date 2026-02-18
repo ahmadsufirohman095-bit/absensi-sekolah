@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { getSidebarState, setSidebarState } from './sidebar.js';
 import { isDarkMode, setTheme } from './theme.js';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
+window.Chart = Chart;
+
 
 window.isDarkMode = isDarkMode;
 window.setTheme = setTheme;

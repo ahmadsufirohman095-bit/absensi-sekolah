@@ -141,27 +141,37 @@ class ScanController extends Controller
 
             // Jika admin melakukan auto-scan (jadwal_id tidak diberikan), cari jadwal pegawai secara otomatis
             if (!$rawJadwalId && !$jadwalType) {
+                // First, try to find a schedule that is currently active
                 $availableEmployeeSchedules = JadwalAbsensiPegawai::with('user')
                     ->where('user_id', $user->id)
                     ->where('hari', $currentDayName)
                     ->whereTime('jam_mulai', '<=', $now->format('H:i:s'))
                     ->whereTime('jam_selesai', '>=', $now->format('H:i:s'))
                     ->get();
+                
+                // If no active schedule is found, try to find any schedule for today
+                if ($availableEmployeeSchedules->isEmpty()) {
+                    Log::info('Auto-scan: No active schedule found. Expanding search to any schedule for today.', ['target_user_id' => $user->id]);
+                    $availableEmployeeSchedules = JadwalAbsensiPegawai::with('user')
+                        ->where('user_id', $user->id)
+                        ->where('hari', $currentDayName)
+                        ->get();
+                }
 
                 if ($availableEmployeeSchedules->count() === 1) {
                     $jadwal = $availableEmployeeSchedules->first();
                     $jadwalType = 'pegawai';
                 } elseif ($availableEmployeeSchedules->count() > 1) {
-                    Log::warning('Scan Gagal: Beberapa jadwal pegawai ditemukan untuk auto-scan.', ['admin_id' => $loggedInUser->id, 'target_user_id' => $user->id]);
+                    Log::warning('Scan Gagal: Ditemukan beberapa jadwal untuk hari ini, tidak dapat menentukan secara otomatis.', ['admin_id' => $loggedInUser->id, 'target_user_id' => $user->id, 'count' => $availableEmployeeSchedules->count()]);
                     return response()->json([
                         'success' => false,
-                        'message' => 'Beberapa jadwal pegawai aktif ditemukan. Silakan pilih jadwal secara manual jika opsi tersebut tersedia, atau hubungi administrator.'
+                        'message' => 'Ditemukan beberapa jadwal untuk hari ini. Tidak dapat melakukan absensi otomatis.'
                     ], 400);
                 } else {
-                    Log::warning('Scan Gagal: Tidak ada jadwal pegawai aktif yang cocok untuk auto-scan.', ['admin_id' => $loggedInUser->id, 'target_user_id' => $user->id]);
+                    Log::warning('Scan Gagal: Tidak ada jadwal pegawai yang cocok untuk hari ini.', ['admin_id' => $loggedInUser->id, 'target_user_id' => $user->id]);
                     return response()->json([
                         'success' => false,
-                        'message' => 'Tidak ada jadwal absensi pegawai aktif yang cocok saat ini.'
+                        'message' => 'Tidak ada jadwal absensi pegawai yang ditemukan untuk hari ini.'
                     ], 400);
                 }
             } else {

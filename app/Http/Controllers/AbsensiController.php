@@ -13,8 +13,6 @@ use App\Models\User;
 use App\Models\Setting;
 use App\Models\SiswaProfile;
 use App\Models\Kelas;
-use App\Models\PrintCardConfig;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class AbsensiController extends Controller
 {
@@ -407,75 +405,5 @@ class AbsensiController extends Controller
         Cache::forget('absensi_token');
 
         return response()->json(['success' => true, 'message' => 'Kehadiran berhasil dicatat. Status: ' . ucfirst($status)]);
-    }
-
-    /**
-     * Generate PDF of student attendance cards.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function generateAbsensiCardsPdf(Request $request)
-    {
-        // Ensure only authorized users (e.g., admin) can access this
-        // Gate::authorize('isAdmin'); // Uncomment if you have an isAdmin gate
-
-        $configId = $request->input('config_id');
-        $config = null;
-
-        if ($configId) {
-            $config = PrintCardConfig::find($configId);
-        }
-
-        // Jika tidak ada konfigurasi yang ditemukan atau tidak ada config_id, gunakan default
-        if (!$config) {
-            // Coba ambil konfigurasi default dari database
-            $config = PrintCardConfig::where('is_default', true)->first();
-
-            // Jika tidak ada default di DB, buat konfigurasi default hardcoded
-            if (!$config) {
-                $config = new PrintCardConfig();
-                // Langsung assign sebagai array, tidak perlu encode/decode di sini
-                $config->config_json = [
-                    'selected_fields' => ['name', 'nis', 'kelas', 'foto', 'tanggal_lahir'],
-                    'qr_size' => 70,
-                    'watermark_enabled' => true,
-                    'watermark_opacity' => 0.1,
-                    'card_orientation' => 'portrait',
-                ];
-            }
-        }
-        
-        // Pastikan config_json adalah array asosiatif
-        // Ini penting karena dari DB bisa berupa string JSON, dari new PrintCardConfig bisa langsung array
-        // Jika $config->config_json adalah string, decode. Jika sudah array, biarkan.
-        if (is_string($config->config_json)) {
-            $config->config_json = json_decode($config->config_json, true);
-        }
-        // Tambahkan pengecekan untuk memastikan config_json selalu array
-        if (!is_array($config->config_json)) {
-            $config->config_json = []; // Fallback ke array kosong jika decoding gagal
-        }
-
-        $query = User::where('role', 'siswa')->with('siswaProfile.kelas');
-
-        if ($request->filled('kelas_id')) {
-            $kelasId = $request->input('kelas_id');
-            $query->whereHas('siswaProfile', function ($q) use ($kelasId) {
-                $q->where('kelas_id', $kelasId);
-            });
-        }
-
-        $siswa = $query->get();
-        $daftarKelas = Kelas::all();
-        $selectedKelas = $request->filled('kelas_id') ? Kelas::find($request->input('kelas_id')) : null;
-
-        $pdf = Pdf::loadView('kelas.print_cards', compact('siswa', 'daftarKelas', 'selectedKelas', 'config'));
-
-        // Set paper size to KTP (ID-1) dimensions in mm
-        // KTP/ID-1 standard: 85.60 mm × 53.98 mm
-        $pdf->setPaper([0, 0, 85.60 * 2.83465, 53.98 * 2.83465], $config->config_json['card_orientation'] ?? 'portrait'); // Use config orientation
-
-        return $pdf->stream('kartu_absensi_siswa.pdf');
     }
 }

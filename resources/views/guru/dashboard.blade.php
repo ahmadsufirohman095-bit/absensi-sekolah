@@ -107,7 +107,7 @@
     </div>
 
     @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <script>
     document.addEventListener('turbo:load', function () {
         const chartCanvasIds = ['teachingSummaryChart', 'rekapKehadiranChart', 'monthlyAbsenceChartGuru'];

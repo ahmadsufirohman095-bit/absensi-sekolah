@@ -170,15 +170,7 @@
                             </div>
                         </div>
 
-                        {{-- Kustomisasi Kartu Absensi --}}
-                        <div class="p-6 border border-gray-200 dark:border-gray-700 rounded-lg">
-                            <h3 class="text-lg font-medium mb-4">Kustomisasi Kartu Absensi</h3>
-                            <p class="text-gray-700 dark:text-gray-300 mb-4">Atur tampilan dan konten kartu absensi siswa sesuai kebutuhan Anda.</p>
-                            <a href="{{ route('absensi.cards.customize') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h10a2 2 0 002-2V8m-2 0V5a2 2 0 00-2-2H9a2 2 0 00-2 2v3m0 0h.01M14 15l2 2m0 0l2-2m-2 2v-6"></path></svg>
-                                Atur Tampilan Kartu
-                            </a>
-                        </div>
+
 
 
                     </div>

@@ -356,7 +356,6 @@
     </div>
 
     @push('scripts')
-        @vite('resources/js/tableDragScroll.js')
-        @vite('resources/js/rekapAbsensiPegawai.js') <!-- Akan kita buat nanti -->
+        
     @endpush
 </x-app-layout>
