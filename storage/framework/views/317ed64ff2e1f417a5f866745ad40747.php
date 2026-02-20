@@ -253,7 +253,7 @@ unset($__defined_vars, $__key, $__value); ?>
 
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('isAdmin')): ?>
             <?php
-                $manajemenDataActive = request()->routeIs('users.*') ||
+                $manajemenDataActive = (request()->routeIs('users.*') && !request()->routeIs(['users.qr-generator', 'users.qr-code.download'])) ||
                                        request()->routeIs('kelas.*') ||
                                        request()->routeIs('mata-pelajaran.*');
             ?>
@@ -276,7 +276,7 @@ unset($__defined_vars, $__key, $__value); ?>
                  <?php $__env->slot('content', null, []); ?> 
                     <?php if (isset($component)) { $__componentOriginal2e340925a8bf40d3894bf118093fdd54 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal2e340925a8bf40d3894bf118093fdd54 = $attributes; } ?>
-<?php $component = App\View\Components\SideNavLink::resolve(['active' => request()->routeIs('users.*'),'sidebarOpen' => $sidebarOpen] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = App\View\Components\SideNavLink::resolve(['active' => request()->routeIs('users.*') && !request()->routeIs(['users.qr-generator', 'users.qr-code.download']),'sidebarOpen' => $sidebarOpen] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('side-nav-link'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>

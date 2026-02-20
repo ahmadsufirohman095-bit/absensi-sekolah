@@ -412,15 +412,30 @@ class UserController extends Controller
 
     public function bulkDestroy(Request $request) {}
     
-    public function showQrCodeGenerator()
+    public function showQrCodeGenerator(Request $request)
     {
-        $users = User::orderBy('name')->get();
+        $roles = ['admin', 'guru', 'siswa', 'tu', 'other'];
+        $kelases = \App\Models\Kelas::orderBy('nama_kelas')->get();
+
+        $query = User::query();
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        if ($request->filled('kelas_id')) {
+            $query->whereHas('siswaProfile', function($q) use ($request) {
+                $q->where('kelas_id', $request->kelas_id);
+            });
+        }
+
+        $users = $query->orderBy('name')->get();
         $logoPath = public_path('images/icon_mts_al_muttaqin.png');
 
         $usersWithQr = $users->map(function ($user) use ($logoPath) {
             try {
                 // Try to generate with the logo first
-                $qrCode = QrCode::format('svg')
+                $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
                                 ->size(150)
                                 ->margin(1)
                                 ->merge($logoPath, 0.3, true)
@@ -428,7 +443,7 @@ class UserController extends Controller
             } catch (\Exception $e) {
                 // If merging fails, generate a basic QR code as a fallback
                 \Log::error('QR Code generation with logo failed for user ' . $user->id . ': ' . $e->getMessage());
-                $qrCode = QrCode::format('svg')
+                $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
                                 ->size(150)
                                 ->margin(1)
                                 ->generate($user->identifier);
@@ -438,23 +453,92 @@ class UserController extends Controller
             return $user;
         });
 
-        return view('users.qr-generator', ['users' => $usersWithQr]);
+        return view('users.qr-generator', [
+            'users' => $usersWithQr,
+            'roles' => $roles,
+            'kelases' => $kelases
+        ]);
+    }
+
+    public function bulkDownloadQrCodes(Request $request)
+    {
+        $query = User::query();
+        $filenameParts = ['QR_Codes'];
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+            $filenameParts[] = ucfirst($request->role);
+        }
+
+        if ($request->filled('kelas_id')) {
+            $query->whereHas('siswaProfile', function($q) use ($request) {
+                $q->where('kelas_id', $request->kelas_id);
+            });
+            $kelas = \App\Models\Kelas::find($request->kelas_id);
+            if ($kelas) {
+                $filenameParts[] = \Illuminate\Support\Str::slug($kelas->nama_kelas);
+            }
+        }
+
+        $users = $query->get();
+
+        if ($users->isEmpty()) {
+            return back()->with('error', 'Tidak ada user yang ditemukan untuk filter tersebut.');
+        }
+
+        $logoPath = public_path('images/icon_mts_al_muttaqin.png');
+        $filenameParts[] = now()->format('Ymd_His');
+        $zipName = implode('_', $filenameParts) . '.zip';
+        $zipPath = storage_path('app/public/' . $zipName);
+
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+            foreach ($users as $user) {
+                try {
+                    $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+                                    ->size(500)
+                                    ->margin(2)
+                                    ->merge($logoPath, 0.3, true)
+                                    ->generate($user->identifier);
+                } catch (\Exception $e) {
+                    $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+                                    ->size(500)
+                                    ->margin(2)
+                                    ->generate($user->identifier);
+                }
+
+                $safeName = \Illuminate\Support\Str::slug($user->name);
+                $fileName = "{$user->role}/QR_{$safeName}_{$user->identifier}.svg";
+                $zip->addFromString($fileName, $qrCode);
+            }
+            $zip->close();
+        }
+
+        return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 
     public function downloadQrCode(User $user)
     {
         $logoPath = public_path('images/icon_mts_al_muttaqin.png');
         
-        $qrCode = QrCode::size(300)
-                        ->margin(2)
-                        ->merge($logoPath, 0.3, true)
-                        ->generate($user->identifier);
+        try {
+            $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+                            ->size(500)
+                            ->margin(2)
+                            ->merge($logoPath, 0.3, true)
+                            ->generate($user->identifier);
+        } catch (\Exception $e) {
+            $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+                            ->size(500)
+                            ->margin(2)
+                            ->generate($user->identifier);
+        }
 
         $safeName = \Illuminate\Support\Str::slug($user->name);
-        $fileName = "QR_{$safeName}_{$user->identifier}.png";
+        $fileName = "QR_{$safeName}_{$user->identifier}.svg";
 
         return response($qrCode)
-            ->header('Content-Type', 'image/png')
+            ->header('Content-Type', 'image/svg+xml')
             ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
     }
 }

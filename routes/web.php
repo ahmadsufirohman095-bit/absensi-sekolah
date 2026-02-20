@@ -107,6 +107,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // QR Code Generator
         Route::get('/users/generate-qr-codes', [UserController::class, 'showQrCodeGenerator'])->name('users.qr-generator');
+        Route::get('/users/bulk-download-qr-codes', [UserController::class, 'bulkDownloadQrCodes'])->name('users.bulk-qr-generator.download');
         Route::get('/users/{user}/qr-code/download', [UserController::class, 'downloadQrCode'])->name('users.qr-code.download');
 
         // Pengaturan Aplikasi

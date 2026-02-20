@@ -93,7 +93,7 @@
 
         @can('isAdmin')
             @php
-                $manajemenDataActive = request()->routeIs('users.*') ||
+                $manajemenDataActive = (request()->routeIs('users.*') && !request()->routeIs(['users.qr-generator', 'users.qr-code.download'])) ||
                                        request()->routeIs('kelas.*') ||
                                        request()->routeIs('mata-pelajaran.*');
             @endphp
@@ -105,7 +105,7 @@
                         x-transition:enter-end="opacity-100">{{ __('Manajemen Data') }}</p>
                 </x-slot>
                 <x-slot name="content">
-                    <x-side-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')" :sidebarOpen="$sidebarOpen" class="pl-4">
+                    <x-side-nav-link :href="route('users.index')" :active="request()->routeIs('users.*') && !request()->routeIs(['users.qr-generator', 'users.qr-code.download'])" :sidebarOpen="$sidebarOpen" class="pl-4">
                         <x-slot name="icon">
                             <i class="fas fa-users w-6 h-6 flex items-center justify-center"></i>
                         </x-slot>
