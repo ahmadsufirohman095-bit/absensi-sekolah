@@ -1,9 +1,19 @@
-<x-app-layout>
-    <x-slot name="header">
+<?php if (isset($component)) { $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54 = $attributes; } ?>
+<?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+     <?php $__env->slot('header', null, []); ?> 
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Pindai QR Code Absensi') }}
+            <?php echo e(__('Pindai QR Code Absensi')); ?>
+
         </h2>
-    </x-slot>
+     <?php $__env->endSlot(); ?>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -100,9 +110,9 @@
         </div>
     </div>
 
-    <audio id="success-sound" src="{{ asset('sounds/success.mp3') }}" preload="auto"></audio>
+    <audio id="success-sound" src="<?php echo e(asset('sounds/success.mp3')); ?>" preload="auto"></audio>
 
-    @push('styles')
+    <?php $__env->startPush('styles'); ?>
     <style>
         /* Paksa element reader dan video agar fullscreen di dalam kontainer */
         #reader {
@@ -167,10 +177,10 @@
             animation: scan-line 2.5s ease-in-out infinite;
         }
     </style>
-    @endpush
+    <?php $__env->stopPush(); ?>
 
-    @push('scripts')
-    <script src="{{ asset('js/html5-qrcode.min.js') }}" type="text/javascript"></script>
+    <?php $__env->startPush('scripts'); ?>
+    <script src="<?php echo e(asset('js/html5-qrcode.min.js')); ?>" type="text/javascript"></script>
     <script>
         // Global Variables
         window.disableCameraButton = window.disableCameraButton || null;
@@ -183,7 +193,7 @@
 
         window.scheduleSearchInput = window.scheduleSearchInput || null;
         window.scheduleResultsContainer = window.scheduleResultsContainer || null;
-        window.allAvailableSchedules = @json($availableSchedules ?? []); 
+        window.allAvailableSchedules = <?php echo json_encode($availableSchedules ?? [], 15, 512) ?>; 
         window.selectedScheduleInfo = window.selectedScheduleInfo || null;
         window.activeScheduleText = window.activeScheduleText || null;
         window.scannerSection = window.scannerSection || null;
@@ -191,8 +201,8 @@
         window.activeJadwalAbsensiId = window.activeJadwalAbsensiId || null;
         window.selectedScheduleId = window.selectedScheduleId || null;
         window.selectedScheduleType = window.selectedScheduleType || null;
-        window.isUserAdmin = {{ auth()->check() && auth()->user()->isAdmin() ? 'true' : 'false' }};
-        window.initialJadwalId = @json(request('jadwal_id'));
+        window.isUserAdmin = <?php echo e(auth()->check() && auth()->user()->isAdmin() ? 'true' : 'false'); ?>;
+        window.initialJadwalId = <?php echo json_encode(request('jadwal_id'), 15, 512) ?>;
         window.initialJadwal = null;
 
         window.scannerStarted = window.scannerStarted || false;
@@ -459,11 +469,11 @@
                 }
 
                 try {
-                    const response = await fetch('{{ route("scan.store") }}', {
+                    const response = await fetch('<?php echo e(route("scan.store")); ?>', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                             'Accept': 'application/json'
                         },
                         body: JSON.stringify({
@@ -579,5 +589,14 @@
             });
         })();
     </script>
-    @endpush
-</x-app-layout>
+    <?php $__env->stopPush(); ?>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $attributes = $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $component = $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?><?php /**PATH /var/www/resources/views/scan/index.blade.php ENDPATH**/ ?>

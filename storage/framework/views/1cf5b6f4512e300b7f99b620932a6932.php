@@ -34,4 +34,4 @@ unset($__defined_vars, $__key, $__value); ?>
 
     </div>
 <?php endif; ?>
-<?php /**PATH /home/ruanmei/Dokumen/xampp/htdocs/absensi-sekolah/resources/views/components/auth-session-status.blade.php ENDPATH**/ ?>
+<?php /**PATH /var/www/resources/views/components/auth-session-status.blade.php ENDPATH**/ ?>

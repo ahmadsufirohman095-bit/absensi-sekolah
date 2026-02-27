@@ -99,7 +99,7 @@ class JadwalAbsensiPegawaiController extends Controller
         $users = User::whereIn('role', ['admin', 'guru', 'tu', 'other'])
                             ->orderBy('name')->get();
         $hariOptions = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-        return view('jadwal-absensi-Pegawai.create', compact('users', 'hariOptions'));
+        return view('jadwal-absensi-pegawai.create', compact('users', 'hariOptions'));
     }
 
     /**
@@ -166,7 +166,7 @@ class JadwalAbsensiPegawaiController extends Controller
         $users = User::whereIn('role', ['admin', 'guru', 'tu', 'other'])
                             ->orderBy('name')->get();
         $hariOptions = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-        return view('jadwal-absensi-Pegawai.edit', compact('jadwalAbsensiPegawai', 'users', 'hariOptions'));
+        return view('jadwal-absensi-pegawai.edit', compact('jadwalAbsensiPegawai', 'users', 'hariOptions'));
     }
 
     /**

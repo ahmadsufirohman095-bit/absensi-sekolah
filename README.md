@@ -179,111 +179,298 @@ Pastikan kedua modul berjalan (status berwarna hijau) sebelum melanjutkan instal
 
     Aplikasi akan tersedia di `http://127.0.0.1:8000`.
 
-### Menjalankan Server Web di Linux
+# 📘 PANDUAN LENGKAP MENJALANKAN PROYEK DI LINUX
 
-Untuk pengguna Linux, ada beberapa cara untuk menjalankan server web:
+Project: **Absensi Sekolah (Laravel + MySQL + Node)**
 
-#### 1. Server Pengembangan Laravel (Disarankan untuk Pengembangan)
+---
 
-Cara termudah untuk menjalankan aplikasi Laravel untuk pengembangan adalah menggunakan server bawaan PHP:
+# 🧱 BAGIAN 1 — Instalasi yang Dibutuhkan (HANYA SEKALI)
 
-bash
-`php artisan serve`
+Kita hanya perlu install 3 hal di Linux:
 
-Ini akan memulai server pengembangan lokal di `http://127.0.0.1:8000`. Anda bisa mengakses aplikasi melalui browser web Anda.
+1. Git
+2. Docker
+3. Docker Compose (sudah termasuk di docker modern)
 
-#### 2. Menggunakan XAMPP (Jika Terinstal)
+---
 
-Jika Anda telah menginstal XAMPP di Linux, Anda bisa memulai layanan Apache dan MySQL melalui terminal:
+## 1️⃣ Install Git
 
-bash
-`sudo /opt/lampp/lampp start`
+Git digunakan untuk mengambil kode project dari internet.
 
-Kemudian, pastikan proyek Anda ditempatkan di direktori `htdocs` XAMPP (misalnya, `/opt/lampp/htdocs/absensi-sekolah`). Anda bisa mengaksesnya melalui `http://localhost/absensi-sekolah`.
+Buka Terminal lalu ketik:
 
-#### 3. Menggunakan Apache atau Nginx (Untuk Produksi atau Lingkungan Mirip Produksi)
+```bash
+sudo pacman -S git
+```
 
-Untuk lingkungan produksi atau jika Anda ingin menggunakan server web yang lebih lengkap seperti Apache atau Nginx, Anda perlu mengkonfigurasinya secara manual.
+Cek berhasil atau tidak:
 
-**Contoh untuk Apache:**
+```bash
+git --version
+```
 
-1.  Pastikan Apache dan PHP-FPM terinstal.
-2.  Buat file konfigurasi virtual host baru (misalnya, `/etc/apache2/sites-available/absensi-sekolah.conf`):
+Kalau muncul versi → berhasil.
 
-    apacheconf
-    `<VirtualHost *:80>
-        ServerAdmin webmaster@localhost
-        DocumentRoot /home/ruanmei/Dokumen/xampp/htdocs/absensi-sekolah/public
-        <Directory /home/ruanmei/Dokumen/xampp/htdocs/absensi-sekolah/public>
-            Options Indexes FollowSymLinks
-            AllowOverride All
-            Require all granted
-        </Directory>
+---
 
-        ErrorLog ${APACHE_LOG_DIR}/error.log
-        CustomLog ${APACHE_LOG_DIR}/access.log combined
-    </VirtualHost>`
+## 2️⃣ Install Docker
 
-    Sesuaikan `DocumentRoot` dan path direktori dengan lokasi proyek Anda.
+Docker digunakan untuk menjalankan:
 
-3.  Aktifkan virtual host dan restart Apache:
+* PHP
+* MySQL
+* Nginx
+* Node
 
-    bash
-    `sudo a2ensite absensi-sekolah.conf`
-    `sudo a2enmod rewrite`
-    `sudo systemctl restart apache2`
+Tanpa perlu install satu per satu.
 
-**Contoh untuk Nginx:**
+Install:
 
-1.  Pastikan Nginx dan PHP-FPM terinstal.
-2.  Buat file konfigurasi server baru (misalnya, `/etc/nginx/sites-available/absensi-sekolah`):
+```bash
+sudo pacman -S docker docker-compose
+```
 
-    nginx
-    `server {
-        listen 80;
-        server_name your_domain.com www.your_domain.com; # Ganti dengan domain atau IP Anda
-        root /home/ruanmei/Dokumen/xampp/htdocs/absensi-sekolah/public;
+Aktifkan Docker:
 
-        add_header X-Frame-Options "SAMEORIGIN";
-        add_header X-XSS-Protection "1; mode=block";
-        add_header X-Content-Type-Options "nosniff";
-        add_header Referrer-Policy "origin-when-cross-origin";
-        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";
+```bash
+sudo systemctl enable docker
+sudo systemctl start docker
+```
 
-        index index.html index.htm index.php;
+Cek:
 
-        charset utf-8;
+```bash
+docker --version
+```
 
-        location / {
-            try_files $uri $uri/ /index.php?$query_string;
-        }
+Kalau muncul versi → berhasil.
 
-        location = /favicon.ico { access_log off; log_not_found off; }
-        location = /robots.txt  { access_log off; log_not_found off; }
+---
 
-        error_page 404 /index.php;
+## 3️⃣ Supaya Tidak Perlu Pakai sudo Terus
 
-        location ~ \.php$ {
-            fastcgi_pass unix:/var/run/php/php8.2-fpm.sock; # Sesuaikan dengan versi PHP-FPM Anda
-            fastcgi_index index.php;
-            fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-            include fastcgi_params;
-        }
+Tambahkan user ke group docker:
 
-        location ~ /\.(?!well-known).* {
-            deny all;
-        }
-    }`
+```bash
+sudo usermod -aG docker $USER
+```
 
-    Sesuaikan `root`, `server_name`, dan `fastcgi_pass` dengan konfigurasi Anda.
+Lalu logout dan login kembali.
 
-3.  Aktifkan konfigurasi dan restart Nginx:
+---
 
-    bash
-    `sudo ln -s /etc/nginx/sites-available/absensi-sekolah /etc/nginx/sites-enabled/`
-    `sudo systemctl restart nginx`
+# 📂 BAGIAN 2 — Mengambil Project
 
-Pilih metode yang paling sesuai dengan kebutuhan Anda. Untuk pengembangan cepat, `php artisan serve` adalah yang paling direkomendasikan.
+Masuk ke folder home:
+
+```bash
+cd ~
+```
+
+Buat folder khusus project:
+
+```bash
+mkdir projects
+cd projects
+```
+
+Clone project:
+
+```bash
+git clone https://github.com/ahmadsufirohman095-bit/absensi-sekolah.git
+cd absensi-sekolah
+```
+
+Sekarang kamu sudah berada di dalam folder project.
+
+---
+
+# ⚙ BAGIAN 3 — Konfigurasi Project
+
+## 1️⃣ Buat File .env
+
+Salin dari contoh:
+
+```bash
+cp .env.example .env
+```
+
+Buka file `.env` dan sesuaikan bagian database seperti ini:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=db_absensi_sekolah
+DB_USERNAME=root
+DB_PASSWORD=root
+```
+
+Simpan lalu keluar.
+
+---
+
+# 🐳 BAGIAN 4 — Menjalankan Project dengan Docker
+
+## 1️⃣ Build Container (Pertama Kali Saja)
+
+```bash
+docker compose build
+```
+
+## 2️⃣ Jalankan Container
+
+```bash
+docker compose up -d
+```
+
+Cek apakah berjalan:
+
+```bash
+docker ps
+```
+
+Kalau ada container:
+
+* absensi_app
+* absensi_mysql
+* absensi_nginx
+* absensi_node
+
+Berarti berhasil.
+
+---
+
+# 🔐 BAGIAN 5 — Mengatur Permission (PENTING)
+
+Masuk ke container PHP:
+
+```bash
+docker exec -it absensi_app bash
+```
+
+Jalankan:
+
+```bash
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+exit
+```
+
+Kenapa?
+Karena Laravel perlu izin menulis file.
+
+---
+
+# 🗄 BAGIAN 6 — Setup Database
+
+Masuk lagi ke container:
+
+```bash
+docker exec -it absensi_app bash
+```
+
+Generate key:
+
+```bash
+php artisan key:generate
+```
+
+Migrasi database:
+
+```bash
+php artisan migrate
+```
+
+Isi data awal (opsional):
+
+```bash
+php artisan db:seed
+```
+
+Keluar:
+
+```bash
+exit
+```
+
+---
+
+# 🌐 BAGIAN 7 — Membuka Website
+
+Buka browser dan akses:
+
+```
+http://localhost:8000
+```
+
+Jika berhasil → website tampil.
+
+---
+
+# 🔁 Cara Menjalankan Lagi Besok
+
+Jika komputer dimatikan:
+
+1. Start Docker:
+
+```bash
+sudo systemctl start docker
+```
+
+2. Masuk ke folder project:
+
+```bash
+cd ~/projects/absensi-sekolah
+```
+
+3. Jalankan:
+
+```bash
+docker compose up -d
+```
+
+Selesai.
+
+---
+
+# 🛑 Cara Menghentikan Project
+
+Stop saja:
+
+```bash
+docker compose down
+```
+
+---
+
+# ❓ Jika Error Permission
+
+Jalankan ulang:
+
+```bash
+docker exec -it absensi_app bash
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+exit
+```
+
+---
+
+# 🧠 Kenapa Kita Pakai Docker?
+
+Karena:
+
+* Tidak perlu install PHP
+* Tidak perlu install MySQL
+* Tidak perlu XAMPP
+* Tidak bentrok versi
+* Lebih profesional
+
+---
+
 
 ## Learning Laravel
 

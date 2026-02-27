@@ -38,4 +38,4 @@
         </div>
     </body>
 </html>
-<?php /**PATH /home/ruanmei/Dokumen/xampp/htdocs/absensi-sekolah/resources/views/layouts/guest.blade.php ENDPATH**/ ?>
+<?php /**PATH /var/www/resources/views/layouts/guest.blade.php ENDPATH**/ ?>

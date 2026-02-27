@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: absensi_app
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    depends_on:
+      - mysql
+
+  webserver:
+    image: nginx:alpine
+    container_name: absensi_nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - app
+
+  mysql:
+    image: mysql:8.0
+    container_name: absensi_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: db_absensi_sekolah
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  node:
+    image: node:22.16
+    container_name: absensi_node
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    command: tail -f /dev/null
+
+volumes:
+  dbdata:

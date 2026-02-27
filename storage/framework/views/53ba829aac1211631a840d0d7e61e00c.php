@@ -32,4 +32,4 @@ unset($__defined_vars, $__key, $__value); ?>
     <?php echo e($value ?? $slot); ?>
 
 </label>
-<?php /**PATH /home/ruanmei/Dokumen/xampp/htdocs/absensi-sekolah/resources/views/components/input-label.blade.php ENDPATH**/ ?>
+<?php /**PATH /var/www/resources/views/components/input-label.blade.php ENDPATH**/ ?>
